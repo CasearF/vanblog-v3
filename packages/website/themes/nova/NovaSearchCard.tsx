@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { searchArticles } from "../../api/search";
 import { useDebounce } from "react-use";
-import NovaArticleList from "./NovaArticleCard";
 import NovaKeyCard from "./NovaKeyCard";
 import dayjs from "dayjs";
 
@@ -18,27 +17,21 @@ export default function NovaSearchCard(props: {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const onKeyDown = (ev: KeyboardEvent) => {
+      if (ev.key == "Escape") {
+        props.setVisible(false);
+      }
+      if (ev.ctrlKey == true || ev.metaKey == true) {
+        if (ev.key.toLocaleLowerCase() == "k") {
+          props.setVisible(true);
+        }
+      }
+    };
     window.addEventListener("keydown", onKeyDown);
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, []);
-
-  const onKeyDown = (ev: KeyboardEvent) => {
-    if (ev.key == "Escape") {
-      props.setVisible(false);
-      event?.preventDefault();
-      document.body.style.overflow = "auto";
-    }
-    if (ev.ctrlKey == true || ev.metaKey == true) {
-      if (ev.key.toLocaleLowerCase() == "k") {
-        props.setVisible(true);
-        event?.preventDefault();
-        document.body.style.overflow = "hidden";
-      }
-    }
-    return false;
-  };
+  }, [props]);
 
   const onSearch = async (search: string) => {
     setTyping(false);
@@ -92,7 +85,6 @@ export default function NovaSearchCard(props: {
               className="nova-search-result-item"
               onClick={() => {
                 props.setVisible(false);
-                document.body.style.overflow = "auto";
               }}
             >
               <span className="nova-search-result-date">
@@ -112,17 +104,16 @@ export default function NovaSearchCard(props: {
     }
   };
 
+  if (!props.visible) {
+    return null;
+  }
+
   return (
     <div
       className="nova-search-overlay"
-      style={{
-        zIndex: 100,
-        visibility: props.visible ? "visible" : "hidden",
-      }}
       onClick={(ev) => {
         if (innerRef.current) {
           if (!(innerRef.current as any).contains(ev.target as any)) {
-            document.body.style.overflow = "auto";
             props.setVisible(false);
           }
         }
@@ -131,17 +122,7 @@ export default function NovaSearchCard(props: {
       <div
         ref={innerRef}
         className="nova-search-modal"
-        style={{
-          minHeight: "280px",
-          minWidth: 360,
-          maxWidth: "710px",
-          transform: props.visible ? "scale(100%)" : "scale(0)",
-        }}
-        onTransitionEnd={() => {
-          if (props.visible) {
-            inputRef.current?.focus();
-          }
-        }}
+        onClick={(ev) => ev.stopPropagation()}
       >
         <div className="nova-search-input-row">
           <svg
@@ -164,6 +145,7 @@ export default function NovaSearchCard(props: {
             }}
             placeholder="搜索内容"
             className="nova-search-input"
+            autoFocus
           />
           <div
             className="nova-search-clear"

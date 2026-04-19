@@ -355,8 +355,11 @@
    7. Navigation
    ============================================ */
 .nova-nav {
+  position: sticky;
+  top: 0;
+  z-index: 90;
   background-color: var(--nova-canvas);
-  padding: var(--nova-space-4) 0;
+  padding: var(--nova-space-6) 0;
   border-bottom: 1px solid var(--nova-surface-slate);
 }
 
@@ -376,6 +379,7 @@
   color: var(--nova-primary-text);
   letter-spacing: -0.02em;
   text-decoration: none;
+  margin-right: var(--nova-space-8);
 }
 
 .nova-nav-links {
@@ -407,6 +411,42 @@
 
 .nova-nav-cta {
   margin-left: var(--nova-space-4);
+}
+
+.nova-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-space-4);
+  margin-left: auto;
+}
+
+.nova-nav-search {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-space-2);
+  cursor: pointer;
+  padding: var(--nova-space-2);
+  border-radius: var(--nova-radius-small);
+  transition: background-color var(--nova-transition-fast);
+}
+
+.nova-nav-search:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nova-nav-search-icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--nova-primary-text);
+}
+
+.nova-nav-search-hint {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 11px;
+  color: var(--nova-secondary-text);
+  border: 1px solid var(--nova-secondary-text);
+  border-radius: var(--nova-radius-small);
+  padding: 2px 6px;
 }
 
 /* Mobile Nav */
@@ -666,6 +706,14 @@
 
 .nova-mt-8 {
   margin-top: var(--nova-space-8);
+}
+
+.nova-pt-6 {
+  padding-top: var(--nova-space-6);
+}
+
+.nova-pt-8 {
+  padding-top: var(--nova-space-8);
 }
 
 .nova-mb-4 {
@@ -958,7 +1006,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  animation: nova-fade-in 150ms ease;
+  z-index: 9999;
 }
 
 .nova-search-modal {
@@ -967,7 +1018,9 @@
   border-radius: var(--nova-radius-feature);
   padding: var(--nova-space-4);
   width: 75%;
-  transition: transform var(--nova-transition-normal);
+  max-width: 710px;
+  min-width: 320px;
+  min-height: 280px;
 }
 
 .nova-search-input-row {

@@ -183,7 +183,7 @@ packages/website/themes/
     ├── NovaKeyCard.tsx                         # 快捷键
     ├── NovaAlertCard.tsx                       # 过期提醒
     ├── NovaSocialCard.tsx                      # 社交卡片
-    └── styles/nova.css                        # Nova 样式 (1318+ 行)
+    └── styles/nova.css                        # Nova 样式 (1563+ 行)
 ```
 
 ### 3.2 修改文件
@@ -289,6 +289,35 @@ import PostCard from '../../components/PostCard';
 
 **解决方案**: 后台手动触发"重建静态页面"
 
+### 5.3 NovaNavBar 修复记录
+
+**修复内容**:
+
+1. **导航栏间距**: 导航栏 padding 从 16px 增加到 24px，内容区 padding-top 增加到 32px
+2. **搜索图标**: 添加了搜索图标和 Ctrl+K 提示
+3. **搜索弹窗抖动**: 改用 `opacity` + `display: none` 代替 `scale`，添加 `z-index: 9999`
+4. **HOME 链接**: 移除硬编码的 HOME，改为后台控制的菜单
+5. **明暗切换**: Nova 主题不需要（始终深色）
+
+**CSS 关键调整**:
+
+```css
+.nova-nav {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  padding: 24px 0;
+}
+
+.nova-nav-wordmark {
+  margin-right: 32px;
+}
+
+.nova-search-overlay {
+  z-index: 9999;
+}
+```
+
 ---
 
 ## 六、测试验证结果
@@ -300,6 +329,9 @@ import PostCard from '../../components/PostCard';
 - [x] Nova 主题样式正确显示
 - [x] 灰色背景问题已修复
 - [x] markdown-body 背景问题已修复
+- [x] 导航栏间距调整完成
+- [x] 搜索弹窗功能正常，无抖动
+- [x] 导航栏菜单由后台控制
 
 ---
 

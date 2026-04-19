@@ -121,7 +121,7 @@ export default function (props: {
 
         <div className={themeName === 'nova' ? 'nova-theme' : ''}>
           <div className={themeName === 'nova' 
-            ? 'nova-container nova-mt-4' 
+            ? 'nova-container nova-pt-8' 
             : 'mx-auto lg:px-6 md:py-4 py-2 px-2 md:px-4 text-gray-700'}>
             <LayoutBodyComponent children={props.children} sideBar={props.sideBar} />
             <FooterComponent
