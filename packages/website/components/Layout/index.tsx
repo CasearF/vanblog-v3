@@ -58,6 +58,15 @@ export default function (props: {
       document.body.style.overflow = "auto";
     };
   }, [props]);
+
+  useEffect(() => {
+    if (themeName === 'nova') {
+      document.body.classList.add('nova-theme');
+    } else {
+      document.body.classList.remove('nova-theme');
+    }
+  }, [themeName]);
+
   return (
     <>
       <Head>

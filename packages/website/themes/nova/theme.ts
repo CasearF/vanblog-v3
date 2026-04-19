@@ -1,12 +1,12 @@
 import Layout from '../../components/Layout';
-import LayoutBody from '../../components/LayoutBody';
-import NavBar from '../../components/NavBar';
+import LayoutBody from './NovaLayoutBody';
+import NavBar from './NovaNavBar';
 import NavBarMobile from '../../components/NavBarMobile';
-import Footer from '../../components/Footer';
-import AuthorCard from '../../components/AuthorCard';
-import ArticleList from '../../components/ArticleList';
-import PostCard from '../../components/PostCard';
-import TimeLineItem from '../../components/TimeLineItem';
+import Footer from './NovaFooter';
+import AuthorCard from './NovaAuthorCard';
+import ArticleList from './NovaArticleCard';
+import PostCard from './NovaArticleCard';
+import { NovaTimelineItem } from './NovaTimeline';
 import LinkCard from '../../components/LinkCard';
 import SearchCard from '../../components/SearchCard';
 import KeyCard from '../../components/KeyCard';
@@ -17,7 +17,7 @@ import { Theme } from '../types';
 export const novaTheme: Theme = {
   config: {
     name: 'nova',
-    description: 'VanBlog Nova 主题 - 简约现代风格',
+    description: 'VanBlog Nova 主题 - The Verge 风格',
     version: '1.0.0',
     author: 'Custom',
   },
@@ -30,7 +30,7 @@ export const novaTheme: Theme = {
     AuthorCard,
     ArticleList,
     PostCard,
-    TimeLineItem,
+    TimeLineItem: NovaTimelineItem,
     LinkCard,
     SearchCard,
     KeyCard,

@@ -1,0 +1,859 @@
+/* Nova Theme - The Verge Inspired Design System */
+
+/* ============================================
+   1. CSS Variables (The Verge Color Palette)
+   ============================================ */
+:root {
+  /* Primary Accents */
+  --nova-jelly-mint: #3cffd0;
+  --nova-ultraviolet: #5200ff;
+  --nova-mint-border: #309875;
+  --nova-deep-link-blue: #3860be;
+  --nova-focus-cyan: #1eaedb;
+  --nova-purple-rule: #3d00bf;
+
+  /* Surfaces */
+  --nova-canvas: #131313;
+  --nova-surface-slate: #2d2d2d;
+  --nova-image-frame: #313131;
+  --nova-hazard-white: #ffffff;
+  --nova-absolute-black: #000000;
+
+  /* Text */
+  --nova-primary-text: #ffffff;
+  --nova-secondary-text: #949494;
+  --nova-muted-text: #e9e9e9;
+  --nova-inverted-text: #131313;
+
+  /* Semantic */
+  --nova-overlay: rgba(0, 0, 0, 0.33);
+  --nova-dim-gray: #8c8c8c;
+
+  /* Story Tile Colors */
+  --nova-tile-yellow: #ffd60a;
+  --nova-tile-pink: #ff6b9d;
+  --nova-tile-orange: #ff9500;
+  --nova-tile-blue: #0a84ff;
+
+  /* Spacing */
+  --nova-space-1: 4px;
+  --nova-space-2: 8px;
+  --nova-space-3: 12px;
+  --nova-space-4: 16px;
+  --nova-space-5: 20px;
+  --nova-space-6: 24px;
+  --nova-space-8: 32px;
+  --nova-space-10: 40px;
+  --nova-space-12: 48px;
+  --nova-space-16: 64px;
+
+  /* Border Radius */
+  --nova-radius-small: 2px;
+  --nova-radius-image: 3px;
+  --nova-radius-nested: 4px;
+  --nova-radius-pill-card: 20px;
+  --nova-radius-feature: 24px;
+  --nova-radius-promotional: 30px;
+  --nova-radius-cta-pill: 40px;
+
+  /* Transitions */
+  --nova-transition-fast: 150ms ease;
+  --nova-transition-normal: 180ms ease;
+}
+
+/* ============================================
+   2. Base Styles
+   ============================================ */
+.nova-theme {
+  background-color: var(--nova-canvas);
+  color: var(--nova-primary-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   3. Typography
+   ============================================ */
+.nova-headline {
+  font-family: 'Manuka', Impact, 'Helvetica Neue', sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+  color: var(--nova-primary-text);
+}
+
+.nova-headline-manuka {
+  font-size: 60px;
+}
+
+.nova-headline-hero {
+  font-size: 107px;
+}
+
+.nova-headline-secondary {
+  font-size: 90px;
+}
+
+.nova-headline-tertiary {
+  font-size: 60px;
+}
+
+.nova-label {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.nova-label-large {
+  font-size: 14px;
+  letter-spacing: 1.8px;
+}
+
+.nova-label-small {
+  font-size: 11px;
+  letter-spacing: 1.1px;
+}
+
+.nova-body {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--nova-primary-text);
+}
+
+.nova-body-relaxed {
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+.nova-caption {
+  font-size: 13px;
+  color: var(--nova-secondary-text);
+  line-height: 1.4;
+}
+
+.nova-meta {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--nova-secondary-text);
+}
+
+/* ============================================
+   4. Buttons
+   ============================================ */
+.nova-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border: none;
+  cursor: pointer;
+  transition: all var(--nova-transition-normal);
+  border-radius: var(--nova-radius-feature);
+}
+
+.nova-btn-primary {
+  background-color: var(--nova-jelly-mint);
+  color: var(--nova-absolute-black);
+}
+
+.nova-btn-primary:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 1px var(--nova-dim-gray);
+}
+
+.nova-btn-primary:active {
+  background-color: var(--nova-dim-gray);
+  opacity: 0.5;
+}
+
+.nova-btn-primary:focus {
+  background-color: var(--nova-focus-cyan);
+  color: var(--nova-hazard-white);
+  outline: 1px solid var(--nova-ultraviolet);
+}
+
+.nova-btn-secondary {
+  background-color: var(--nova-surface-slate);
+  color: var(--nova-muted-text);
+}
+
+.nova-btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--nova-absolute-black);
+}
+
+.nova-btn-outline {
+  background-color: transparent;
+  color: var(--nova-jelly-mint);
+  border: 1px solid var(--nova-jelly-mint);
+  border-radius: var(--nova-radius-cta-pill);
+  padding: 10px 20px;
+}
+
+.nova-btn-outline:hover {
+  background-color: var(--nova-jelly-mint);
+  color: var(--nova-absolute-black);
+}
+
+/* ============================================
+   5. Cards & Story Tiles
+   ============================================ */
+.nova-card {
+  background-color: var(--nova-canvas);
+  border: 1px solid var(--nova-hazard-white);
+  border-radius: var(--nova-radius-pill-card);
+  padding: var(--nova-space-6);
+  transition: all var(--nova-transition-fast);
+}
+
+.nova-card:hover .nova-card-headline {
+  color: var(--nova-deep-link-blue);
+}
+
+.nova-card-feature {
+  background-color: var(--nova-canvas);
+  border: 1px solid var(--nova-hazard-white);
+  border-radius: var(--nova-radius-feature);
+  padding: var(--nova-space-8);
+}
+
+.nova-card-accent-mint {
+  background-color: var(--nova-jelly-mint);
+  border-color: var(--nova-jelly-mint);
+}
+
+.nova-card-accent-mint .nova-card-headline,
+.nova-card-accent-mint .nova-card-body {
+  color: var(--nova-absolute-black);
+}
+
+.nova-card-accent-purple {
+  background-color: rgba(82, 0, 255, 0.9);
+}
+
+.nova-card-accent-yellow {
+  background-color: var(--nova-tile-yellow);
+}
+
+.nova-card-accent-yellow .nova-card-headline,
+.nova-card-accent-yellow .nova-card-body {
+  color: var(--nova-absolute-black);
+}
+
+.nova-card-accent-pink {
+  background-color: var(--nova-tile-pink);
+}
+
+.nova-card-accent-orange {
+  background-color: var(--nova-tile-orange);
+}
+
+.nova-card-accent-blue {
+  background-color: var(--nova-tile-blue);
+}
+
+.nova-card-headline {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin: var(--nova-space-3) 0;
+  transition: color var(--nova-transition-fast);
+}
+
+.nova-card-body {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--nova-secondary-text);
+}
+
+.nova-card-kicker {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  color: var(--nova-jelly-mint);
+  margin-bottom: var(--nova-space-2);
+}
+
+.nova-card-accent-mint .nova-card-kicker,
+.nova-card-accent-yellow .nova-card-kicker {
+  color: var(--nova-absolute-black);
+  opacity: 0.7;
+}
+
+/* ============================================
+   6. StoryStream Timeline
+   ============================================ */
+.nova-timeline {
+  position: relative;
+  padding-left: 80px;
+}
+
+.nova-timeline::before {
+  content: '';
+  position: absolute;
+  left: 60px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    var(--nova-purple-rule),
+    var(--nova-hazard-white)
+  );
+}
+
+.nova-timeline-item {
+  position: relative;
+  margin-bottom: var(--nova-space-4);
+  padding: var(--nova-space-5);
+  background-color: var(--nova-canvas);
+  border: 1px solid var(--nova-hazard-white);
+  border-radius: var(--nova-radius-pill-card);
+}
+
+.nova-timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background-color: var(--nova-jelly-mint);
+  border-radius: 50%;
+}
+
+.nova-timeline-timestamp {
+  position: absolute;
+  left: -72px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.1px;
+  color: var(--nova-secondary-text);
+  white-space: nowrap;
+}
+
+/* ============================================
+   7. Navigation
+   ============================================ */
+.nova-nav {
+  background-color: var(--nova-canvas);
+  padding: var(--nova-space-4) 0;
+  border-bottom: 1px solid var(--nova-surface-slate);
+}
+
+.nova-nav-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--nova-space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nova-nav-wordmark {
+  font-family: 'Manuka', Impact, 'Helvetica Neue', sans-serif;
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--nova-primary-text);
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.nova-nav-links {
+  display: flex;
+  gap: var(--nova-space-6);
+  align-items: center;
+}
+
+.nova-nav-link {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--nova-primary-text);
+  text-decoration: none;
+  transition: color var(--nova-transition-fast);
+  padding: var(--nova-space-2) 0;
+  border-bottom: 2px solid transparent;
+}
+
+.nova-nav-link:hover {
+  color: var(--nova-deep-link-blue);
+}
+
+.nova-nav-link.active {
+  border-bottom-color: var(--nova-jelly-mint);
+}
+
+.nova-nav-cta {
+  margin-left: var(--nova-space-4);
+}
+
+/* Mobile Nav */
+.nova-nav-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .nova-nav-wordmark {
+    font-size: 32px;
+  }
+
+  .nova-nav-links {
+    display: none;
+  }
+
+  .nova-nav-mobile {
+    display: flex;
+    align-items: center;
+    gap: var(--nova-space-4);
+  }
+
+  .nova-nav-hamburger {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+
+  .nova-nav-hamburger span {
+    width: 24px;
+    height: 2px;
+    background-color: var(--nova-primary-text);
+  }
+}
+
+/* ============================================
+   8. Article List
+   ============================================ */
+.nova-article-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nova-space-4);
+}
+
+.nova-article-item {
+  display: flex;
+  gap: var(--nova-space-5);
+  padding: var(--nova-space-5);
+  background-color: var(--nova-surface-slate);
+  border-radius: var(--nova-radius-pill-card);
+  transition: all var(--nova-transition-fast);
+}
+
+.nova-article-item:hover {
+  background-color: rgba(45, 45, 45, 0.8);
+}
+
+.nova-article-item:hover .nova-article-title {
+  color: var(--nova-deep-link-blue);
+}
+
+.nova-article-thumb {
+  width: 200px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--nova-radius-nested);
+  flex-shrink: 0;
+}
+
+.nova-article-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.nova-article-title {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: var(--nova-space-2) 0;
+  transition: color var(--nova-transition-fast);
+}
+
+.nova-article-excerpt {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--nova-secondary-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.nova-article-meta {
+  display: flex;
+  gap: var(--nova-space-4);
+  margin-top: var(--nova-space-3);
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.1px;
+  color: var(--nova-secondary-text);
+}
+
+@media (max-width: 640px) {
+  .nova-article-item {
+    flex-direction: column;
+  }
+
+  .nova-article-thumb {
+    width: 100%;
+    height: 180px;
+  }
+}
+
+/* ============================================
+   9. Footer
+   ============================================ */
+.nova-footer {
+  background-color: var(--nova-canvas);
+  border-top: 1px solid var(--nova-surface-slate);
+  padding: var(--nova-space-12) 0;
+  margin-top: var(--nova-space-16);
+}
+
+.nova-footer-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--nova-space-6);
+  text-align: center;
+}
+
+.nova-footer-text {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--nova-secondary-text);
+}
+
+.nova-footer-text a {
+  color: var(--nova-jelly-mint);
+  text-decoration: none;
+}
+
+.nova-footer-text a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   10. Layout
+   ============================================ */
+.nova-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--nova-space-6);
+}
+
+.nova-layout-body {
+  display: flex;
+  gap: var(--nova-space-8);
+  padding: var(--nova-space-8) 0;
+}
+
+.nova-main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.nova-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+  .nova-layout-body {
+    flex-direction: column;
+  }
+
+  .nova-sidebar {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   11. Tags & Categories
+   ============================================ */
+.nova-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--nova-space-1) var(--nova-space-3);
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  border-radius: var(--nova-radius-pill-card);
+  background-color: var(--nova-jelly-mint);
+  color: var(--nova-absolute-black);
+}
+
+.nova-tag-purple {
+  background-color: var(--nova-ultraviolet);
+  color: var(--nova-hazard-white);
+}
+
+.nova-category-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--nova-space-1) var(--nova-space-3);
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  border-radius: var(--nova-radius-small);
+  border: 1px solid var(--nova-secondary-text);
+  color: var(--nova-secondary-text);
+}
+
+/* ============================================
+   12. Utilities
+   ============================================ */
+.nova-text-mint {
+  color: var(--nova-jelly-mint);
+}
+
+.nova-text-purple {
+  color: var(--nova-ultraviolet);
+}
+
+.nova-text-muted {
+  color: var(--nova-secondary-text);
+}
+
+.nova-border-mint {
+  border-color: var(--nova-jelly-mint);
+}
+
+.nova-border-white {
+  border-color: var(--nova-hazard-white);
+}
+
+.nova-mt-4 {
+  margin-top: var(--nova-space-4);
+}
+
+.nova-mt-6 {
+  margin-top: var(--nova-space-6);
+}
+
+.nova-mt-8 {
+  margin-top: var(--nova-space-8);
+}
+
+.nova-mb-4 {
+  margin-bottom: var(--nova-space-4);
+}
+
+.nova-mb-6 {
+  margin-bottom: var(--nova-space-6);
+}
+
+.nova-mb-8 {
+  margin-bottom: var(--nova-space-8);
+}
+
+/* ============================================
+   13. Animations
+   ============================================ */
+@keyframes nova-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nova-animate-in {
+  animation: nova-fade-in 300ms ease forwards;
+}
+
+/* ============================================
+   14. Author Card
+   ============================================ */
+.nova-author-card {
+  background-color: var(--nova-surface-slate);
+  border-radius: var(--nova-radius-pill-card);
+  padding: var(--nova-space-6);
+  text-align: center;
+}
+
+.nova-author-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: var(--nova-space-4);
+  border: 2px solid var(--nova-jelly-mint);
+}
+
+.nova-author-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: var(--nova-space-2);
+}
+
+.nova-author-desc {
+  font-size: 14px;
+  color: var(--nova-secondary-text);
+  line-height: 1.5;
+}
+
+/* ============================================
+   15. Special Components
+   ============================================ */
+.nova-hero-section {
+  padding: var(--nova-space-16) 0;
+  text-align: center;
+}
+
+.nova-hero-wordmark {
+  font-family: 'Manuka', Impact, 'Helvetica Neue', sans-serif;
+  font-size: 107px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 0.85;
+  color: var(--nova-primary-text);
+  margin-bottom: var(--nova-space-6);
+}
+
+.nova-hero-subtitle {
+  font-size: 20px;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 1.9px;
+  color: var(--nova-secondary-text);
+}
+
+/* Full-bleed accent tile */
+.nova-tile-full {
+  padding: var(--nova-space-8);
+  border-radius: var(--nova-radius-feature);
+  background-color: var(--nova-jelly-mint);
+  color: var(--nova-absolute-black);
+}
+
+.nova-tile-full .nova-card-kicker {
+  color: var(--nova-absolute-black);
+  opacity: 0.7;
+}
+
+/* Image frame */
+.nova-image-frame {
+  position: relative;
+  border: 1px solid var(--nova-image-frame);
+  border-radius: var(--nova-radius-image);
+  overflow: hidden;
+}
+
+.nova-image-frame img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ============================================
+   16. Dark Mode (always dark for Nova)
+   ============================================ */
+.nova-theme {
+  /* Force dark mode - no light mode option */
+  color-scheme: dark;
+}
+
+/* ============================================
+   17. Responsive Adjustments
+   ============================================ */
+@media (max-width: 1280px) {
+  .nova-container {
+    padding: 0 var(--nova-space-6);
+  }
+}
+
+@media (max-width: 768px) {
+  .nova-hero-wordmark {
+    font-size: 64px;
+  }
+
+  .nova-headline-manuka {
+    font-size: 42px;
+  }
+
+  .nova-headline-secondary {
+    font-size: 54px;
+  }
+
+  .nova-headline-tertiary {
+    font-size: 36px;
+  }
+
+  .nova-card {
+    padding: var(--nova-space-5);
+  }
+
+  .nova-card-headline {
+    font-size: 20px;
+  }
+
+  .nova-timeline {
+    padding-left: 40px;
+  }
+
+  .nova-timeline::before {
+    left: 20px;
+  }
+
+  .nova-timeline-timestamp {
+    position: static;
+    transform: none;
+    display: block;
+    margin-bottom: var(--nova-space-2);
+  }
+
+  .nova-timeline-item::before {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .nova-hero-wordmark {
+    font-size: 48px;
+  }
+
+  .nova-container {
+    padding: 0 var(--nova-space-4);
+  }
+
+  .nova-nav-inner {
+    padding: 0 var(--nova-space-4);
+  }
+}
