@@ -111,6 +111,10 @@ export default function (props) {
                   label: 'Nova 主题',
                   value: 'nova',
                 },
+                {
+                  label: 'Nova Nebula 主题',
+                  value: 'nova-nebula',
+                },
               ],
             }}
             placeholder="默认主题"

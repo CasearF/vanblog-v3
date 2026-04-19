@@ -3,6 +3,7 @@ import { Theme, ThemeName } from './types';
 const themes: Record<ThemeName, () => Promise<Theme>> = {
   default: () => import('./default/theme').then(m => m.default),
   nova: () => import('./nova/theme').then(m => m.default),
+  'nova-nebula': () => import('./nova-nebula/theme').then(m => m.default),
 };
 
 export async function loadTheme(name: ThemeName): Promise<Theme> {

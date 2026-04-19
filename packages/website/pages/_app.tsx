@@ -11,6 +11,7 @@ import "../styles/code-light.css";
 import "../styles/code-dark.css";
 import "../styles/zoom.css";
 import "../themes/nova/styles/nova.css";
+import "../themes/nova-nebula/styles/nova.css";
 import type { AppProps } from "next/app";
 import { GlobalContext, GlobalState } from "../utils/globalContext";
 import { useCallback, useEffect, useRef, useState } from "react";

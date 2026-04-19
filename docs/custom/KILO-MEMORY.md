@@ -390,27 +390,104 @@ import PostCard from '../../components/PostCard';
 2. 在 `themes/index.ts` 注册
 3. 在 `packages/admin/.../Advance.jsx` 添加选项
 4. 创建对应的 CSS 样式
+5. 在 `_app.tsx` 导入主题 CSS
 
 ### 7.3 关键文件路径
 
-| 用途          | 路径                                                         |
-| ------------- | ------------------------------------------------------------ |
-| 主题类型      | `packages/website/themes/types.ts`                           |
-| 主题加载      | `packages/website/themes/index.ts`                           |
-| Layout 集成   | `packages/website/components/Layout/index.tsx`               |
-| Nova 样式     | `packages/website/themes/nova/styles/nova.css`               |
-| Nova CSS 覆盖 | `packages/website/themes/nova/styles/nova.css` (末尾章节 26) |
-| 后台主题 UI   | `packages/admin/src/pages/SystemConfig/tabs/Advance.jsx`     |
-| API 客户端    | `packages/admin/src/services/van-blog/api.js`                |
-| 文档目录      | `docs/custom/`                                               |
-| AI 记忆       | `docs/custom/KILO-MEMORY.md`                                 |
+| 用途             | 路径                                                     |
+| ---------------- | -------------------------------------------------------- |
+| 主题类型         | `packages/website/themes/types.ts`                       |
+| 主题加载         | `packages/website/themes/index.ts`                       |
+| Layout 集成      | `packages/website/components/Layout/index.tsx`           |
+| CSS 导入         | `packages/website/pages/_app.tsx`                        |
+| Nova 样式        | `packages/website/themes/nova/styles/nova.css`           |
+| Nova Nebula 样式 | `packages/website/themes/nova-nebula/styles/nova.css`    |
+| 后台主题 UI      | `packages/admin/src/pages/SystemConfig/tabs/Advance.jsx` |
+| API 客户端       | `packages/admin/src/services/van-blog/api.js`            |
+| 404 页面         | `packages/website/pages/404.tsx`                         |
+| 文档目录         | `docs/custom/`                                           |
+| AI 记忆          | `docs/custom/KILO-MEMORY.md`                             |
 
-### 7.4 Nova 主题 CSS 结构
+### 7.4 当前主题列表
+
+| 主题名      | 描述                    | 状态    |
+| ----------- | ----------------------- | ------- |
+| default     | VanBlog 默认主题        | ✅ 可用 |
+| nova        | The Verge 风格          | ✅ 可用 |
+| nova-nebula | Premium Cosmic 宇宙风格 | ✅ 可用 |
+
+---
+
+## 八、Nova Nebula 主题背景更新
+
+**更新日期**: 2026-04-19 23:55
+
+**更新内容**: 为 Nova Nebula 主题添加 premium cosmic 背景效果
+
+**设计灵感**:
+
+- Apple keynote visuals
+- OpenAI premium branding
+- Luxury futuristic website design
+- Premium AI landing page background
+
+**视觉效果**:
+
+- Deep black gradient (#050508 → #0a0a12)
+- Subtle blue plasma nebula (rgba(14, 165, 233, 0.08))
+- Violet nebula mist (rgba(139, 92, 246, 0.06))
+- Floating intelligent particles (cyan glow dots)
+- Soft volumetric glow orbs
+- Elegant gradient lighting
+- Cinematic depth with blur effects
+
+**CSS 变更**:
+
+- 更新 CSS 变量：`--nova-canvas: #050508`, `--nebula-blue`, `--nebula-violet`, `--nebula-cyan`
+- 添加 nebula 背景层（::before, ::after 伪元素）
+- 添加 floating particles 动画
+- 添加 pulsing glow 动画
+- 卡片添加 backdrop-filter blur 和半透明背景
+- 边框改为 rgba(255, 255, 255, 0.06) 微妙边框
+- **重要**: CSS 变量作用域改为 `.nova-nebula-theme` 而非 `:root`，避免污染 Nova 主题
+
+**主题隔离修复** (2026-04-20 00:21-00:31):
+
+问题：Nova 主题也变成星云样式原因：
+
+1. nova-nebula.css 后加载，`:root` CSS 变量覆盖了 Nova 的
+2. Layout 组件额外添加了 `nova-theme` class
+3. nova-nebula.css 中大量裸选择器（如 `.nova-container`）直接污染全局
+
+解决：
+
+1. 将 `:root` 变量作用域改为 `.nova-nebula-theme`
+2. 移除 Layout 中的额外 `nova-theme` class
+3. 用脚本将所有裸选择器加上 `.nova-nebula-theme` 前缀
+   - 基础类：`.nova-container`, `.nova-card`, `.nova-nav` 等
+   - 子类：`.nova-headline-manuka`, `.nova-card-feature` 等
+   - 伪类：`:hover`, `::before`, `::after` 等
+
+**CSS 前缀脚本处理**:
+
+- 27 个基础选择器
+- 80+ 个派生选择器（包括 hover、pseudo-elements）
+- 文件从 ~1657 行扩展到 ~1975 行
+
+**Footer 发光线条修复** (2026-04-20 00:18):
+
+问题：footer 背景是块状的，与宇宙背景融合不好解决：
+
+- footer 背景改为透明
+- 添加 1px 发光蓝线 (`rgba(14, 165, 233, 0.6)`)
+- 多层 box-shadow 产生光晕扩散效果
+- 线上方有柔和的径向发光 (`::after`)
+
+**Nova CSS 结构** (1896+ 行):
 
 ```
-nova.css 章节索引:
-1.  CSS Variables (62行)
-2.  Base Styles
+1.  CSS Variables (Nebula Cosmic Palette)
+2.  Base Styles with Nebula Background
 3.  Typography
 4.  Buttons
 5.  Cards & Story Tiles
@@ -426,17 +503,87 @@ nova.css 章节索引:
 15. Special Components
 16. Dark Mode
 17. Responsive
-18. Link Card (新增)
-19. Key Card (新增)
-20. Search Card (新增)
-21. Alert Card (新增)
-22. Social Card (新增)
-23. Post Card (新增)
-24. Post Card Title & Subtitle (新增)
-25. Markdown Content (新增)
-26. Override Default Components (新增 - CSS 覆盖策略)
+18-26. 各类组件样式
+27. 404 Page Overrides
 ```
 
 ---
 
-**最后更新**: 2026-04-19 23:25 **维护者**: Kilo AI
+## 九、404 页面主题支持
+
+**更新日期**: 2026-04-20 00:11
+
+**文件**: `packages/website/pages/404.tsx`
+
+**问题**: 404 页面独立于 Layout 组件，不使用 nova-theme class
+
+**解决方案**:
+
+1. 添加 `getStaticProps` 获取 theme 信息
+2. 动态添加 `${themeName}-theme` class
+3. 使用 inline styles 强制应用宇宙背景和文字颜色
+
+```tsx
+export async function getStaticProps() {
+  const meta = await getPublicMeta();
+  return {
+    props: {
+      theme: meta?.theme || 'default',
+    },
+  };
+}
+
+const isNebula = themeName === 'nova-nebula';
+const nebulaBg = isNebula
+  ? {
+      background: `radial-gradient(...) ... linear-gradient(...)`,
+    }
+  : {};
+```
+
+---
+
+## 十、后续功能想法
+
+### 10.1 GitHub 主题仓库 + 安装脚本方案
+
+**想法来源**: 2026-04-19 用户提出
+
+**背景**: 用户提到作者原来在服务器上有个一键安装脚本，用户希望能在这个脚本中选择安装主题，然后默认要重启 Docker。
+
+**方案设计**:
+
+```
+┌──────────────────┐
+│  github.com      │
+│  └── vanblog-themes/
+│      ├── nova/
+│      ├── nova-nebula/
+│      └── other-theme/
+└──────────────────┘
+        │ git clone / 下载 release
+        ▼
+┌──────────────────┐
+│  VanBlog Docker  │
+│  └── /app/themes/
+└──────────────────┘
+```
+
+**优点**:
+
+- 安全性高（构建时打包，非运行时执行）
+- 版本管理独立
+- 更新方便（git pull）
+- 维护成本低
+
+**实现步骤**:
+
+1. 创建独立主题仓库 `vanblog-themes`
+2. 修改一键安装脚本，添加主题选择
+3. 集成到 Docker 构建（ARG 或 volume 挂载）
+
+**状态**: 想法记录，待实现
+
+---
+
+**最后更新**: 2026-04-20 00:32 **维护者**: Kilo AI

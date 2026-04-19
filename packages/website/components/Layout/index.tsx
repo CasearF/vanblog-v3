@@ -15,10 +15,12 @@ import { Toaster } from "react-hot-toast";
 import { ThemeComponents } from "../../themes/types";
 import defaultTheme from "../../themes/default/theme";
 import novaTheme from "../../themes/nova/theme";
+import novaNebulaTheme from "../../themes/nova-nebula/theme";
 
 const themesComponents: Record<string, ThemeComponents> = {
   default: defaultTheme.components,
   nova: novaTheme.components,
+  'nova-nebula': novaNebulaTheme.components,
 };
 
 export default function (props: {
@@ -60,10 +62,13 @@ export default function (props: {
   }, [props]);
 
   useEffect(() => {
-    if (themeName === 'nova') {
-      document.body.classList.add('nova-theme');
-    } else {
-      document.body.classList.remove('nova-theme');
+    document.body.classList.forEach((className) => {
+      if (className.endsWith('-theme')) {
+        document.body.classList.remove(className);
+      }
+    });
+    if (themeName !== 'default') {
+      document.body.classList.add(`${themeName}-theme`);
     }
   }, [themeName]);
 
@@ -119,8 +124,8 @@ export default function (props: {
           menus={props.option.menus}
         />
 
-        <div className={themeName === 'nova' ? 'nova-theme' : ''}>
-          <div className={themeName === 'nova' 
+        <div className={themeName !== 'default' ? `${themeName}-theme` : ''}>
+          <div className={themeName !== 'default' 
             ? 'nova-container nova-pt-8' 
             : 'mx-auto lg:px-6 md:py-4 py-2 px-2 md:px-4 text-gray-700'}>
             <LayoutBodyComponent children={props.children} sideBar={props.sideBar} />

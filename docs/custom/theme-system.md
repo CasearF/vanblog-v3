@@ -613,15 +613,16 @@ export default function Layout(props: LayoutProps & { option: LayoutProps }) {
 | ----------------------------- | -------------------------------------------------------- |
 | `api/getAllData.ts`           | 在 `PublicMetaProp` 添加 `theme` 字段                    |
 | `utils/getLayoutProps.ts`     | 在 `LayoutProps` 和 `getLayoutProps` 中添加 `theme` 字段 |
-| `components/Layout/index.tsx` | 实现主题组件动态加载逻辑                                 |
-| `pages/_app.tsx`              | 导入 nova.css 样式文件                                   |
+| `components/Layout/index.tsx` | 实现主题组件动态加载逻辑，支持 nova-nebula               |
+| `pages/_app.tsx`              | 导入 nova.css 和 nova-nebula.css 样式文件                |
+| `pages/404.tsx`               | 添加 getStaticProps 获取 theme，应用主题样式             |
 
 #### 后台 (packages/admin)
 
 | 文件                                      | 修改内容                                         |
 | ----------------------------------------- | ------------------------------------------------ |
 | `src/services/van-blog/api.js`            | 添加 `getThemeConfig()` 和 `updateThemeConfig()` |
-| `src/pages/SystemConfig/tabs/Advance.jsx` | 添加主题设置卡片 UI                              |
+| `src/pages/SystemConfig/tabs/Advance.jsx` | 添加主题设置卡片 UI，支持 nova-nebula 选项       |
 
 ---
 
@@ -636,6 +637,8 @@ export default function Layout(props: LayoutProps & { option: LayoutProps }) {
 | 后台主题设置 UI         | ✅ 已完成 |
 | 服务端 theme API        | ✅ 已完成 |
 | Nova 主题开发           | ✅ 已完成 |
+| Nova Nebula 主题开发    | ✅ 已完成 |
+| 404 页面主题支持        | ✅ 已完成 |
 
 ### 8.2 已知限制
 

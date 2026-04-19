@@ -12,17 +12,20 @@
 | [dockerfile-fix.md](./dockerfile-fix.md) | Dockerfile 构建参数修复，解决 `VAN_BLOG_BUILD_SERVER` 默认值问题 |
 | [theme-system.md](./theme-system.md) | 主题系统框架，支持多主题切换（详细技术文档） |
 | [nova-theme.md](./nova-theme.md) | Nova 主题设计规范和实现细节 |
+| [nova-nebula-theme.md](./nova-nebula-theme.md) | Nova Nebula 主题 - Premium Cosmic 宇宙风格 |
 
 ---
 
 ## 功能状态总览
 
-| 功能            | 状态    | 完成日期   | 备注                       |
-| --------------- | ------- | ---------- | -------------------------- |
-| 依赖保守更新    | ✅ 完成 | 2026-04-19 | 更新了 8 个包的依赖        |
-| Dockerfile 修复 | ✅ 完成 | 2026-04-19 | 添加默认值支持             |
-| 主题系统框架    | ✅ 完成 | 2026-04-19 | 支持 default/nova 主题切换 |
-| Nova 主题开发   | ✅ 完成 | 2026-04-19 | 基于 The Verge 设计风格    |
+| 功能             | 状态    | 完成日期   | 备注                    |
+| ---------------- | ------- | ---------- | ----------------------- |
+| 依赖保守更新     | ✅ 完成 | 2026-04-19 | 更新了 8 个包的依赖     |
+| Dockerfile 修复  | ✅ 完成 | 2026-04-19 | 添加默认值支持          |
+| 主题系统框架     | ✅ 完成 | 2026-04-19 | 支持多主题切换          |
+| Nova 主题        | ✅ 完成 | 2026-04-19 | 基于 The Verge 设计风格 |
+| Nova Nebula 主题 | ✅ 完成 | 2026-04-20 | Premium Cosmic 宇宙风格 |
+| 404 页面主题支持 | ✅ 完成 | 2026-04-20 | 404 页面应用主题样式    |
 
 ---
 
@@ -86,23 +89,14 @@ vanblog/
 │   │   │   ├── index.ts                   [新增]
 │   │   │   ├── ThemeContext.tsx           [新增]
 │   │   │   ├── default/theme.ts           [新增]
-│   │   │   └── nova/                      [新增]
-│   │   │       ├── theme.ts               (42 行)
-│   │   │       ├── NovaNavBar.tsx         (73 行)
-│   │   │       ├── NovaLayoutBody.tsx    (21 行)
-│   │   │       ├── NovaFooter.tsx         (59 行)
-│   │   │       ├── NovaAuthorCard.tsx     (19 行)
-│   │   │       ├── NovaArticleCard.tsx    (97 行)
-│   │   │       ├── NovaPostCard.tsx       (128 行)
-│   │   │       ├── NovaTimeline.tsx      (52 行)
-│   │   │       ├── NovaLinkCard.tsx      (27 行)
-│   │   │       ├── NovaSearchCard.tsx     (130 行)
-│   │   │       ├── NovaKeyCard.tsx        (35 行)
-│   │   │       ├── NovaAlertCard.tsx      (26 行)
-│   │   │       ├── NovaSocialCard.tsx     (52 行)
-│   │   │       └── styles/nova.css       (1420+ 行)
+│   │   │   ├── nova/                      [新增]
+│   │   │   │   └── ... (14 组件 + CSS)
+│   │   │   └── nova-nebula/               [新增]
+│   │   │       └── ... (14 组件 + CSS)    (1896+ 行)
 │   │   │
 │   │   ├── components/Layout/index.tsx     [修改]
+│   │   ├── pages/_app.tsx                  [修改]
+│   │   ├── pages/404.tsx                   [修改]
 │   │   ├── api/getAllData.ts               [修改]
 │   │   └── utils/getLayoutProps.ts         [修改]
 │   │
@@ -115,7 +109,8 @@ vanblog/
 │   ├── dependency-updates.md
 │   ├── dockerfile-fix.md
 │   ├── theme-system.md
-│   └── nova-theme.md
+│   ├── nova-theme.md
+│   └── nova-nebula-theme.md
 │
 └── The-Verge-DESIGN.md   # The Verge 设计规范源文件
 ```
@@ -196,21 +191,25 @@ vanblog/
 2. 创建 `theme.ts` 入口文件，导出 Theme 对象
 3. 在 `packages/website/themes/index.ts` 中注册主题
 4. 在 `packages/admin/src/pages/SystemConfig/tabs/Advance.jsx` 添加选项
+5. 在 `packages/website/pages/_app.tsx` 导入主题 CSS
 
-### 修改 Nova 主题
+### 修改 Nova/Nova Nebula 主题
 
 主要文件：
 
-| 文件                              | 用途                           |
-| --------------------------------- | ------------------------------ |
-| `themes/nova/styles/nova.css`     | 全部样式（颜色、字体、间距等） |
-| `themes/nova/theme.ts`            | 主题组件映射                   |
-| `themes/nova/NovaNavBar.tsx`      | 导航栏组件                     |
-| `themes/nova/NovaLayoutBody.tsx`  | 主体布局组件                   |
-| `themes/nova/NovaFooter.tsx`      | 页脚组件                       |
-| `themes/nova/NovaArticleCard.tsx` | 文章卡片组件                   |
-| `themes/nova/NovaTimeline.tsx`    | 时间线组件                     |
-| `themes/nova/NovaAuthorCard.tsx`  | 作者卡片组件                   |
+| 文件                                 | 用途                            |
+| ------------------------------------ | ------------------------------- |
+| `themes/nova/styles/nova.css`        | Nova 主题全部样式               |
+| `themes/nova-nebula/styles/nova.css` | Nova Nebula 主题样式 (1896+ 行) |
+| `themes/nova/theme.ts`               | Nova 主题组件映射               |
+| `themes/nova-nebula/theme.ts`        | Nova Nebula 主题组件映射        |
+| `themes/nova/NovaNavBar.tsx`         | Nova 导航栏组件                 |
+| `themes/nova-nebula/NovaNavBar.tsx`  | Nebula 导航栏组件 (共用)        |
+| `themes/nova/NovaLayoutBody.tsx`     | 主体布局组件                    |
+| `themes/nova/NovaFooter.tsx`         | 页脚组件                        |
+| `themes/nova/NovaArticleCard.tsx`    | 文章卡片组件                    |
+| `themes/nova/NovaTimeline.tsx`       | 时间线组件                      |
+| `themes/nova/NovaAuthorCard.tsx`     | 作者卡片组件                    |
 
 ---
 
@@ -235,4 +234,4 @@ vanblog/
 
 ---
 
-**最后更新**: 2026-04-19 22:43
+**最后更新**: 2026-04-20 00:32
