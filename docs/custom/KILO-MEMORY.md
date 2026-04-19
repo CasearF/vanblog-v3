@@ -370,6 +370,9 @@ import PostCard from '../../components/PostCard';
 - [x] 导航栏间距调整完成
 - [x] 搜索弹窗功能正常，无抖动
 - [x] 导航栏菜单由后台控制
+- [x] 手机端 MANAGE 按钮药丸形状
+- [x] 手机菜单背景颜色正确
+- [x] 手机菜单无分界线
 
 ---
 
