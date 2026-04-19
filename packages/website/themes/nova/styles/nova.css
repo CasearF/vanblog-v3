@@ -420,6 +420,46 @@
   margin-left: auto;
 }
 
+.nova-nav-actions .nova-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all var(--nova-transition-normal);
+  background-color: var(--nova-jelly-mint);
+  color: var(--nova-absolute-black);
+  text-decoration: none;
+  line-height: 1;
+}
+
+.nova-nav-actions .nova-btn-primary:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.nova-nav-actions .nova-btn-primary:active {
+  opacity: 0.5;
+}
+
+@media (max-width: 480px) {
+  .nova-nav-actions .nova-btn-primary {
+    padding: 6px 14px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .nova-nav-actions .nova-btn-primary {
+    display: none;
+  }
+}
+
 .nova-nav-search {
   display: flex;
   align-items: center;
@@ -1192,6 +1232,57 @@
 .nova-social-item:hover {
   background-color: rgba(60, 255, 208, 0.1);
   color: var(--nova-primary-text);
+}
+
+/* ============================================
+   27. Mobile Menu Override
+   ============================================ */
+.nova-theme .bm-menu-wrap {
+  background-color: var(--nova-canvas) !important;
+  z-index: 9999 !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.nova-theme .bm-overlay {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.nova-theme .bm-menu {
+  background-color: var(--nova-canvas) !important;
+  padding: 20px !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.nova-theme .bm-item-list {
+  color: var(--nova-primary-text) !important;
+}
+
+.nova-theme .bm-item {
+  color: var(--nova-primary-text) !important;
+  padding: 15px 0 !important;
+  border-bottom: 1px solid var(--nova-surface-slate) !important;
+}
+
+.nova-theme .bm-item:hover {
+  color: var(--nova-jelly-mint) !important;
+}
+
+.nova-theme .bm-cross-button {
+  color: var(--nova-primary-text) !important;
+}
+
+.nova-theme .bm-cross {
+  background-color: var(--nova-primary-text) !important;
+}
+
+.nova-theme .bm-burger-button {
+  color: var(--nova-primary-text) !important;
+}
+
+.nova-theme .bm-burger-bars {
+  background-color: var(--nova-primary-text) !important;
 }
 
 /* ============================================

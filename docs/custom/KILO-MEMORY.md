@@ -318,6 +318,44 @@ import PostCard from '../../components/PostCard';
 }
 ```
 
+### 5.4 手机端样式修复
+
+**修复内容**:
+
+1. **MANAGE 按钮**: 改为药丸形状，添加响应式尺寸，380px 以下隐藏
+2. **手机菜单颜色**: `.bm-menu` 和 `.bm-menu-wrap` 背景从 `#26282c` 改为 `#131313`
+3. **菜单分界线**: 移除 `.bm-menu` 和 `.bm-menu-wrap` 的 box-shadow 和 border
+
+**CSS 关键调整**:
+
+```css
+/* MANAGE 按钮药丸形状 */
+.nova-nav-actions .nova-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 20px;
+  font-size: 11px;
+  border-radius: 24px;
+  background-color: var(--nova-jelly-mint);
+  color: var(--nova-absolute-black);
+}
+
+@media (max-width: 380px) {
+  .nova-nav-actions .nova-btn-primary {
+    display: none;
+  }
+}
+
+/* 手机菜单 */
+.nova-theme .bm-menu-wrap,
+.nova-theme .bm-menu {
+  background-color: var(--nova-canvas) !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+```
+
 ---
 
 ## 六、测试验证结果
@@ -398,4 +436,4 @@ nova.css 章节索引:
 
 ---
 
-**最后更新**: 2026-04-19 22:43 **维护者**: Kilo AI
+**最后更新**: 2026-04-19 23:25 **维护者**: Kilo AI
