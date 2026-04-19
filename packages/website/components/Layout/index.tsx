@@ -1,30 +1,44 @@
 import Head from "next/head";
 import BackToTopBtn from "../BackToTop";
 import NavBar from "../NavBar";
+import NavBarMobile from "../NavBarMobile";
+import Footer from "../Footer";
+import LayoutBody from "../LayoutBody";
 import { useEffect, useRef, useState } from "react";
 import BaiduAnalysis from "../BaiduAnalysis";
 import GaAnalysis from "../gaAnalysis";
 import { LayoutProps } from "../../utils/getLayoutProps";
-// import ImageProvider from "../ImageProvider";
 import { RealThemeType, ThemeContext } from "../../utils/themeContext";
 import { getTheme } from "../../utils/theme";
 import CustomLayout from "../CustomLayout";
 import { Toaster } from "react-hot-toast";
-import Footer from "../Footer";
-import NavBarMobile from "../NavBarMobile";
-import LayoutBody from "../LayoutBody";
+import { ThemeComponents } from "../../themes/types";
+import defaultTheme from "../../themes/default/theme";
+import novaTheme from "../../themes/nova/theme";
+
+const themesComponents: Record<string, ThemeComponents> = {
+  default: defaultTheme.components,
+  nova: novaTheme.components,
+};
+
 export default function (props: {
   option: LayoutProps;
   title: string;
   sideBar: any;
   children: any;
 }) {
-  // console.log("css", props.option.customCss);
-  // console.log("html", props.option.customHtml);
-  // console.log("script", decode(props.option.customScript as string));
   const [isOpen, setIsOpen] = useState(false);
   const { current } = useRef({ hasInit: false });
   const [theme, setTheme] = useState<RealThemeType>(getTheme("auto"));
+
+  const themeName = props.option.theme || 'default';
+  const themeComponents = themesComponents[themeName] || themesComponents.default;
+
+  const NavBarComponent = themeComponents.NavBar || NavBar;
+  const NavBarMobileComponent = themeComponents.NavBarMobile || NavBarMobile;
+  const LayoutBodyComponent = themeComponents.LayoutBody || LayoutBody;
+  const FooterComponent = themeComponents.Footer || Footer;
+
   const handleClose = () => {
     console.log("关闭或刷新页面");
     localStorage.removeItem("saidHello");
@@ -69,47 +83,45 @@ export default function (props: {
         }}
       >
         <Toaster />
-        {/* <ImageProvider> */}
-          <NavBar
-            openArticleLinksInNewWindow={
-              props.option.openArticleLinksInNewWindow == "true"
-            }
-            showRSS={props.option.showRSS}
-            defaultTheme={props.option.defaultTheme}
-            showSubMenu={props.option.showSubMenu}
-            headerLeftContent={props.option.headerLeftContent}
-            subMenuOffset={props.option.subMenuOffset}
-            showAdminButton={props.option.showAdminButton}
-            menus={props.option.menus}
-            siteName={props.option.siteName}
-            logo={props.option.logo}
-            categories={props.option.categories}
-            isOpen={isOpen}
-            setOpen={setIsOpen}
-            logoDark={props.option.logoDark}
-            showFriends={props.option.showFriends}
-          ></NavBar>
-          <NavBarMobile
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            showAdminButton={props.option.showAdminButton}
-            showFriends={props.option.showFriends}
-            menus={props.option.menus}
-          />
+        <NavBarComponent
+          openArticleLinksInNewWindow={
+            props.option.openArticleLinksInNewWindow == "true"
+          }
+          showRSS={props.option.showRSS}
+          defaultTheme={props.option.defaultTheme}
+          showSubMenu={props.option.showSubMenu}
+          headerLeftContent={props.option.headerLeftContent}
+          subMenuOffset={props.option.subMenuOffset}
+          showAdminButton={props.option.showAdminButton}
+          menus={props.option.menus}
+          siteName={props.option.siteName}
+          logo={props.option.logo}
+          categories={props.option.categories}
+          isOpen={isOpen}
+          setOpen={setIsOpen}
+          logoDark={props.option.logoDark}
+          showFriends={props.option.showFriends}
+        />
+        <NavBarMobileComponent
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          showAdminButton={props.option.showAdminButton}
+          showFriends={props.option.showFriends}
+          menus={props.option.menus}
+        />
 
-          <div className=" mx-auto  lg:px-6  md:py-4 py-2 px-2 md:px-4  text-gray-700 ">
-            <LayoutBody children={props.children} sideBar={props.sideBar} />
-            <Footer
-              ipcHref={props.option.ipcHref}
-              ipcNumber={props.option.ipcNumber}
-              since={props.option.since}
-              version={props.option.version}
-              gaBeianLogoUrl={props.option.gaBeianLogoUrl}
-              gaBeianNumber={props.option.gaBeianNumber}
-              gaBeianUrl={props.option.gaBeianUrl}
-            />
-          </div>
-        {/* </ImageProvider> */}
+        <div className=" mx-auto  lg:px-6  md:py-4 py-2 px-2 md:px-4  text-gray-700 ">
+          <LayoutBodyComponent children={props.children} sideBar={props.sideBar} />
+          <FooterComponent
+            ipcHref={props.option.ipcHref}
+            ipcNumber={props.option.ipcNumber}
+            since={props.option.since}
+            version={props.option.version}
+            gaBeianLogoUrl={props.option.gaBeianLogoUrl}
+            gaBeianNumber={props.option.gaBeianNumber}
+            gaBeianUrl={props.option.gaBeianUrl}
+          />
+        </div>
       </ThemeContext.Provider>
       {props.option.enableCustomizing == "true" && (
         <CustomLayout

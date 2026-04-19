@@ -322,13 +322,13 @@ export async function updateThemeConfig(body) {
 
 ### 4.1 新增文件
 
-| 文件路径                                   | 说明                     |
-| ------------------------------------------ | ------------------------ |
-| `packages/website/themes/types.ts`         | 主题类型定义             |
-| `packages/website/themes/index.ts`         | 主题加载器               |
-| `packages/website/themes/ThemeContext.tsx` | 主题上下文（未完全集成） |
-| `packages/website/themes/default/theme.ts` | 默认主题入口             |
-| `packages/website/themes/nova/theme.ts`    | Nova 主题入口            |
+| 文件路径                                   | 说明          |
+| ------------------------------------------ | ------------- |
+| `packages/website/themes/types.ts`         | 主题类型定义  |
+| `packages/website/themes/index.ts`         | 主题加载器    |
+| `packages/website/themes/ThemeContext.tsx` | 主题上下文    |
+| `packages/website/themes/default/theme.ts` | 默认主题入口  |
+| `packages/website/themes/nova/theme.ts`    | Nova 主题入口 |
 
 ### 4.2 修改文件
 
@@ -343,10 +343,11 @@ export async function updateThemeConfig(body) {
 
 #### 前台 (packages/website)
 
-| 文件                      | 修改内容                                                 |
-| ------------------------- | -------------------------------------------------------- |
-| `api/getAllData.ts`       | 在 `PublicMetaProp` 添加 `theme` 字段                    |
-| `utils/getLayoutProps.ts` | 在 `LayoutProps` 和 `getLayoutProps` 中添加 `theme` 字段 |
+| 文件                          | 修改内容                                                 |
+| ----------------------------- | -------------------------------------------------------- |
+| `api/getAllData.ts`           | 在 `PublicMetaProp` 添加 `theme` 字段                    |
+| `utils/getLayoutProps.ts`     | 在 `LayoutProps` 和 `getLayoutProps` 中添加 `theme` 字段 |
+| `components/Layout/index.tsx` | 实现主题组件动态加载逻辑                                 |
 
 #### 后台 (packages/admin)
 
@@ -355,24 +356,78 @@ export async function updateThemeConfig(body) {
 | `src/services/van-blog/api.js`            | 添加 `getThemeConfig()` 和 `updateThemeConfig()` |
 | `src/pages/SystemConfig/tabs/Advance.jsx` | 添加主题设置卡片 UI                              |
 
-## 5. 已知限制和后续工作
+## 5. 主题切换实现细节
 
-### 5.1 当前限制
+### 5.1 Layout 组件集成
 
-1. **主题加载未完全集成**: 当前主题框架已建立，但 Layout 组件尚未根据 `option.theme` 动态加载主题组件。后续需要在 Layout 中实现主题切换逻辑。
+**文件**: `packages/website/components/Layout/index.tsx`
 
-2. **Nova 主题是示例**: 目前 nova 主题只是复制了默认主题的组件，后续需要开发真正不同的主题样式。
+在 Layout 组件中通过主题映射实现动态加载：
 
-3. **SSG 限制**: Next.js 的静态生成模式限制了某些动态特性，主题切换可能需要配合 ISR 使用。
+```typescript
+import defaultTheme from "../../themes/default/theme";
+import novaTheme from "../../themes/nova/theme";
+import { ThemeComponents } from "../../themes/types";
 
-### 5.2 后续工作建议
+const themesComponents: Record<string, ThemeComponents> = {
+  default: defaultTheme.components,
+  nova: novaTheme.components,
+};
 
-1. 完成 Layout 组件的主题动态加载逻辑
-2. 开发具有独特样式的新主题（如暗色主题、卡片式主题等）
-3. 添加主题预览功能
-4. 考虑支持主题市场或主题包的上传安装
+export default function (props) {
+  const themeName = props.option.theme || 'default';
+  const themeComponents = themesComponents[themeName] || themesComponents.default;
 
-## 6. 参考资料
+  const NavBarComponent = themeComponents.NavBar || NavBar;
+  const NavBarMobileComponent = themeComponents.NavBarMobile || NavBarMobile;
+  const LayoutBodyComponent = themeComponents.LayoutBody || LayoutBody;
+  const FooterComponent = themeComponents.Footer || Footer;
+
+  // 使用动态组件...
+  return (
+    <>
+      <NavBarComponent {...props} />
+      <LayoutBodyComponent {...props} />
+      <FooterComponent {...props} />
+    </>
+  );
+}
+```
+
+### 5.2 主题切换流程
+
+```
+1. 用户在后台选择主题 → PUT /api/admin/setting/theme
+2. MongoDB 保存主题配置 (Setting collection, type='theme')
+3. 管理员触发 ISR 重建静态页面
+4. 前台 getStaticProps 获取 meta 时包含 theme 字段
+5. Layout 根据 option.theme 渲染对应主题的组件
+```
+
+## 6. 已知限制和后续工作
+
+### 6.1 当前状态
+
+✅ **已完成**:
+
+- 主题框架搭建
+- Layout 组件主题动态加载
+- 后台主题设置 UI
+- 服务端 theme API
+
+⚠️ **待完善**:
+
+- Nova 主题目前只是默认主题的副本，需要开发真正不同的样式
+- 主题预览功能
+- 更多主题选项
+
+### 6.2 后续工作建议
+
+1. 开发具有独特样式的新主题（如暗色主题、卡片式主题等）
+2. 添加主题预览功能
+3. 考虑支持主题市场或主题包的上传安装
+
+## 7. 参考资料
 
 - [VanBlog 官方文档](https://vanblog.mereith.com)
 - [VanBlog GitHub](https://github.com/mereithhh/van-blog)
@@ -381,6 +436,7 @@ export async function updateThemeConfig(body) {
 
 ---
 
-**文档版本**: 1.0.0  
+**文档版本**: 1.1.0  
 **创建日期**: 2026-04-19  
-**作者**: AI Assistant (Kilo)
+**更新日期**: 2026-04-19  
+**更新内容**: 完成 Layout 主题动态加载集成
