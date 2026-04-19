@@ -141,6 +141,7 @@ export interface PublicMetaProp {
     html?: string;
     head?: HeadTag[];
   };
+  theme?: string;
 }
 
 export const version = process.env["VAN_BLOG_VERSION"] || "dev";

@@ -2,8 +2,10 @@ import {
   activeISR,
   getISRConfig,
   getLoginConfig,
+  getThemeConfig,
   updateISRConfig,
   updateLoginConfig,
+  updateThemeConfig,
 } from '@/services/van-blog/api';
 import { ProForm, ProFormDigit, ProFormSelect } from '@ant-design/pro-components';
 import { Alert, Button, Card, message, Modal } from 'antd';
@@ -68,6 +70,54 @@ export default function (props) {
         </ProForm>
       </Card>
 
+      <Card title="主题设置" style={{ marginTop: 8 }}>
+        <Alert
+          type="info"
+          message="选择前台博客使用的主题。切换主题后需要手动触发静态页面更新以生效。"
+          style={{ marginBottom: 8 }}
+        />
+        <ProForm
+          grid={true}
+          layout={'horizontal'}
+          request={async (params) => {
+            try {
+              const { data } = await getThemeConfig();
+              return data || { theme: 'default' };
+            } catch (err) {
+              console.log(err);
+              return { theme: 'default' };
+            }
+          }}
+          syncToInitialValues={true}
+          onFinish={async (data) => {
+            if (location.hostname == 'blog-demo.mereith.com') {
+              Modal.info({ title: '演示站禁止修改主题设置！' });
+              return;
+            }
+            await updateThemeConfig(data);
+            message.success('更新成功！');
+          }}
+        >
+          <ProFormSelect
+            name={'theme'}
+            label="前台主题"
+            fieldProps={{
+              options: [
+                {
+                  label: '默认主题',
+                  value: 'default',
+                },
+                {
+                  label: 'Nova 主题',
+                  value: 'nova',
+                },
+              ],
+            }}
+            placeholder="默认主题"
+            tooltip={'选择前台博客使用的主题'}
+          ></ProFormSelect>
+        </ProForm>
+      </Card>
       <Card title="静态页面更新策略" style={{ marginTop: 8 }}>
         <Alert
           type="info"

@@ -40,6 +40,7 @@ export interface LayoutProps {
   customScript?: string;
   customHtml?: string;
   customHead?: HeadTag[];
+  theme?: string;
 }
 
 export interface HeadTag {
@@ -146,6 +147,7 @@ export function getLayoutProps(data: PublicMetaProp): LayoutProps {
     showDonateButton,
     showRSS,
     showEditButton,
+    theme: data?.theme || 'default',
     ...customSetting,
   };
 }

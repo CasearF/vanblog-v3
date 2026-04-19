@@ -188,6 +188,7 @@ export class PublicController {
     const totalWordCount = await this.metaProvider.getTotalWords();
     const LayoutSetting = await this.settingProvider.getLayoutSetting();
     const LayoutRes = this.settingProvider.encodeLayoutSetting(LayoutSetting);
+    const ThemeSetting = await this.settingProvider.getThemeSetting();
     const data = {
       version: version,
       tags,
@@ -199,6 +200,7 @@ export class PublicController {
       totalArticles,
       totalWordCount,
       ...(LayoutSetting ? { layout: LayoutRes } : {}),
+      ...(ThemeSetting ? { theme: ThemeSetting.theme } : {}),
     };
     return {
       statusCode: 200,

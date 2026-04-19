@@ -64,6 +64,17 @@ export async function updateISRConfig(body) {
     data: body,
   });
 }
+export async function getThemeConfig() {
+  return request('/api/admin/setting/theme', {
+    method: 'GET',
+  });
+}
+export async function updateThemeConfig(body) {
+  return request('/api/admin/setting/theme', {
+    method: 'PUT',
+    data: body,
+  });
+}
 export async function clearCaddyLog() {
   return request('/api/admin/caddy/log', {
     method: 'DELETE',

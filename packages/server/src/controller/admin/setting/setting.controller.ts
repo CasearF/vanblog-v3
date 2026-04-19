@@ -117,4 +117,26 @@ export class SettingController {
       data: res,
     };
   }
+  @Get('theme')
+  async getThemeSetting() {
+    const res = await this.settingProvider.getThemeSetting();
+    return {
+      statusCode: 200,
+      data: res,
+    };
+  }
+  @Put('theme')
+  async updateThemeSetting(@Body() body: { theme: string }) {
+    if (config.demo && config.demo == 'true') {
+      return {
+        statusCode: 401,
+        message: '演示站禁止修改此项！',
+      };
+    }
+    const res = await this.settingProvider.updateThemeSetting(body);
+    return {
+      statusCode: 200,
+      data: res,
+    };
+  }
 }

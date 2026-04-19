@@ -17,7 +17,8 @@ export type SettingType =
   | 'login'
   | 'menu'
   | 'version'
-  | 'isr';
+  | 'isr'
+  | 'theme';
 
 export type SettingValue =
   | StaticSetting
@@ -25,7 +26,8 @@ export type SettingValue =
   | WalineSetting
   | LayoutSetting
   | VersionSetting
-  | ISRSetting;
+  | ISRSetting
+  | ThemeSetting;
 
 export interface ISRSetting {
   mode: 'delay' | 'onDemand';
@@ -83,6 +85,11 @@ export interface WalineSetting {
 export interface HttpsSetting {
   redirect: boolean;
 }
+
+export interface ThemeSetting {
+  theme: string;
+}
+
 export interface SearchStaticOption {
   staticType: StaticType;
   page: number;

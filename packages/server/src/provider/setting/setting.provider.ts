@@ -209,6 +209,30 @@ export class SettingProvider {
     const res = await this.settingModel.updateOne({ type: 'layout' }, { value: newValue });
     return res;
   }
+  async getThemeSetting(): Promise<{ theme: string }> {
+    const res = await this.settingModel.findOne({ type: 'theme' }).exec();
+    if (res) {
+      return res?.value as { theme: string };
+    } else {
+      await this.settingModel.create({
+        type: 'theme',
+        value: { theme: 'default' },
+      });
+      return { theme: 'default' };
+    }
+  }
+  async updateThemeSetting(dto: { theme: string }) {
+    const oldValue = await this.getThemeSetting();
+    const newValue = { ...oldValue, ...dto };
+    if (!oldValue) {
+      return await this.settingModel.create({
+        type: 'theme',
+        value: newValue,
+      });
+    }
+    const res = await this.settingModel.updateOne({ type: 'theme' }, { value: newValue });
+    return res;
+  }
   async updateHttpsSetting(dto: HttpsSetting) {
     const oldValue = await this.getHttpsSetting();
     const newValue = { ...oldValue, ...dto };
