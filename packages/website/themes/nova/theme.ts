@@ -5,13 +5,13 @@ import NavBarMobile from '../../components/NavBarMobile';
 import Footer from './NovaFooter';
 import AuthorCard from './NovaAuthorCard';
 import ArticleList from './NovaArticleCard';
-import PostCard from './NovaArticleCard';
+import PostCard from './NovaPostCard';
 import { NovaTimelineItem } from './NovaTimeline';
-import LinkCard from '../../components/LinkCard';
-import SearchCard from '../../components/SearchCard';
-import KeyCard from '../../components/KeyCard';
-import AlertCard from '../../components/AlertCard';
-import SocialCard from '../../components/SocialCard';
+import LinkCard from './NovaLinkCard';
+import SearchCard from './NovaSearchCard';
+import KeyCard from './NovaKeyCard';
+import AlertCard from './NovaAlertCard';
+import SocialCard from './NovaSocialCard';
 import { Theme } from '../types';
 
 export const novaTheme: Theme = {

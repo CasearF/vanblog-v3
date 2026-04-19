@@ -87,14 +87,20 @@ vanblog/
 │   │   │   ├── ThemeContext.tsx           [新增]
 │   │   │   ├── default/theme.ts           [新增]
 │   │   │   └── nova/                      [新增]
-│   │   │       ├── theme.ts
-│   │   │       ├── NovaNavBar.tsx
-│   │   │       ├── NovaLayoutBody.tsx
-│   │   │       ├── NovaFooter.tsx
-│   │   │       ├── NovaAuthorCard.tsx
-│   │   │       ├── NovaArticleCard.tsx
-│   │   │       ├── NovaTimeline.tsx
-│   │   │       └── styles/nova.css         (859 行)
+│   │   │       ├── theme.ts               (42 行)
+│   │   │       ├── NovaNavBar.tsx         (73 行)
+│   │   │       ├── NovaLayoutBody.tsx    (21 行)
+│   │   │       ├── NovaFooter.tsx         (59 行)
+│   │   │       ├── NovaAuthorCard.tsx     (19 行)
+│   │   │       ├── NovaArticleCard.tsx    (97 行)
+│   │   │       ├── NovaPostCard.tsx       (128 行)
+│   │   │       ├── NovaTimeline.tsx      (52 行)
+│   │   │       ├── NovaLinkCard.tsx      (27 行)
+│   │   │       ├── NovaSearchCard.tsx     (130 行)
+│   │   │       ├── NovaKeyCard.tsx        (35 行)
+│   │   │       ├── NovaAlertCard.tsx      (26 行)
+│   │   │       ├── NovaSocialCard.tsx     (52 行)
+│   │   │       └── styles/nova.css       (1420+ 行)
 │   │   │
 │   │   ├── components/Layout/index.tsx     [修改]
 │   │   ├── api/getAllData.ts               [修改]
@@ -210,13 +216,14 @@ vanblog/
 
 ## 测试验证清单
 
-- [ ] Server 构建成功
-- [ ] Admin 构建成功
-- [ ] Website 构建成功
-- [ ] Docker 镜像构建成功
-- [ ] 后台主题设置 UI 显示正常
-- [ ] 主题切换后前台显示正确
-- [ ] Nova 主题样式符合 The Verge 设计规范
+- [x] Server 构建成功
+- [x] Admin 构建成功
+- [x] Website 构建成功
+- [x] 后台主题设置 UI 显示正常
+- [x] 主题切换后前台显示正确
+- [x] Nova 主题样式符合 The Verge 设计规范
+- [x] 灰色背景问题已修复
+- [x] markdown-body 背景问题已修复
 
 ---
 
@@ -228,4 +235,4 @@ vanblog/
 
 ---
 
-**最后更新**: 2026-04-19
+**最后更新**: 2026-04-19 22:43

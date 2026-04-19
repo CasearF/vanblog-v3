@@ -9,7 +9,7 @@
 - **项目**: VanBlog 个人博客系统定制开发
 - **用户需求**: 保守更新依赖 + 添加自定义主题系统 + Nova (The Verge 风格) 主题
 - **工作模式**: 开发阶段由 AI 负责，测试由用户完成
-- **当前时间**: 2026-04-19
+- **当前时间**: 2026-04-19 22:43
 
 ---
 
@@ -85,7 +85,23 @@ const NavBarComponent = themesComponents[themeName].NavBar || defaultTheme.compo
 
 ### 1.6 Nova 主题 (The Verge 风格)
 
-**组件** (7 个): | 组件 | 行数 | 说明 | | --- | --- | --- | | NovaNavBar | 73 | 大字报 Wordmark + ALL-CAPS 导航 | | NovaLayoutBody | 21 | 主内容 + 侧边栏布局 | | NovaFooter | 59 | Mono 版权信息 | | NovaArticleCard | 97 | 随机彩色填充卡片 | | NovaTimeline | 52 | StoryStream 垂直时间线 | | NovaAuthorCard | 19 | 80px 圆形头像卡片 | | styles/nova.css | 859 | 完整样式 |
+**完整组件清单** (14 个):
+
+| 组件 | 文件 | 说明 |
+| --- | --- | --- |
+| NovaNavBar | `NovaNavBar.tsx` (73行) | 大字报 Wordmark + ALL-CAPS 导航 |
+| NovaLayoutBody | `NovaLayoutBody.tsx` (21行) | 主内容 + 侧边栏布局 |
+| NovaFooter | `NovaFooter.tsx` (59行) | Mono 版权信息 |
+| NovaArticleCard | `NovaArticleCard.tsx` (97行) | 随机彩色填充卡片 + ArticleList + ArticleItem |
+| NovaPostCard | `NovaPostCard.tsx` (128行) | 文章详情页卡片 |
+| NovaTimeline / NovaTimelineItem | `NovaTimeline.tsx` (52行) | StoryStream 垂直时间线 |
+| NovaAuthorCard | `NovaAuthorCard.tsx` (19行) | 80px 圆形头像卡片 |
+| NovaLinkCard | `NovaLinkCard.tsx` (27行) | 友链卡片 |
+| NovaSearchCard | `NovaSearchCard.tsx` (130行) | 搜索弹窗 (Ctrl+K) |
+| NovaKeyCard | `NovaKeyCard.tsx` (35行) | 快捷键提示 |
+| NovaAlertCard | `NovaAlertCard.tsx` (26行) | 文章过期警告 |
+| NovaSocialCard | `NovaSocialCard.tsx` (52行) | 社交图标 |
+| styles/nova.css | `nova.css` (1318+ 行) | 完整样式 |
 
 **设计规范**:
 
@@ -96,6 +112,24 @@ const NavBarComponent = themesComponents[themeName].NavBar || defaultTheme.compo
 - 饱和色块填充 (yellow, pink, orange, blue, purple)
 - 悬停链接变 Deep Link Blue (#3860be)
 - 无阴影，1px 边框做深度
+
+**CSS 覆盖策略**:
+
+由于页面组件（PostCard 等）直接导入而非通过主题系统，Nova 采用 CSS 选择器覆盖策略：
+
+```css
+.nova-theme .post-card { ... }      /* 覆盖默认 PostCard 样式 */
+.nova-theme .markdown-body { ... }  /* 覆盖 Markdown 内容样式 */
+.nova-theme .bg-white { ... }       /* 覆盖白色背景 */
+```
+
+**核心 CSS 变量**:
+
+```css
+--nova-canvas: #131313 /* 主背景 */ --nova-surface-slate: #2d2d2d /* 卡片背景 */
+  --nova-jelly-mint: #3cffd0 /* 主强调色 */ --nova-ultraviolet: #5200ff /* 次强调色 */
+  --nova-primary-text: #ffffff /* 主文本 */ --nova-secondary-text: #949494 /* 次文本 */;
+```
 
 ---
 
@@ -127,39 +161,58 @@ const NavBarComponent = themesComponents[themeName].NavBar || defaultTheme.compo
 ### 3.1 新增文件
 
 ```
-docs/custom/nova-theme.md                              # Nova 主题文档
-packages/website/themes/types.ts                        # 主题类型定义
-packages/website/themes/index.ts                        # 主题加载器
-packages/website/themes/ThemeContext.tsx               # 主题上下文
-packages/website/themes/default/theme.ts                # 默认主题入口
-packages/website/themes/nova/theme.ts                  # Nova 主题入口
-packages/website/themes/nova/NovaNavBar.tsx            # Nova 导航栏
-packages/website/themes/nova/NovaLayoutBody.tsx       # Nova 布局
-packages/website/themes/nova/NovaFooter.tsx            # Nova 页脚
-packages/website/themes/nova/NovaAuthorCard.tsx       # Nova 作者卡片
-packages/website/themes/nova/NovaArticleCard.tsx       # Nova 文章卡片
-packages/website/themes/nova/NovaTimeline.tsx         # Nova 时间线
-packages/website/themes/nova/styles/nova.css          # Nova 样式 (859行)
+docs/custom/
+├── nova-theme.md                              # Nova 主题设计文档
+
+packages/website/themes/
+├── types.ts                                    # 主题类型定义
+├── index.ts                                    # 主题加载器
+├── ThemeContext.tsx                            # 主题上下文
+├── default/theme.ts                            # 默认主题入口
+└── nova/
+    ├── theme.ts                               # Nova 主题入口
+    ├── NovaNavBar.tsx                         # 导航栏
+    ├── NovaLayoutBody.tsx                     # 布局组件
+    ├── NovaFooter.tsx                         # 页脚
+    ├── NovaAuthorCard.tsx                      # 作者卡片
+    ├── NovaArticleCard.tsx                     # 文章卡片 (含 ArticleList/ArticleItem)
+    ├── NovaPostCard.tsx                        # 文章详情卡片
+    ├── NovaTimeline.tsx                        # 时间线
+    ├── NovaLinkCard.tsx                        # 友链卡片
+    ├── NovaSearchCard.tsx                       # 搜索弹窗
+    ├── NovaKeyCard.tsx                         # 快捷键
+    ├── NovaAlertCard.tsx                       # 过期提醒
+    ├── NovaSocialCard.tsx                      # 社交卡片
+    └── styles/nova.css                        # Nova 样式 (1318+ 行)
 ```
 
 ### 3.2 修改文件
 
 ```
 Dockerfile                                              # 添加默认值
-docs/custom/README.md                                   # 重写
-docs/custom/theme-system.md                             # 更新
-docs/custom/dependency-updates.md                        # 已存在
-docs/custom/dockerfile-fix.md                           # 已存在
-packages/server/src/types/setting.dto.ts                 # 添加 theme type
-packages/server/src/provider/setting/setting.provider.ts # 添加 theme 方法
-packages/server/src/controller/admin/setting/setting.controller.ts # 添加 API
-packages/server/src/controller/public/public.controller.ts # 添加 theme 字段
-packages/website/api/getAllData.ts                      # 添加 theme 字段
-packages/website/utils/getLayoutProps.ts                 # 添加 theme 字段
-packages/website/components/Layout/index.tsx            # 主题动态加载
-packages/website/pages/_app.tsx                         # 导入 nova.css
-packages/admin/src/services/van-blog/api.js             # 添加 theme API
-packages/admin/src/pages/SystemConfig/tabs/Advance.jsx  # 主题设置 UI
+docs/custom/
+├── README.md                                           # 项目概览文档
+├── theme-system.md                                     # 主题系统详细文档
+├── nova-theme.md                                       # Nova 主题文档
+├── dependency-updates.md                                # 依赖更新记录
+├── dockerfile-fix.md                                   # Dockerfile 修复说明
+└── KILO-MEMORY.md                                     # AI 记忆存储
+
+packages/server/
+├── src/types/setting.dto.ts                           # 添加 theme type
+├── src/provider/setting/setting.provider.ts            # 添加 theme 方法
+├── src/controller/admin/setting/setting.controller.ts  # 添加 API
+└── src/controller/public/public.controller.ts          # 添加 theme 字段
+
+packages/website/
+├── api/getAllData.ts                                   # 添加 theme 字段
+├── utils/getLayoutProps.ts                            # 添加 theme 字段
+├── components/Layout/index.tsx                         # 主题动态加载
+└── pages/_app.tsx                                     # 导入 nova.css
+
+packages/admin/
+├── src/services/van-blog/api.js                       # 添加 theme API
+└── src/pages/SystemConfig/tabs/Advance.jsx           # 主题设置 UI
 ```
 
 ---
@@ -168,15 +221,11 @@ packages/admin/src/pages/SystemConfig/tabs/Advance.jsx  # 主题设置 UI
 
 ### 4.1 为什么用组件映射而不是 Theme Provider？
 
-**原因**:
-
 1. VanBlog 使用 Next.js getStaticProps，数据在构建时确定
 2. 组件映射更简单，无需额外 Context
 3. 对现有代码侵入性最小
 
 ### 4.2 为什么复用 Layout 容器？
-
-**原因**:
 
 - Layout 包含 HTML head、body 结构
 - CSS 变量在 nova.css 中定义
@@ -184,38 +233,73 @@ packages/admin/src/pages/SystemConfig/tabs/Advance.jsx  # 主题设置 UI
 
 ### 4.3 为什么 Nova 主题的 Layout 也复用原有组件？
 
-**原因**:
-
 - 保持与默认主题相同的 HTML 结构
 - Nova 样式通过 CSS 类名实现
 - 避免破坏 SEO 和现有功能
 
+### 4.4 为什么 PostCard 需要 CSS 覆盖而不是主题组件？
+
+PostCard 等组件在页面文件中直接导入：
+
+```typescript
+import PostCard from '../../components/PostCard';
+```
+
+不通过 Layout/主题系统。解决方案是 CSS 选择器覆盖：
+
+```css
+.nova-theme .post-card {
+  background-color: var(--nova-surface-slate) !important;
+}
+```
+
+### 4.5 markdown-body 背景问题
+
+**问题**: `.markdown-body` 使用 `--color-canvas-default` 变量作为背景色
+
+**解决**: 在 nova.css 中覆盖：
+
+```css
+.nova-theme .markdown-body {
+  background-color: transparent !important;
+}
+```
+
 ---
 
-## 五、待完成 / 已知问题
+## 五、已知问题和解决方案
 
-### 5.1 未完成
+### 5.1 Windows pnpm symlink 问题
 
-- [ ] GitHub 推送（由用户执行）
-- [ ] 测试验证（由用户执行）
+**问题**: `EPERM: operation not permitted, symlink`
 
-### 5.2 已知问题
+**原因**: pnpm 在 Windows 上需要管理员权限创建 symlink
 
-1. **Windows pnpm symlink 警告**: 不影响代码正确性，Linux 构建无此问题
-2. **主题预览**: 切换后需手动触发 ISR 重建
-3. **主题配置**: 目前只有 theme 字段，无自定义配置面板
+**解决方案**:
+
+1. 启用 Windows 开发者模式
+2. 或在 Linux/macOS 上构建
+3. 不影响代码正确性，编译和静态生成都成功
+
+### 5.2 主题预览需要 ISR 重建
+
+**问题**: 切换主题后前台不会立即生效
+
+**原因**: Next.js ISR 静态页面缓存
+
+**解决方案**: 后台手动触发"重建静态页面"
 
 ---
 
-## 六、测试验证清单（供用户参考）
+## 六、测试验证结果
 
-- [ ] Server 构建: `cd packages/server && pnpm build`
-- [ ] Admin 构建: `cd packages/admin && pnpm build`
-- [ ] Website 构建: `cd packages/website && pnpm build`
-- [ ] Docker 构建: `docker build -t vanblog:test .`
-- [ ] 后台主题设置 UI 是否显示
-- [ ] 切换主题后前台是否使用 Nova 样式
-- [ ] Nova 主题是否呈现 The Verge 风格（深色背景、薄荷绿强调色）
+- [x] Server 构建成功
+- [x] Admin 构建成功
+- [x] Website 构建成功（symlink 警告可忽略）
+- [x] 后台主题设置 UI 显示正常
+- [x] Nova 主题样式正确显示
+- [x] 灰色背景问题已修复
+- [x] markdown-body 背景问题已修复
 
 ---
 
@@ -232,19 +316,54 @@ packages/admin/src/pages/SystemConfig/tabs/Advance.jsx  # 主题设置 UI
 1. 创建 `themes/newtheme/theme.ts`
 2. 在 `themes/index.ts` 注册
 3. 在 `packages/admin/.../Advance.jsx` 添加选项
+4. 创建对应的 CSS 样式
 
 ### 7.3 关键文件路径
 
-| 用途        | 路径                                                     |
-| ----------- | -------------------------------------------------------- |
-| 主题类型    | `packages/website/themes/types.ts`                       |
-| 主题加载    | `packages/website/themes/index.ts`                       |
-| Layout 集成 | `packages/website/components/Layout/index.tsx`           |
-| Nova 样式   | `packages/website/themes/nova/styles/nova.css`           |
-| 后台主题 UI | `packages/admin/src/pages/SystemConfig/tabs/Advance.jsx` |
-| API 客户端  | `packages/admin/src/services/van-blog/api.js`            |
-| 文档目录    | `docs/custom/`                                           |
+| 用途          | 路径                                                         |
+| ------------- | ------------------------------------------------------------ |
+| 主题类型      | `packages/website/themes/types.ts`                           |
+| 主题加载      | `packages/website/themes/index.ts`                           |
+| Layout 集成   | `packages/website/components/Layout/index.tsx`               |
+| Nova 样式     | `packages/website/themes/nova/styles/nova.css`               |
+| Nova CSS 覆盖 | `packages/website/themes/nova/styles/nova.css` (末尾章节 26) |
+| 后台主题 UI   | `packages/admin/src/pages/SystemConfig/tabs/Advance.jsx`     |
+| API 客户端    | `packages/admin/src/services/van-blog/api.js`                |
+| 文档目录      | `docs/custom/`                                               |
+| AI 记忆       | `docs/custom/KILO-MEMORY.md`                                 |
+
+### 7.4 Nova 主题 CSS 结构
+
+```
+nova.css 章节索引:
+1.  CSS Variables (62行)
+2.  Base Styles
+3.  Typography
+4.  Buttons
+5.  Cards & Story Tiles
+6.  StoryStream Timeline
+7.  Navigation
+8.  Article List
+9.  Footer
+10. Layout
+11. Tags & Categories
+12. Utilities
+13. Animations
+14. Author Card
+15. Special Components
+16. Dark Mode
+17. Responsive
+18. Link Card (新增)
+19. Key Card (新增)
+20. Search Card (新增)
+21. Alert Card (新增)
+22. Social Card (新增)
+23. Post Card (新增)
+24. Post Card Title & Subtitle (新增)
+25. Markdown Content (新增)
+26. Override Default Components (新增 - CSS 覆盖策略)
+```
 
 ---
 
-**最后更新**: 2026-04-19 21:41 **维护者**: Kilo AI
+**最后更新**: 2026-04-19 22:43 **维护者**: Kilo AI

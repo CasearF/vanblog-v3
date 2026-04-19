@@ -304,25 +304,34 @@ The Verge 2024 重新设计给人 "Condé Nast 杂志 + 芯片调音台 + 俱乐
 
 ### 4.1 章节索引
 
-| 章节                    | 行数    | 内容           |
-| ----------------------- | ------- | -------------- |
-| 1. CSS Variables        | 1-62    | 全部设计 Token |
-| 2. Base Styles          | 64-74   | 基础样式       |
-| 3. Typography           | 76-145  | 字体系统       |
-| 4. Buttons              | 147-208 | 按钮样式       |
-| 5. Cards & Story Tiles  | 210-295 | 卡片系统       |
-| 6. StoryStream Timeline | 297-352 | 时间线样式     |
-| 7. Navigation           | 354-448 | 导航样式       |
-| 8. Article List         | 450-529 | 文章列表       |
-| 9. Footer               | 531-563 | 页脚样式       |
-| 10. Layout              | 565-598 | 布局工具       |
-| 11. Tags & Categories   | 600-634 | 标签分类       |
-| 12. Utilities           | 636-681 | 工具类         |
-| 13. Animations          | 683-699 | 动画           |
-| 14. Author Card         | 701-730 | 作者卡片       |
-| 15. Special Components  | 732-784 | 特殊组件       |
-| 16. Dark Mode           | 786-791 | 强制暗色模式   |
-| 17. Responsive          | 793-859 | 响应式断点     |
+| 章节                    | 行数      | 内容           |
+| ----------------------- | --------- | -------------- |
+| 1. CSS Variables        | 1-62      | 全部设计 Token |
+| 2. Base Styles          | 64-74     | 基础样式       |
+| 3. Typography           | 76-145    | 字体系统       |
+| 4. Buttons              | 147-208   | 按钮样式       |
+| 5. Cards & Story Tiles  | 210-295   | 卡片系统       |
+| 6. StoryStream Timeline | 297-352   | 时间线样式     |
+| 7. Navigation           | 354-448   | 导航样式       |
+| 8. Article List         | 450-529   | 文章列表       |
+| 9. Footer               | 531-563   | 页脚样式       |
+| 10. Layout              | 565-598   | 布局工具       |
+| 11. Tags & Categories   | 600-634   | 标签分类       |
+| 12. Utilities           | 636-681   | 工具类         |
+| 13. Animations          | 683-699   | 动画           |
+| 14. Author Card         | 701-730   | 作者卡片       |
+| 15. Special Components  | 732-784   | 特殊组件       |
+| 16. Dark Mode           | 786-791   | 强制暗色模式   |
+| 17. Responsive          | 793-859   | 响应式断点     |
+| 18. Link Card           | 860-920   | 友链卡片       |
+| 19. Key Card            | 921-955   | 快捷键提示     |
+| 20. Search Card         | 956-1070  | 搜索弹窗       |
+| 21. Alert Card          | 1071-1100 | 过期提醒       |
+| 22. Social Card         | 1101-1142 | 社交卡片       |
+| 23. Post Card           | 1143-1220 | 文章详情卡片   |
+| 24. Post Title          | 1221-1280 | 标题子标题     |
+| 25. Markdown Content    | 1281-1318 | Markdown 样式  |
+| 26. CSS Override        | 1319-1420 | 默认组件覆盖   |
 
 ---
 
@@ -401,19 +410,25 @@ const NavBar = themesComponents[themeName].NavBar;
 
 ## 7. 文件列表
 
-| 文件                              | 行数 | 说明     |
-| --------------------------------- | ---- | -------- |
-| `themes/nova/theme.ts`            | 42   | 主题入口 |
-| `themes/nova/NovaNavBar.tsx`      | 73   | 导航栏   |
-| `themes/nova/NovaLayoutBody.tsx`  | 21   | 布局组件 |
-| `themes/nova/NovaFooter.tsx`      | 59   | 页脚     |
-| `themes/nova/NovaArticleCard.tsx` | 97   | 文章卡片 |
-| `themes/nova/NovaTimeline.tsx`    | 52   | 时间线   |
-| `themes/nova/NovaAuthorCard.tsx`  | 19   | 作者卡片 |
-| `themes/nova/styles/nova.css`     | 859  | 完整样式 |
+| 文件                              | 行数  | 说明                                  |
+| --------------------------------- | ----- | ------------------------------------- |
+| `themes/nova/theme.ts`            | 42    | 主题入口                              |
+| `themes/nova/NovaNavBar.tsx`      | 73    | 导航栏                                |
+| `themes/nova/NovaLayoutBody.tsx`  | 21    | 布局组件                              |
+| `themes/nova/NovaFooter.tsx`      | 59    | 页脚                                  |
+| `themes/nova/NovaArticleCard.tsx` | 97    | 文章卡片 (含 ArticleList/ArticleItem) |
+| `themes/nova/NovaPostCard.tsx`    | 128   | 文章详情卡片                          |
+| `themes/nova/NovaTimeline.tsx`    | 52    | 时间线 (含 TimelineItem)              |
+| `themes/nova/NovaAuthorCard.tsx`  | 19    | 作者卡片                              |
+| `themes/nova/NovaLinkCard.tsx`    | 27    | 友链卡片                              |
+| `themes/nova/NovaSearchCard.tsx`  | 130   | 搜索弹窗                              |
+| `themes/nova/NovaKeyCard.tsx`     | 35    | 快捷键提示                            |
+| `themes/nova/NovaAlertCard.tsx`   | 26    | 过期提醒                              |
+| `themes/nova/NovaSocialCard.tsx`  | 52    | 社交卡片                              |
+| `themes/nova/styles/nova.css`     | 1420+ | 完整样式                              |
 
-**总计**: 约 1200+ 行代码
+**总计**: 约 2200+ 行代码
 
 ---
 
-**文档版本**: 1.0.0 **创建日期**: 2026-04-19 **参考规范**: [The Verge Design System](../../The-Verge-DESIGN.md)
+**文档版本**: 1.1.0 **创建日期**: 2026-04-19 **最后更新**: 2026-04-19 22:43 **更新内容**: 添加 CSS Override 策略、所有侧边栏组件、PostCard 组件 **参考规范**: [The Verge Design System](../../The-Verge-DESIGN.md)

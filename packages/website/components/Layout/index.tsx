@@ -119,17 +119,21 @@ export default function (props: {
           menus={props.option.menus}
         />
 
-        <div className=" mx-auto  lg:px-6  md:py-4 py-2 px-2 md:px-4  text-gray-700 ">
-          <LayoutBodyComponent children={props.children} sideBar={props.sideBar} />
-          <FooterComponent
-            ipcHref={props.option.ipcHref}
-            ipcNumber={props.option.ipcNumber}
-            since={props.option.since}
-            version={props.option.version}
-            gaBeianLogoUrl={props.option.gaBeianLogoUrl}
-            gaBeianNumber={props.option.gaBeianNumber}
-            gaBeianUrl={props.option.gaBeianUrl}
-          />
+        <div className={themeName === 'nova' ? 'nova-theme' : ''}>
+          <div className={themeName === 'nova' 
+            ? 'nova-container nova-mt-4' 
+            : 'mx-auto lg:px-6 md:py-4 py-2 px-2 md:px-4 text-gray-700'}>
+            <LayoutBodyComponent children={props.children} sideBar={props.sideBar} />
+            <FooterComponent
+              ipcHref={props.option.ipcHref}
+              ipcNumber={props.option.ipcNumber}
+              since={props.option.since}
+              version={props.option.version}
+              gaBeianLogoUrl={props.option.gaBeianLogoUrl}
+              gaBeianNumber={props.option.gaBeianNumber}
+              gaBeianUrl={props.option.gaBeianUrl}
+            />
+          </div>
         </div>
       </ThemeContext.Provider>
       {props.option.enableCustomizing == "true" && (

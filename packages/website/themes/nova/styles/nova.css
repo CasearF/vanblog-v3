@@ -857,3 +857,657 @@
     padding: 0 var(--nova-space-4);
   }
 }
+
+/* ============================================
+   18. Link Card
+   ============================================ */
+.nova-card-link {
+  background-color: var(--nova-surface-slate);
+  transition: all var(--nova-transition-fast);
+}
+
+.nova-card-link:hover {
+  background-color: rgba(45, 45, 45, 0.8);
+}
+
+.nova-link-card-inner {
+  display: flex;
+  align-items: center;
+  padding: var(--nova-space-4);
+  text-decoration: none;
+  color: inherit;
+}
+
+.nova-link-card-logo {
+  flex-shrink: 0;
+  margin-right: var(--nova-space-4);
+}
+
+.nova-link-logo-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.nova-link-card-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.nova-link-card-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--nova-primary-text);
+  margin: 0 0 var(--nova-space-1) 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nova-link-card-desc {
+  font-size: 12px;
+  color: var(--nova-secondary-text);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================
+   19. Key Card (Search Shortcut)
+   ============================================ */
+.nova-keycard-container {
+  display: flex;
+  align-items: center;
+  margin-left: var(--nova-space-2);
+}
+
+.nova-keycard {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border: 1px solid var(--nova-secondary-text);
+  border-radius: var(--nova-radius-small);
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 11px;
+  color: var(--nova-secondary-text);
+}
+
+.nova-keycard-search {
+  gap: 2px;
+}
+
+.nova-keycard-key {
+  font-weight: 600;
+}
+
+.nova-keycard-plus {
+  opacity: 0.7;
+}
+
+/* ============================================
+   20. Search Card (Modal)
+   ============================================ */
+.nova-search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.nova-search-modal {
+  background-color: var(--nova-surface-slate);
+  border: 1px solid var(--nova-hazard-white);
+  border-radius: var(--nova-radius-feature);
+  padding: var(--nova-space-4);
+  width: 75%;
+  transition: transform var(--nova-transition-normal);
+}
+
+.nova-search-input-row {
+  display: flex;
+  align-items: center;
+  color: var(--nova-secondary-text);
+}
+
+.nova-search-icon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.nova-search-input {
+  flex: 1;
+  margin-left: var(--nova-space-2);
+  height: 32px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  color: var(--nova-primary-text);
+}
+
+.nova-search-input::placeholder {
+  color: var(--nova-secondary-text);
+}
+
+.nova-search-clear {
+  cursor: pointer;
+  transition: transform var(--nova-transition-fast);
+}
+
+.nova-search-clear:hover {
+  transform: scale(1.2);
+}
+
+.nova-search-clear-icon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.nova-search-divider {
+  height: 1px;
+  background-color: var(--nova-surface-slate);
+  margin: var(--nova-space-2) 0;
+  border: none;
+}
+
+.nova-search-content {
+  max-height: 400px;
+  overflow-y: auto;
+  color: var(--nova-primary-text);
+}
+
+.nova-search-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nova-space-2);
+}
+
+.nova-search-result-item {
+  display: flex;
+  align-items: center;
+  padding: var(--nova-space-2);
+  border-radius: var(--nova-radius-small);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color var(--nova-transition-fast);
+}
+
+.nova-search-result-item:hover {
+  background-color: rgba(60, 255, 208, 0.1);
+}
+
+.nova-search-result-date {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 12px;
+  color: var(--nova-jelly-mint);
+  margin-right: var(--nova-space-4);
+  flex-shrink: 0;
+}
+
+.nova-search-result-title {
+  font-size: 14px;
+  color: var(--nova-primary-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nova-search-empty {
+  text-align: center;
+  padding: var(--nova-space-8) 0;
+}
+
+.nova-search-empty-text {
+  color: var(--nova-secondary-text);
+  font-size: 14px;
+}
+
+/* ============================================
+   21. Alert Card (Expiration Warning)
+   ============================================ */
+.nova-alert-card {
+  display: flex;
+  align-items: flex-start;
+  padding: var(--nova-space-4);
+  background-color: rgba(82, 0, 255, 0.15);
+  border: 1px solid var(--nova-ultraviolet);
+  border-radius: var(--nova-radius-pill-card);
+  margin-bottom: var(--nova-space-4);
+}
+
+.nova-alert-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--nova-ultraviolet);
+  color: var(--nova-hazard-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-right: var(--nova-space-3);
+}
+
+.nova-alert-text {
+  font-size: 13px;
+  color: var(--nova-primary-text);
+  line-height: 1.5;
+}
+
+/* ============================================
+   22. Social Card
+   ============================================ */
+.nova-social-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.nova-social-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.nova-social-item {
+  width: 50%;
+  margin: 0 var(--nova-space-1);
+  display: flex;
+  align-items: center;
+  padding: 2px 0;
+  border-radius: var(--nova-radius-small);
+  color: var(--nova-secondary-text);
+  font-size: 12px;
+  transition: all var(--nova-transition-fast);
+  cursor: pointer;
+}
+
+.nova-social-item:hover {
+  background-color: rgba(60, 255, 208, 0.1);
+  color: var(--nova-primary-text);
+}
+
+/* ============================================
+   23. Post Card (Article Detail)
+   ============================================ */
+.nova-post-card-wrapper {
+  width: 100%;
+}
+
+.nova-post-card {
+  background-color: var(--nova-surface-slate);
+  border: 1px solid var(--nova-hazard-white);
+  border-radius: var(--nova-radius-pill-card);
+  padding: var(--nova-space-6);
+  overflow: hidden;
+}
+
+.nova-post-content {
+  margin-top: var(--nova-space-4);
+  color: var(--nova-primary-text);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.nova-post-content a {
+  color: var(--nova-jelly-mint);
+  text-decoration: none;
+}
+
+.nova-post-content a:hover {
+  color: var(--nova-deep-link-blue);
+  text-decoration: underline;
+}
+
+.nova-post-read-more {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: var(--nova-space-6);
+}
+
+.nova-lock-message {
+  text-align: center;
+  padding: var(--nova-space-8);
+  color: var(--nova-secondary-text);
+  font-size: 14px;
+}
+
+/* ============================================
+   24. Post Card Title & Subtitle
+   ============================================ */
+.nova-post-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--nova-primary-text);
+  margin: 0 0 var(--nova-space-3) 0;
+  line-height: 1.3;
+}
+
+.nova-post-subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nova-space-4);
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 12px;
+  color: var(--nova-secondary-text);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.nova-post-subtitle-item {
+  display: flex;
+  align-items: center;
+  gap: var(--nova-space-1);
+}
+
+.nova-post-category {
+  color: var(--nova-jelly-mint);
+}
+
+/* ============================================
+   25. Markdown Content Styling
+   ============================================ */
+.nova-post-content h1,
+.nova-post-content h2,
+.nova-post-content h3,
+.nova-post-content h4,
+.nova-post-content h5,
+.nova-post-content h6 {
+  color: var(--nova-primary-text);
+  margin-top: var(--nova-space-6);
+  margin-bottom: var(--nova-space-3);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.nova-post-content h1 { font-size: 32px; }
+.nova-post-content h2 { font-size: 26px; }
+.nova-post-content h3 { font-size: 22px; }
+.nova-post-content h4 { font-size: 18px; }
+
+.nova-post-content p {
+  margin-bottom: var(--nova-space-4);
+  color: var(--nova-primary-text);
+}
+
+.nova-post-content code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  background-color: var(--nova-canvas);
+  padding: 2px 6px;
+  border-radius: var(--nova-radius-small);
+  font-size: 14px;
+}
+
+.nova-post-content pre {
+  background-color: var(--nova-canvas);
+  border: 1px solid var(--nova-surface-slate);
+  border-radius: var(--nova-radius-nested);
+  padding: var(--nova-space-4);
+  overflow-x: auto;
+  margin: var(--nova-space-4) 0;
+}
+
+.nova-post-content pre code {
+  background: none;
+  padding: 0;
+}
+
+.nova-post-content blockquote {
+  border-left: 3px solid var(--nova-jelly-mint);
+  margin: var(--nova-space-4) 0;
+  padding-left: var(--nova-space-4);
+  color: var(--nova-secondary-text);
+  font-style: italic;
+}
+
+.nova-post-content ul,
+.nova-post-content ol {
+  margin: var(--nova-space-4) 0;
+  padding-left: var(--nova-space-6);
+  color: var(--nova-primary-text);
+}
+
+.nova-post-content li {
+  margin-bottom: var(--nova-space-2);
+}
+
+.nova-post-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--nova-radius-image);
+  margin: var(--nova-space-4) 0;
+}
+
+.nova-post-content hr {
+  border: none;
+  border-top: 1px solid var(--nova-surface-slate);
+  margin: var(--nova-space-6) 0;
+}
+
+.nova-post-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--nova-space-4) 0;
+}
+
+.nova-post-content th,
+.nova-post-content td {
+  border: 1px solid var(--nova-surface-slate);
+  padding: var(--nova-space-2) var(--nova-space-3);
+  text-align: left;
+}
+
+.nova-post-content th {
+  background-color: var(--nova-canvas);
+  font-weight: 700;
+}
+
+/* ============================================
+   26. Override Default Components in Nova Theme
+   When nova-theme class is on body, override default component styles
+   ============================================ */
+.nova-theme .post-card-wrapper {
+  width: 100%;
+}
+
+.nova-theme .post-card {
+  background-color: var(--nova-surface-slate) !important;
+  border: none !important;
+  border-radius: var(--nova-radius-pill-card) !important;
+  color: var(--nova-primary-text) !important;
+}
+
+.nova-theme .post-card .text-gray-600,
+.nova-theme .post-card .text-gray-700,
+.nova-theme .post-card .text-gray-800 {
+  color: var(--nova-primary-text) !important;
+}
+
+.nova-theme .post-card .text-gray-400,
+.nova-theme .post-card .text-gray-500 {
+  color: var(--nova-secondary-text) !important;
+}
+
+.nova-theme .post-card a {
+  color: var(--nova-jelly-mint) !important;
+}
+
+.nova-theme .post-card a:hover {
+  color: var(--nova-deep-link-blue) !important;
+}
+
+.nova-theme .post-card hr {
+  border-color: var(--nova-surface-slate) !important;
+}
+
+.nova-theme .post-card code {
+  background-color: var(--nova-canvas) !important;
+  color: var(--nova-jelly-mint) !important;
+}
+
+.nova-theme .post-card pre {
+  background-color: var(--nova-canvas) !important;
+  border-color: var(--nova-surface-slate) !important;
+}
+
+.nova-theme .post-card blockquote {
+  border-left-color: var(--nova-jelly-mint) !important;
+  color: var(--nova-secondary-text) !important;
+}
+
+.nova-theme .post-card table th,
+.nova-theme .post-card table td {
+  border-color: var(--nova-surface-slate) !important;
+}
+
+.nova-theme .post-card table th {
+  background-color: var(--nova-canvas) !important;
+}
+
+/* Override "阅读全文" button */
+.nova-theme .post-card .border-2 {
+  border-color: var(--nova-jelly-mint) !important;
+  color: var(--nova-jelly-mint) !important;
+}
+
+.nova-theme .post-card .border-2:hover {
+  background-color: var(--nova-jelly-mint) !important;
+  color: var(--nova-absolute-black) !important;
+}
+
+/* Override dark mode classes */
+.nova-theme .dark\:bg-dark {
+  background-color: var(--nova-surface-slate) !important;
+}
+
+.nova-theme .dark\:text-dark {
+  color: var(--nova-primary-text) !important;
+}
+
+.nova-theme .dark\:border-dark {
+  border-color: var(--nova-surface-slate) !important;
+}
+
+.nova-theme .dark\:hover\:bg-dark-light:hover {
+  background-color: rgba(60, 255, 208, 0.1) !important;
+}
+
+/* Override hover states */
+.nova-theme .hover\:-translate-y-1:hover,
+.nova-theme .sm\:hover\:-translate-y-2:hover {
+  transform: none !important;
+}
+
+/* Sidebar card overrides */
+.nova-theme .card-shadow {
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: var(--nova-radius-pill-card) !important;
+}
+
+.nova-theme .card-shadow-dark {
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.nova-theme .bg-white {
+  background-color: var(--nova-surface-slate) !important;
+}
+
+.nova-theme .dark\:bg-dark-2 {
+  background-color: var(--nova-canvas) !important;
+}
+
+.nova-theme .dark\:border-dark-2 {
+  border-color: transparent !important;
+}
+
+/* Category/tag styling */
+.nova-theme .text-green-500,
+.nova-theme .text-green-600 {
+  color: var(--nova-jelly-mint) !important;
+}
+
+/* Article content area */
+.nova-theme .post-card .text-sm,
+.nova-theme .post-card .text-base {
+  color: var(--nova-primary-text) !important;
+}
+
+.nova-theme .post-card > div {
+  background-color: transparent !important;
+}
+
+/* Markdown body override */
+.nova-theme .markdown-body {
+  background-color: transparent !important;
+  color: var(--nova-primary-text) !important;
+}
+
+.nova-theme .markdown-body h1,
+.nova-theme .markdown-body h2,
+.nova-theme .markdown-body h3,
+.nova-theme .markdown-body h4,
+.nova-theme .markdown-body h5,
+.nova-theme .markdown-body h6 {
+  color: var(--nova-primary-text) !important;
+}
+
+.nova-theme .markdown-body a {
+  color: var(--nova-jelly-mint) !important;
+}
+
+.nova-theme .markdown-body code {
+  background-color: var(--nova-canvas) !important;
+  color: var(--nova-jelly-mint) !important;
+}
+
+.nova-theme .markdown-body pre {
+  background-color: var(--nova-canvas) !important;
+  border: 1px solid var(--nova-surface-slate) !important;
+}
+
+.nova-theme .markdown-body blockquote {
+  border-left-color: var(--nova-jelly-mint) !important;
+  color: var(--nova-secondary-text) !important;
+}
+
+.nova-theme .markdown-body hr {
+  border-color: var(--nova-surface-slate) !important;
+}
+
+.nova-theme .markdown-body table {
+  border-color: var(--nova-surface-slate) !important;
+}
+
+.nova-theme .markdown-body th,
+.nova-theme .markdown-body td {
+  border-color: var(--nova-surface-slate) !important;
+}
+
+.nova-theme .markdown-body th {
+  background-color: var(--nova-canvas) !important;
+}
+
+.nova-theme .markdown-body tr {
+  background-color: transparent !important;
+}
+
+.nova-theme .markdown-body img {
+  background-color: transparent !important;
+}
