@@ -543,9 +543,44 @@ const nebulaBg = isNebula
 
 ---
 
-## 十、后续功能想法
+## 十、Waline 评论系统问题
 
-### 10.1 GitHub 主题仓库 + 安装脚本方案
+**问题**: 评论显示 "192.168.5.11 未发送任何数据"
+
+**原因**: Waline 依赖未安装
+
+**分析**:
+
+- Waline 作为子进程启动 (`spawn 'node', ['../waline/node_modules/@waline/vercel/vanilla.js']`)
+- `packages/waline` 的 `@waline/vercel` 依赖未安装
+- 启动时应该看到 "Cannot find module" 错误
+
+**解决**:
+
+```bash
+cd packages/waline
+pnpm install
+# 或
+pnpm install  # 从根目录安装所有
+```
+
+**Waline 启动流程**:
+
+1. `main.ts` 第 83-84 行调用 `walineProvider.init()`
+2. `waline.provider.ts` 的 `run()` 方法 spawn 子进程
+3. 子进程加载 `../waline/node_modules/@waline/vercel/vanilla.js`
+
+**相关文件**:
+
+- `packages/server/src/provider/waline/waline.provider.ts` - Waline 提供者
+- `packages/waline/package.json` - Waline 依赖声明
+- `packages/server/src/main.ts` - 启动入口
+
+---
+
+## 十一、后续功能想法
+
+### 11.1 GitHub 主题仓库 + 安装脚本方案
 
 **想法来源**: 2026-04-19 用户提出
 
@@ -586,4 +621,4 @@ const nebulaBg = isNebula
 
 ---
 
-**最后更新**: 2026-04-20 00:32 **维护者**: Kilo AI
+**最后更新**: 2026-04-20 00:39 **维护者**: Kilo AI
