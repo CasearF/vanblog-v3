@@ -621,4 +621,96 @@ pnpm install  # 从根目录安装所有
 
 ---
 
-**最后更新**: 2026-04-20 00:39 **维护者**: Kilo AI
+---
+
+## 十二、Waline v3 升级
+
+**更新日期**: 2026-04-20 13:26
+
+**背景**: Waline v2 客户端 (`@waline/client@2.15.8`) + v1 服务端 (`@waline/vercel@1.31.7`) 使用旧 API `/comment`，Waline 提示即将废弃。
+
+**升级方案**:
+
+- 升级客户端到 `@waline/client@3.13.0`
+- 服务端暂时保持 `@waline/vercel@1.39.3` (最新 v1 版本)
+- 升级 `@waline/vercel` 后端到 v1.39.3
+
+**问题**:
+
+1. Waline v3 的 ESM 模块与直接 `<script>` 标签加载不兼容
+2. 需要使用 `type="module"` 或 CDN 方式加载
+3. CSS 导入路径变更: `@waline/client/dist/waline.css` → `@waline/client/waline.css`
+
+**最终解决方案**: 使用 CDN 动态加载
+
+```tsx
+// packages/website/components/WaLine/core.tsx
+import { useEffect } from 'react';
+
+export default function WalineComponent(props) {
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/@waline/client@3.0.0/dist/waline.css';
+    document.head.appendChild(link);
+
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.textContent = `import { init } from 'https://unpkg.com/@waline/client@3.0.0/dist/waline.js'; window.__walineInit__ = init;`;
+    document.head.appendChild(script);
+
+    const fallback = document.createElement('script');
+    fallback.textContent = `window.__walineInit__ = window.Waline;`;
+    document.head.appendChild(fallback);
+
+    setTimeout(() => {
+      if (window.__walineInit__ && document.getElementById('waline')) {
+        window.__walineInit__({
+          el: '#waline',
+          serverURL: window.location.protocol + '//' + window.location.host,
+          dark: '.dark',
+        });
+      }
+    }, 500);
+  }, [props.enable]);
+  // ...
+}
+```
+
+**主题样式适配**:
+
+由于 Waline 使用内联 CSS，无法通过外部 CSS 完全覆盖。已在主题 CSS 中添加样式：
+
+```css
+/* Nova 主题 */
+.nova-theme #waline {
+  --waline-bg-color: transparent !important;
+  --waline-color: var(--nova-primary-text) !important;
+  /* 绿色强调色 #3cffd0 */
+}
+
+/* Nova Nebula 主题 */
+.nova-nebula-theme #waline {
+  /* 绿色强调色 #3cffd0 */
+}
+```
+
+**服务端问题修复**:
+
+1. **WalineProvider stop 方法**: 添加 try-catch 和延迟
+2. **WebsiteProvider stop 方法**: 同样添加错误处理
+3. **端口占用**: 添加 500ms 延迟确保端口释放
+
+**已修改文件**:
+
+- `packages/website/components/WaLine/core.tsx` - Waline 组件
+- `packages/website/themes/nova/styles/nova.css` - Nova Waline 样式
+- `packages/website/themes/nova-nebula/styles/nova.css` - Nova Nebula Waline 样式
+- `packages/server/src/provider/waline/waline.provider.ts` - 停止方法修复
+- `packages/server/src/provider/website/website.provider.ts` - 停止方法修复
+- `packages/website/package.json` - `@waline/client@3.13.0`
+- `packages/waline/package.json` - `@waline/vercel@1.39.3`
+
+---
+
+**最后更新**: 2026-04-20 13:26 **维护者**: Kilo AI
