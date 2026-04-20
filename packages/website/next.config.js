@@ -10,7 +10,19 @@ const rewites =
           return [
             {
               source: "/api/comment",
-              destination: "http://127.0.0.1:8360/comment", // Proxy to Backend
+              destination: "http://127.0.0.1:8360/api/comment",
+            },
+            {
+              source: "/api/comment/:path*",
+              destination: "http://127.0.0.1:8360/api/comment/:path*",
+            },
+            {
+              source: "/comment",
+              destination: "http://127.0.0.1:8360/comment",
+            },
+            {
+              source: "/comment/:path*",
+              destination: "http://127.0.0.1:8360/comment/:path*",
             },
             {
               source: "/api/:path*",
@@ -54,5 +66,5 @@ module.exports = withBundleAnalyzer({
     domains: getAllowDomains(),
   },
   ...getCdnUrl(),
-  ...rewites,
+  ...(isDev ? rewites : {}),
 });

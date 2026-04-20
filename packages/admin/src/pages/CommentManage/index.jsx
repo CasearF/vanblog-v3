@@ -9,7 +9,7 @@ export default function () {
   const { current } = useRef({ hasInit: false });
   const src = useMemo(() => {
     if (initialState?.version && initialState?.version == 'dev') {
-      return 'http://192.168.5.11:8360/ui';
+      return 'http://127.0.0.1:8360/ui';
     } else {
       return '/ui/';
     }

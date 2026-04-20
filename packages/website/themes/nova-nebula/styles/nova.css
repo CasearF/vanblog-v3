@@ -1973,3 +1973,78 @@
 .nova-nebula-theme .ua-link:hover {
   color: var(--nebula-cyan) !important;
 }
+
+/* Waline Comment Box Styling */
+.nova-nebula-theme #waline {
+  --waline-bg-color: transparent !important;
+  --waline-bg-color-light: transparent !important;
+  --waline-border-color: rgba(255, 255, 255, 0.06) !important;
+  --waline-color: var(--nova-primary-text) !important;
+  background-color: transparent !important;
+  border-radius: var(--nova-radius-pill-card);
+  padding: 20px;
+  margin-top: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  backdrop-filter: blur(10px);
+}
+
+.nova-nebula-theme #waline .wl-header {
+  border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.nova-nebula-theme #waline .wl-comment {
+  background-color: transparent !important;
+}
+
+.nova-nebula-theme #waline .wl-nick {
+  color: #3cffd0 !important;
+}
+
+.nova-nebula-theme #waline .wl-time {
+  color: var(--nebula-violet) !important;
+}
+
+.nova-nebula-theme #waline .wl-content {
+  color: var(--nova-primary-text) !important;
+}
+
+.nova-nebula-theme #waline .wl-placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.nova-nebula-theme #waline .wl-text,
+.nova-nebula-theme #waline textarea#wl-edit {
+  color: var(--nova-primary-text) !important;
+  background-color: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 10px;
+}
+
+.nova-nebula-theme #waline .wl-btn {
+  background: #3cffd0 !important;
+  color: #000 !important;
+  border-radius: 20px !important;
+  border: none !important;
+}
+
+.nova-nebula-theme #waline .wl-btn:hover {
+  opacity: 0.9;
+}
+
+.nova-nebula-theme #waline .wl-meta {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.nova-nebula-theme #waline .wl-count {
+  color: #3cffd0 !important;
+}
+
+.nova-nebula-theme #waline .wl-panel {
+  background-color: transparent !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.nova-nebula-theme #waline .wl-header-item.active {
+  color: #3cffd0 !important;
+  border-color: #3cffd0 !important;
+}

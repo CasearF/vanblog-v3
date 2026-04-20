@@ -85,8 +85,12 @@ export class WebsiteProvider {
   }
   async stop(noMessage?: boolean) {
     if (this.ctx) {
-      this.ctx.unref();
-      process.kill(-this.ctx.pid);
+      try {
+        this.ctx.unref();
+        process.kill(-this.ctx.pid, 'SIGTERM');
+      } catch (e) {
+        // Process may have already exited
+      }
       this.ctx = null;
       if (noMessage) return;
       this.logger.log('website 停止成功！');

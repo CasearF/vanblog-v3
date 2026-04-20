@@ -5,6 +5,7 @@ import { PostBottom } from "../../components/PostCard/bottom";
 import { SubTitle, Title } from "../../components/PostCard/title";
 import { getTarget } from "../../components/Link/tools";
 import Markdown from "../../components/Markdown";
+import WaLine from "../../components/WaLine";
 
 export default function NovaPostCard(props: {
   id: number | string;
@@ -115,6 +116,10 @@ export default function NovaPostCard(props: {
           pre={props.pre}
           openArticleLinksInNewWindow={props.openArticleLinksInNewWindow}
         />
+
+        {props.type !== "overview" && (
+          <WaLine enable={props.enableComment} visible={true} />
+        )}
       </div>
     </div>
   );

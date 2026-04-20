@@ -1655,3 +1655,77 @@
 .nova-theme .markdown-body img {
   background-color: transparent !important;
 }
+
+/* Waline Comment Box Styling */
+.nova-theme #waline {
+  --waline-bg-color: transparent !important;
+  --waline-bg-color-light: transparent !important;
+  --waline-border-color: rgba(255, 255, 255, 0.1) !important;
+  --waline-color: var(--nova-primary-text) !important;
+  background-color: transparent !important;
+  border-radius: var(--nova-radius-pill-card);
+  padding: 20px;
+  margin-top: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.nova-theme #waline .wl-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.nova-theme #waline .wl-comment {
+  background-color: transparent !important;
+}
+
+.nova-theme #waline .wl-nick {
+  color: #3cffd0 !important;
+}
+
+.nova-theme #waline .wl-time {
+  color: var(--nova-secondary-text) !important;
+}
+
+.nova-theme #waline .wl-content {
+  color: var(--nova-primary-text) !important;
+}
+
+.nova-theme #waline .wl-placeholder {
+  color: var(--nova-secondary-text) !important;
+}
+
+.nova-theme #waline .wl-text,
+.nova-theme #waline textarea#wl-edit {
+  color: var(--nova-primary-text) !important;
+  background-color: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 10px;
+}
+
+.nova-theme #waline .wl-btn {
+  background-color: #3cffd0 !important;
+  color: #000 !important;
+  border-radius: 20px !important;
+  border: none !important;
+}
+
+.nova-theme #waline .wl-btn:hover {
+  opacity: 0.9;
+}
+
+.nova-theme #waline .wl-meta {
+  color: var(--nova-secondary-text) !important;
+}
+
+.nova-theme #waline .wl-count {
+  color: #3cffd0 !important;
+}
+
+.nova-theme #waline .wl-panel {
+  background-color: transparent !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.nova-theme #waline .wl-header-item.active {
+  color: #3cffd0 !important;
+  border-color: #3cffd0 !important;
+}

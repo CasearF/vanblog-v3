@@ -96,6 +96,7 @@ export class WalineProvider {
       ...mongoEnv,
       ...otherEnv,
       ...walineConfigEnv,
+      PORT: '8360',
     };
     this.logger.log(`waline 配置： ${JSON.stringify(this.env, null, 2)}`);
   }
@@ -107,12 +108,22 @@ export class WalineProvider {
     if (this.ctx) {
       await this.stop();
     }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     await this.run();
   }
   async stop() {
     if (this.ctx) {
-      this.ctx.unref();
-      process.kill(-this.ctx.pid);
+      try {
+        this.ctx.unref();
+        process.kill(this.ctx.pid, 'SIGTERM');
+      } catch (e) {
+        try {
+          process.kill(-this.ctx.pid, 'SIGTERM');
+        } catch (e2) {
+          // Process may have already exited
+        }
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
       this.ctx = null;
       this.logger.log('waline 停止成功！');
     }
