@@ -706,11 +706,29 @@ export default function WalineComponent(props) {
 - `packages/website/components/WaLine/core.tsx` - Waline 组件
 - `packages/website/themes/nova/styles/nova.css` - Nova Waline 样式
 - `packages/website/themes/nova-nebula/styles/nova.css` - Nova Nebula Waline 样式
-- `packages/server/src/provider/waline/waline.provider.ts` - 停止方法修复
-- `packages/server/src/provider/website/website.provider.ts` - 停止方法修复
-- `packages/website/package.json` - `@waline/client@3.13.0`
-- `packages/waline/package.json` - `@waline/vercel@1.39.3`
 
 ---
 
-**最后更新**: 2026-04-20 13:26 **维护者**: Kilo AI
+**最后更新**: 2026-04-20 14:05 **维护者**: Kilo AI
+
+---
+
+## 十三、文章反应功能（已禁用）
+
+**更新日期**: 2026-04-20 13:46
+
+**功能**: Waline v3 支持文章反应（reaction）功能
+
+**启用方式**: 在 `core.tsx` 的 `init` 配置中添加 `reaction: true`
+
+**禁用原因** (2026-04-20 14:05): 后端 `@waline/vercel` 仍是 v1 版本，不完全支持 v3 的 reaction 功能
+
+**相关问题**: Admin 面板 ArticleReaction.vue 调用不存在的 `/api/article` POST 端点导致 404
+
+**已回滚修改**:
+
+- core.tsx: 移除 `reaction: true`
+- nova.css: 移除 `.wl-reaction` 相关样式
+- nova-nebula.css: 移除 `.wl-reaction` 相关样式
+
+**状态**: 已禁用，等待 Waline 后端支持
