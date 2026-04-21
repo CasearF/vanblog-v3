@@ -8,6 +8,9 @@ services:
       TZ: 'Asia/Shanghai'
       # 邮箱地址，用于自动申请 https 证书
       EMAIL: vanblog_email
+      # 修复 Next.js 只监听容器内部 IP 的问题
+      HOSTNAME: '0.0.0.0'
+      PORT: '3001'
     volumes:
       # 图床文件的存放地址，按需修改。
       - vanblog_data_path/data/static:/app/static
