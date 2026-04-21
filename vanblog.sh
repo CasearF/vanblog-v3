@@ -238,10 +238,17 @@ config() {
 
   echo -e "正在下载编排文件"
   rm ${VANBLOG_BASE_PATH}/docker-compose-template.yaml >/dev/null 2>&1
-  wget -t 2 --no-check-certificate -T 10 -O ${VANBLOG_BASE_PATH}/docker-compose-template.yaml ${COMPOSE_URL} >/dev/null 2>&1
-  if [[ $? != 0 ]]; then
-    echo -e "${red}下载脚本失败，请检查本机能否连接 ${COMPOSE_URL}${plain}"
-    return 0
+  # 优先使用本地 docker-compose 模板文件
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  if [ -f "${SCRIPT_DIR}/docker-compose/docker-compose-template.yml" ]; then
+    cp "${SCRIPT_DIR}/docker-compose/docker-compose-template.yml" ${VANBLOG_BASE_PATH}/docker-compose-template.yaml
+    echo -e "使用本地编排文件"
+  else
+    wget -t 2 --no-check-certificate -T 10 -O ${VANBLOG_BASE_PATH}/docker-compose-template.yaml ${COMPOSE_URL} >/dev/null 2>&1
+    if [[ $? != 0 ]]; then
+      echo -e "${red}下载脚本失败，请检查本机能否连接 ${COMPOSE_URL}${plain}"
+      return 0
+    fi
   fi
 
   # read -ep "请输入您想要安装的版本，默认不填为最新：" vanblog_version &&

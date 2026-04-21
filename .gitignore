@@ -145,5 +145,9 @@ docs/.vuepress/dist/
 temp.json
 staticFolder
 localBuild.sh
+# 日志目录
 log
 log/**vanblog.zip
+# 排除代码中的 log 目录被忽略
+!**/provider/log/
+!**/controller/admin/log/
