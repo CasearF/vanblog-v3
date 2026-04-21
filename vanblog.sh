@@ -96,13 +96,13 @@ pre_check() {
         Get_Docker_URL="get.docker.com"
         GITHUB_URL="dn-dao-github-mirror.daocloud.io"
         Get_Docker_Argu=" "
-        Docker_IMG="mereith\/van-blog:latest"
+        Docker_IMG="casearxx\/vanblog-v3:latest"
     else
         echo "使用中国镜像"
         Get_Docker_URL="vanblog.mereith.com/docker.sh"
         GITHUB_URL="github.com"
         Get_Docker_Argu=" -s docker --mirror Aliyun"
-        Docker_IMG="registry.cn-beijing.aliyuncs.com\/mereith\/van-blog:latest"
+        Docker_IMG="registry.cn-beijing.aliyuncs.com\/casearxx\/vanblog-v3:latest"
     fi
 
 }
