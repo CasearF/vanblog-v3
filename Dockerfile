@@ -14,6 +14,8 @@ RUN pnpm config set registry https://registry.npmjs.org -g
 RUN pnpm config set fetch-retries 20 -g
 RUN pnpm config set fetch-timeout 600000 -g
 RUN pnpm i
+# 修复 esbuild 安装问题
+RUN cd node_modules/.pnpm/esbuild*/node_modules/esbuild && node install.js 2>/dev/null || true
 # RUN sed -i 's/\/assets/\/admin\/assets/g' dist/admin/index.html
 RUN pnpm build
 
