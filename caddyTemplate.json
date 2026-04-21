@@ -1508,7 +1508,6 @@
                                 "module": "acme"
                             },
                             {
-                                "email": "VAN_BLOG_EMAIL",
                                 "module": "zerossl"
                             }
                         ],
