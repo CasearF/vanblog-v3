@@ -12,8 +12,8 @@ VANBLOG_DATA_PATH="${VANBLOG_BASE_PATH}/data"
 VANBLOG_DATA_PATH_RAW="\/var\/vanblog\/data"
 VANBLOG_SCRIPT_VERSION="v0.3.2"
 
-COMPOSE_URL="https://vanblog.mereith.com/docker-compose-template.yml"
-SCRIPT_URL="https://vanblog.mereith.com/vanblog.sh"
+COMPOSE_URL="https://raw.githubusercontent.com/CasearF/vanblog-v3/main/docker-compose/docker-compose-template.yml"
+SCRIPT_URL="https://raw.githubusercontent.com/CasearF/vanblog-v3/main/vanblog.sh"
 GITHUB_URL="dn-dao-github-mirror.daocloud.io"
 Get_Docker_URL="vanblog.mereith.com/docker.sh"
 Get_Docker_Argu=" -s docker --mirror Aliyun"
@@ -102,7 +102,7 @@ pre_check() {
         Get_Docker_URL="vanblog.mereith.com/docker.sh"
         GITHUB_URL="github.com"
         Get_Docker_Argu=" -s docker --mirror Aliyun"
-        Docker_IMG="registry.cn-beijing.aliyuncs.com\/casearxx\/vanblog-v3:latest"
+        Docker_IMG="casearxx\/vanblog-v3:latest"
     fi
 
 }
