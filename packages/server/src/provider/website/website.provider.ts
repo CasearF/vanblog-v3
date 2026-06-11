@@ -18,6 +18,9 @@ export class WebsiteProvider {
   // constructor() {}
   ctx: ChildProcess = null;
   logger = new Logger(WebsiteProvider.name);
+  // 崩溃自动重启的退避控制
+  private crashCount = 0;
+  private lastSpawnAt = 0;
   constructor(
     private metaProvider: MetaProvider,
     private settingProvider: SettingProvider,
@@ -77,10 +80,30 @@ export class WebsiteProvider {
     if (this.ctx) {
       await this.stop();
     }
+    // 主动重启：停掉旧进程后立即拉起新进程
+    //（旧进程的 exit 因 this.ctx 已被替换不会再触发自动重启）
+    this.crashCount = 0;
+    await this.run();
   }
   async restore(reason: string) {
     this.logger.log(`${reason}`);
-    if (this.ctx) this.ctx = null;
+    this.ctx = null;
+    // 进程意外退出后的自动重启加入退避，避免启动即崩时的紧密循环
+    const now = Date.now();
+    if (now - this.lastSpawnAt < 5000) {
+      this.crashCount++;
+    } else {
+      this.crashCount = 0;
+    }
+    if (this.crashCount > 5) {
+      this.logger.error('website 连续崩溃超过 5 次，停止自动重启');
+      return;
+    }
+    const delay = Math.min(500 * 2 ** this.crashCount, 30000);
+    this.logger.warn(
+      `website 将在 ${delay}ms 后自动重启（第 ${this.crashCount} 次）`,
+    );
+    await new Promise((r) => setTimeout(r, delay));
     await this.run();
   }
   async stop(noMessage?: boolean) {
@@ -107,41 +130,48 @@ export class WebsiteProvider {
       cmd = 'node';
       args = ['./packages/website/server.js'];
     }
+    if (this.ctx != null) {
+      this.logger.log('Website 已在运行');
+      return;
+    }
     const loadEnvs = await this.loadEnv();
     this.logger.log(JSON.stringify(loadEnvs, null, 2));
-    if (this.ctx == null) {
-      this.ctx = spawn(cmd, args, {
-        env: {
-          ...process.env,
-          ...loadEnvs,
-        },
-        cwd: path.join(path.resolve(process.cwd(), '..'), 'website'),
-        detached: true,
-        shell: process.platform === 'win32',
-      });
-      this.ctx.on('message', (message) => {
-        this.logger.log(message);
-      });
-      this.ctx.on('exit', async () => {
+    this.lastSpawnAt = Date.now();
+    const child = spawn(cmd, args, {
+      env: {
+        ...process.env,
+        ...loadEnvs,
+      },
+      cwd: path.join(path.resolve(process.cwd(), '..'), 'website'),
+      detached: true,
+      shell: process.platform === 'win32',
+    });
+    this.ctx = child;
+    child.on('message', (message) => {
+      this.logger.log(message);
+    });
+    child.on('exit', async () => {
+      // 仅当退出的是当前管理的进程时才自动重启，
+      // 避免旧进程延迟触发的 exit 误触发或重复拉起
+      if (this.ctx === child) {
         await this.restore('website 进程退出，自动重启');
-      });
-      this.ctx.stdout.on('data', (data) => {
-        const t: string = data.toString();
-        this.logger.log(t.substring(0, t.length - 1));
-      });
-      this.ctx.stderr.on('data', (data) => {
-        const t: string = data.toString();
+      }
+    });
+    child.stdout.on('data', (data) => {
+      const t: string = data.toString();
+      this.logger.log(t.substring(0, t.length - 1));
+    });
+    child.stderr.on('data', (data) => {
+      const t: string = data.toString();
 
-        let showLog = true;
-        for (const each of ignoreWebsiteWarnings) {
-          if (t.includes(each)) showLog = false;
-        }
-        if (showLog) {
-          this.logger.error(t.substring(0, t.length - 1));
-        }
-      });
-    } else {
-      this.logger.log('Website 启动成功！');
-    }
+      let showLog = true;
+      for (const each of ignoreWebsiteWarnings) {
+        if (t.includes(each)) showLog = false;
+      }
+      if (showLog) {
+        this.logger.error(t.substring(0, t.length - 1));
+      }
+    });
+    this.logger.log('Website 启动成功！');
   }
 }
