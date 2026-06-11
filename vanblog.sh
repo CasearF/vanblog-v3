@@ -70,40 +70,11 @@ pre_check() {
     exit 1
   fi
 
-      ## China_IP
-    if [[ -z "${CN}" ]]; then
-        if [[ $(curl -m 10 -s https://ipapi.co/json | grep 'China') != "" ]]; then
-            echo "根据ipapi.co提供的信息，当前IP可能在中国"
-            read -e -r -p "是否选用中国镜像完成安装? [Y/n] " input
-            case $input in
-                [yY][eE][sS] | [yY])
-                    echo "使用中国镜像"
-                    CN=true
-                ;;
-
-                [nN][oO] | [nN])
-                    echo "不使用中国镜像"
-                ;;
-                *)
-                    echo "使用中国镜像"
-                    CN=true
-                ;;
-            esac
-        fi
-    fi
-
-    if [[ -z "${CN}" ]]; then
-        Get_Docker_URL="get.docker.com"
-        GITHUB_URL="dn-dao-github-mirror.daocloud.io"
-        Get_Docker_Argu=" "
-        Docker_IMG="casearxx\/vanblog-v3:latest"
-    else
-        echo "使用中国镜像"
-        Get_Docker_URL="vanblog.mereith.com/docker.sh"
-        GITHUB_URL="github.com"
-        Get_Docker_Argu=" -s docker --mirror Aliyun"
-        Docker_IMG="casearxx\/vanblog-v3:latest"
-    fi
+    ## 全部直连 GitHub / Docker Hub，不使用任何镜像
+    Get_Docker_URL="get.docker.com"
+    GITHUB_URL="github.com"
+    Get_Docker_Argu=" "
+    Docker_IMG="casearxx\/vanblog-v3:latest"
 
 }
 
