@@ -233,22 +233,58 @@ selinux() {
   fi
 }
 
+write_compose_template() {
+  cat > ${VANBLOG_BASE_PATH}/docker-compose-template.yaml <<'COMPOSE_EOF'
+version: '3'
+
+services:
+  vanblog:
+    image: vanblog_image
+    restart: always
+    environment:
+      TZ: 'Asia/Shanghai'
+      # 邮箱地址，用于自动申请 https 证书
+      EMAIL: vanblog_email
+      # 修复 Next.js 只监听容器内部 IP 的问题
+      HOSTNAME: '0.0.0.0'
+      PORT: '3001'
+    volumes:
+      # 图床文件的存放地址，按需修改。
+      - vanblog_data_path/data/static:/app/static
+      # 日志文件
+      - vanblog_data_path/log:/var/log
+      # caddy 配置存储
+      - vanblog_data_path/caddy/config:/root/.config/caddy
+      # caddy 证书存储
+      - vanblog_data_path/caddy/data:/root/.local/share/caddy
+    ports:
+      # 前面的是映射到宿主机的端口号，改端口的话该前面的
+      - vanblog_http_port:80
+      - vanblog_https_port:443
+  mongo:
+    # 某些机器不支持 avx 会报错，所以默认用 v4 版本。有的话用最新的。
+    image: mongo:4.4.16
+    restart: always
+    environment:
+      TZ: 'Asia/Shanghai'
+    volumes:
+      - vanblog_data_path/data/mongo:/data/db
+COMPOSE_EOF
+}
+
 config() {
   echo -e "> 修改配置"
 
-  echo -e "正在下载编排文件"
+  echo -e "正在准备编排文件"
   rm ${VANBLOG_BASE_PATH}/docker-compose-template.yaml >/dev/null 2>&1
-  # 优先使用本地 docker-compose 模板文件
+  # 优先使用本地 docker-compose 模板文件，找不到则用内置模板（无需联网）
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   if [ -f "${SCRIPT_DIR}/docker-compose/docker-compose-template.yml" ]; then
     cp "${SCRIPT_DIR}/docker-compose/docker-compose-template.yml" ${VANBLOG_BASE_PATH}/docker-compose-template.yaml
     echo -e "使用本地编排文件"
   else
-    wget -t 2 --no-check-certificate -T 10 -O ${VANBLOG_BASE_PATH}/docker-compose-template.yaml ${COMPOSE_URL} >/dev/null 2>&1
-    if [[ $? != 0 ]]; then
-      echo -e "${red}下载脚本失败，请检查本机能否连接 ${COMPOSE_URL}${plain}"
-      return 0
-    fi
+    write_compose_template
+    echo -e "使用内置编排文件"
   fi
 
   # read -ep "请输入您想要安装的版本，默认不填为最新：" vanblog_version &&
