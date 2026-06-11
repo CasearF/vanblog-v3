@@ -1,12 +1,15 @@
 import dynamic from "next/dynamic";
-export default function (props: {
+
+// dynamic() 必须在模块顶层调用；放在组件 render 内会每次渲染生成新组件类型，
+// 导致强制卸载重挂、重复触发 core 的副作用。
+const Core = dynamic(() => import("./core"));
+
+export default function WaLine(props: {
   enable: "true" | "false";
   visible: boolean;
 }) {
   if (!props.enable || props.enable == "false") {
     return null;
-  } else {
-    const Core = dynamic(() => import("./core"));
-    return <Core enable={props.enable} visible={props.visible} />;
   }
+  return <Core enable={props.enable} visible={props.visible} />;
 }

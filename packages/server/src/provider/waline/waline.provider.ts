@@ -16,7 +16,7 @@ export class WalineProvider {
     private readonly settingProvider: SettingProvider,
   ) {}
 
-  mapConfig2Env(config: WalineSetting) {
+  mapConfig2Env(walineSetting: WalineSetting) {
     const walineEnvMapping = {
       'smtp.port': 'SMTP_PORT',
       'smtp.host': 'SMTP_HOST',
@@ -29,31 +29,35 @@ export class WalineProvider {
       forceLoginComment: 'LOGIN',
     };
     const result = {};
-    if (!config) {
+    if (!walineSetting) {
       return result;
     }
-    for (const key of Object.keys(config)) {
+    for (const key of Object.keys(walineSetting)) {
       if (key == 'forceLoginComment') {
-        if (config.forceLoginComment) {
+        if (walineSetting.forceLoginComment) {
           result['LOGIN'] = 'force';
         }
       } else if (key == 'otherConfig') {
-        if (config.otherConfig) {
+        if (walineSetting.otherConfig) {
           try {
-            const data = JSON.parse(config.otherConfig);
+            const data = JSON.parse(walineSetting.otherConfig);
             for (const [k, v] of Object.entries(data)) {
               result[k] = v;
             }
-          } catch (err) {}
+          } catch (err) {
+            this.logger.warn(
+              `waline otherConfig JSON 解析失败，已忽略：${err?.message || err}`,
+            );
+          }
         }
       } else {
         const rKey = walineEnvMapping[key];
         if (rKey) {
-          result[rKey] = config[key];
+          result[rKey] = walineSetting[key];
         }
       }
     }
-    if (!config['smtp.enabled']) {
+    if (!walineSetting['smtp.enabled']) {
       const r2 = {};
       for (const [k, v] of Object.entries(result)) {
         if (
@@ -115,10 +119,12 @@ export class WalineProvider {
     if (this.ctx) {
       try {
         this.ctx.unref();
-        process.kill(this.ctx.pid, 'SIGTERM');
+        // detached:true 时子进程自成进程组，用负 PID 杀掉整个进程组，
+        // 避免子孙进程残留占用 8360 端口导致下次重启 EADDRINUSE
+        process.kill(-this.ctx.pid, 'SIGTERM');
       } catch (e) {
         try {
-          process.kill(-this.ctx.pid, 'SIGTERM');
+          process.kill(this.ctx.pid, 'SIGTERM');
         } catch (e2) {
           // Process may have already exited
         }
@@ -129,38 +135,42 @@ export class WalineProvider {
     }
   }
   async run(): Promise<any> {
+    // 已有进程在跑时先停掉，避免重复 spawn 与端口冲突
+    if (this.ctx != null) {
+      await this.stop();
+    }
     await this.loadEnv();
     const base = '../waline/node_modules/@waline/vercel/vanilla.js';
-    if (this.ctx == null) {
-      this.ctx = spawn('node', [base], {
-        env: {
-          ...process.env,
-          ...this.env,
-        },
-        cwd: process.cwd(),
-        detached: true,
-      });
-      this.ctx.on('message', (message) => {
-        this.logger.log(message);
-      });
-      this.ctx.on('exit', () => {
+    const child = spawn('node', [base], {
+      env: {
+        ...process.env,
+        ...this.env,
+      },
+      cwd: process.cwd(),
+      detached: true,
+    });
+    this.ctx = child;
+    child.on('message', (message) => {
+      this.logger.log(message);
+    });
+    child.on('exit', () => {
+      // 仅当退出的是当前管理的进程时才清空引用，
+      // 避免旧进程延迟触发的 exit 清掉新进程的引用
+      if (this.ctx === child) {
         this.ctx = null;
         this.logger.warn('Waline 进程退出');
-      });
-      this.ctx.stdout.on('data', (data) => {
-        const t = data.toString();
-        if (!t.includes('Cannot find module')) {
-          this.logger.log(t.substring(0, t.length - 1));
-        }
-      });
-      this.ctx.stderr.on('data', (data) => {
-        const t = data.toString();
-        this.logger.error(t.substring(0, t.length - 1));
-      });
-    } else {
-      await this.stop();
-      await this.run();
-    }
+      }
+    });
+    child.stdout.on('data', (data) => {
+      const t = data.toString();
+      if (!t.includes('Cannot find module')) {
+        this.logger.log(t.substring(0, t.length - 1));
+      }
+    });
+    child.stderr.on('data', (data) => {
+      const t = data.toString();
+      this.logger.error(t.substring(0, t.length - 1));
+    });
     this.logger.log('Waline 启动成功！');
   }
 }
