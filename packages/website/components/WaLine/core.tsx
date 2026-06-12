@@ -18,7 +18,7 @@ export default function WalineComponent(props: {
     if (!cssInjected) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://unpkg.com/@waline/client@3.0.0/dist/waline.css";
+      link.href = "https://unpkg.com/@waline/client@3.13.0/dist/waline.css";
       document.head.appendChild(link);
       cssInjected = true;
     }
@@ -28,7 +28,7 @@ export default function WalineComponent(props: {
       const script = document.createElement("script");
       script.type = "module";
       script.textContent =
-        "import { init } from 'https://unpkg.com/@waline/client@3.0.0/dist/waline.js'; window.__walineInit__ = init;";
+        "import { init } from 'https://unpkg.com/@waline/client@3.13.0/dist/waline.js'; window.__walineInit__ = init;";
       document.head.appendChild(script);
       esmInjected = true;
     }
