@@ -59,6 +59,19 @@
 - Docker Hub 现有标签：`main`（随 main 滚动）、`<sha>`、`latest`。
 - 注意：CI 工作流仅 push `linux/amd64`（已移除 arm64 以加速），只推 Docker Hub（ghcr 已禁用）。
 
+### 3.3 CI `error writing layer blob: not_found`（buildx gha 缓存损坏，已修，commit d1e5166）
+- 症状：push 后 "Build and Push Docker Image" 失败报 `error writing layer blob: not_found`，
+  **重跑无效**（每次都去读同一份烂缓存）。同屏出现的 `LegacyKeyValueFormat`（`ENV key value` 老写法）
+  / `StageNameCasing`（stage 名大写）只是 dockerfile lint **警告**，与失败无关，可忽略。
+- 根因：workflow 用 GitHub Actions 缓存（`docker-image.yml` 的 `cache-to/from: type=gha`）。
+  gha 缓存清单引用了已被驱逐/损坏的 layer blob，写入时找不到源 blob → 报错。
+  **不是 Docker Hub、不是代码、也不是那次 README 提交**（根目录 README 根本没被 COPY 进任何构建阶段）。
+- 修复：给三处缓存引用统一加 `scope=v2`（两处 `cache-from` + 一处 `cache-to`），换全新缓存命名空间、
+  弃用旧的烂 blob。⚠️ **`cache-from` 与 `cache-to` 的 scope 必须一致**才能命中。push 该提交即同时触发干净构建。
+- 复发处理：缓存再烂就把 `v2` 递增 `v3`…；反复烂则改"方案乙"——直接删掉 `type=gha` 三处缓存
+  （本项目构建不频繁，全量构建慢几分钟，一劳永逸）。也可在 GitHub → Actions → Management → Caches 手动逐条删。
+- 诊断口诀补充：Docker 构建报 `*blob* not_found` 这类，**先怀疑构建缓存，不是镜像内容**。
+
 ## 4. 安装脚本 vanblog.sh（已多次修改）
 
 - 镜像统一 **`casearxx/vanblog-v3:latest`**（Docker Hub）。中国镜像分支**已整段删除**，
