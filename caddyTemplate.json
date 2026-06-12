@@ -123,10 +123,6 @@
                                         {
                                             "handle": [
                                                 {
-                                                    "handler": "rewrite",
-                                                    "strip_path_prefix": "/api"
-                                                },
-                                                {
                                                     "handler": "reverse_proxy",
                                                     "trusted_proxies": [
                                                         "192.168.0.0/16",
@@ -856,10 +852,6 @@
                                     "routes": [
                                         {
                                             "handle": [
-                                                {
-                                                    "handler": "rewrite",
-                                                    "strip_path_prefix": "/api"
-                                                },
                                                 {
                                                     "handler": "reverse_proxy",
                                                     "trusted_proxies": [
