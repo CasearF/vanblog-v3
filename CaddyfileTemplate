@@ -89,7 +89,7 @@
 	handle /swagger* {
 		reverse_proxy 127.0.0.1:3000
 	}
-  handle /api/comment {
+  handle /api/comment* /api/article* /api/user* /api/token* /api/oauth* /api/db* /api/verification* {
     uri strip_prefix /api
 		reverse_proxy 127.0.0.1:8360 {
       import h

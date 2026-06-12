@@ -106,7 +106,13 @@
                             "match": [
                                 {
                                     "path": [
-                                        "/api/comment"
+                                        "/api/comment*",
+                                        "/api/oauth*",
+                                        "/api/user*",
+                                        "/api/token*",
+                                        "/api/article*",
+                                        "/api/db*",
+                                        "/api/verification*"
                                     ]
                                 }
                             ],
@@ -834,7 +840,13 @@
                             "match": [
                                 {
                                     "path": [
-                                        "/api/comment"
+                                        "/api/comment*",
+                                        "/api/oauth*",
+                                        "/api/user*",
+                                        "/api/token*",
+                                        "/api/article*",
+                                        "/api/db*",
+                                        "/api/verification*"
                                     ]
                                 }
                             ],
