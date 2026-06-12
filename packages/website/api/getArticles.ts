@@ -1,7 +1,12 @@
-import { Article } from "../types/article";
 import { encodeQuerystring } from "../utils/encode";
 import { config } from "../utils/loadConfig";
-export type SortOrder = "asc" | "desc";
+import type {
+  SortOrder,
+  ApiResponse,
+  ArticleListResponse,
+} from "@vanblog/shared";
+// 保留 SortOrder 从本模块导出的历史路径（如有外部引用）。
+export type { SortOrder };
 export interface GetArticleOption {
   page: number;
   pageSize: number;
@@ -14,7 +19,7 @@ export interface GetArticleOption {
 }
 export const getArticlesByOption = async (
   option: GetArticleOption
-): Promise<{ articles: Article[]; total: number; totalWordCount?: number }> => {
+): Promise<ArticleListResponse> => {
   let queryString = "";
   for (const [k, v] of Object.entries(option)) {
     queryString += `${k}=${v}&`;
@@ -24,7 +29,8 @@ export const getArticlesByOption = async (
   try {
     const url = `${config.baseUrl}api/public/article?${queryString}`;
     const res = await fetch(url);
-    const { statusCode, data } = await res.json();
+    const { statusCode, data } =
+      (await res.json()) as ApiResponse<ArticleListResponse>;
     if (statusCode == 233) {
       return { articles: [], total: 0, totalWordCount: 0 };
     }

@@ -17,6 +17,9 @@
     "paths": {
       "react": [
         "./node_modules/@types/react"
+      ],
+      "@vanblog/shared": [
+        "../shared/src/index.d.ts"
       ]
     },
     "skipLibCheck": true,

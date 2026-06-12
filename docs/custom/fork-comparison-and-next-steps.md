@@ -37,7 +37,11 @@
 1. **性能优化 Option A（唯一确认能上分的方向）**：去掉 bytemd `<Viewer>` 客户端二次水合，
    改静态渲染 SSR 产出的 HTML（viewerEffect 改轻量原生 JS）。详见
    [performance-optimization-roadmap.md](./performance-optimization-roadmap.md) 第一批实测结果一节。
-2. **借鉴项 #1：`shared` 共享类型包**（见上）。
+2. ~~**借鉴项 #1：`shared` 共享类型包**~~ ✅ **已落地 v1**（2026-06-12，见第 5 节 + `packages/shared/README.md`）。
+   **后续可深化**：(a) server 各 controller 把返回逐步标注成 `ApiResponse<T>` / `Article`
+   （当前 server 只共用了 `SortOrder`，是 pass-through 弱耦合，真正的强制只发生在被约束的用点）；
+   (b) admin 接入（它的 API 类型多由 `umi openapi` 生成，需另行评估）；(c) 把
+   `pnpm --filter @vanblog/shared run check` 接进 CI（因消费方 `skipLibCheck` 不校验 .d.ts 自身）。
 3. **借鉴项 #2/#3**：husky 提交钩子、核心 provider 单测。
 4. 原作者 TODO 里小甜点：快捷分享按钮（纯前端，轻量实现，1-2h）。
 
@@ -47,3 +51,16 @@
 - CI 构建后冒烟测试落地（`scripts/ci-smoke-test.sh` + workflow，通过才推镜像）。
 - README 标注 Casear 维护身份，勾选两项已完成 TODO（主题系统、e2e/CI）。
 - 性能第一批改动（分析脚本 lazyOnload + mermaid 动态化）已部署，但实测基本无效（见性能路线图）。
+- **`shared` 共享类型包 v1**（`packages/shared`，declaration-only `.d.ts`，详见 `packages/shared/README.md`）：
+  - 新增 `@vanblog/shared`，导出 `SortOrder` / `ApiResponse<T>` / `Article` / `ArticleListResponse` / `PaginationOption`。
+  - **接线机制刻意选了 tsconfig path alias + `import type`，没用 workspace:* 依赖、也没改造 Docker 各 stage 为 workspace 感知**
+    （那会重写 server/admin 的 node_modules/dist COPY 路径，且本地无 Docker 难验证）。
+    每个 builder stage 只多 1 行 `COPY ./packages/shared`（server→`/shared`，website→`/app/packages/shared`，
+    alias `../shared/src/index.d.ts` 在本地与两种 Docker 布局下都成立）。
+  - server `types/sort.ts` re-export 共享 `SortOrder`（5 处引用零改动）；website `types/article.ts` re-export 共享 `Article`、
+    `api/getArticles.ts` 用 `ApiResponse<ArticleListResponse>` 标注返回。
+  - **验证**：server + website `tsc --noEmit` 均过；`pnpm install --frozen-lockfile` 一致（8 个 workspace 项目）；
+    实测改共享返回结构会让 website 编译报错（见 README 自检节）。
+  - **lockfile 副作用（已知、无害）**：重生成 `pnpm-lock.yaml` 时顺带修正了既有漂移
+    `@waline/vercel ^1.31.7→^1.39.3`（waline/package.json 早已是 1.39.3，只是 lock 没跟上）+ `think-helper 1.1.4→1.1.5`。
+    waline 在 RUNNER 阶段独立 `pnpm i`、website frozen 阶段不依赖它，故对 Docker/运行时无影响。

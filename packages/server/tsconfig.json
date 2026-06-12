@@ -21,7 +21,8 @@
     "noFallthroughCasesInSwitch": false,
     "composite": true,
     "paths": {
-      "mongoose": ["./node_modules/mongoose"]
+      "mongoose": ["./node_modules/mongoose"],
+      "@vanblog/shared": ["../shared/src/index.d.ts"]
     }
   }
 }

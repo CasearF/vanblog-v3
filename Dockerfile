@@ -24,6 +24,10 @@ FROM node:18 as SERVER_BUILDER
 ENV NODE_OPTIONS=--max_old_space_size=4096
 WORKDIR /app
 COPY ./packages/server/ .
+# 共享类型包（declaration-only .d.ts）：server 的 tsconfig paths 用 ../shared/src/index.d.ts 解析。
+# server 内容被铺平到 /app，故 ../shared = /shared，与本地 packages/shared 同构。
+# 仅供 nest build(tsc) 类型解析，emit 时被擦除，不进运行时/dist。
+COPY ./packages/shared /shared
 RUN npm install -g corepack@latest \
   && corepack enable \
   && corepack prepare pnpm@8.11.0 --activate
@@ -42,6 +46,9 @@ COPY ./pnpm-lock.yaml ./
 COPY ./pnpm-workspace.yaml ./
 COPY ./tsconfig.base.json ./
 COPY ./packages/website ./packages/website
+# 共享类型包（declaration-only .d.ts）：website 的 tsconfig paths 用 ../shared/src/index.d.ts 解析。
+# website 保持 packages/ 布局，故落到 /app/packages/shared，与本地同构。
+COPY ./packages/shared ./packages/shared
 ENV isBuild t
 ENV VAN_BLOG_ALLOW_DOMAINS "pic.mereith.com"
 ARG VAN_BLOG_BUILD_SERVER=http://localhost:3000

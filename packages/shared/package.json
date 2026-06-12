@@ -1,0 +1,19 @@
+{
+  "name": "@vanblog/shared",
+  "version": "0.0.1",
+  "private": true,
+  "description": "前后端共享的类型契约（type-only，无运行时代码）。消费方通过 tsconfig path alias + import type 引用，构建期被擦除。",
+  "types": "./src/index.d.ts",
+  "main": "./src/index.d.ts",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "check": "tsc --noEmit -p tsconfig.json"
+  },
+  "sideEffects": false,
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "4.9.5"
+  }
+}
