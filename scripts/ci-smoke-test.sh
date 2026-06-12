@@ -55,7 +55,8 @@ init_code=$(curl -s -o "$init_out" -w '%{http_code}' --max-time 30 -X POST \
   -d '{"user":{"username":"smoke","password":"smoke-ci-pass","nickname":"smoke"},"siteInfo":{"author":"smoke","authorDesc":"ci","authorLogo":"","siteLogo":"","favicon":"","siteName":"smoke-test","siteDesc":"ci smoke test","baseUrl":"http://127.0.0.1:8080"}}' \
   "$BASE/api/admin/init" || true)
 [ -n "$init_code" ] || init_code=000
-if [ "$init_code" = "200" ] && grep -q '"statusCode":200' "$init_out"; then
+# NestJS @Post 默认返回 201 Created；以响应体 statusCode:200 为成功凭据，HTTP 接受 200/201
+if { [ "$init_code" = "201" ] || [ "$init_code" = "200" ]; } && grep -q '"statusCode":200' "$init_out"; then
   echo "  ✅ 初始化成功 (HTTP $init_code)"
   PASS=$((PASS+1))
 else
