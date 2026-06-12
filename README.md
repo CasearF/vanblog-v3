@@ -19,6 +19,12 @@
 	<strong>Demo(后台账号密码均为 demo): </strong>  <a target="_blank" href='https://blog-demo.mereith.com'>blog-demo.mereith.com</a>
 </p>
 
+> [!NOTE]
+> **本仓库是由 [Casear](https://casear.net)（[@CasearF](https://github.com/CasearF)）维护的分支版本。**
+> 基于原作者 [Mereithhh](https://github.com/Mereithhh) 的 [vanblog](https://github.com/Mereithhh/vanblog) 持续维护与更新：
+> 修复评论系统、更新依赖、新增主题系统（nova / nova-nebula）、CI 冒烟测试与性能优化等。
+> 自建镜像：[`casearxx/vanblog-v3`](https://hub.docker.com/r/casearxx/vanblog-v3)。
+
 ## 预览图
 
 ![前台-白色](/img/合并.png)
@@ -181,12 +187,12 @@ curl -L https://vanblog.mereith.com/vanblog.sh -o vanblog.sh && chmod +x vanblog
 - [x] 上传图片自动压缩功能
 - [x] 批量操作文章草稿
 - [ ] 插件系统
-- [ ] 自定义主题（前端渲染器）系统
+- [x] 自定义主题（前端渲染器）系统（本分支已实现：`themes/` 框架 + nova / nova-nebula 主题，后台一键切换）
 - [ ] 浏览器消息通知
 - [ ] 文章/草稿的历史版本管理
 - [ ] 精简配置项，尽可能移动到运行时配置
 - [ ] 增加 ORM 层，适配更多数据库
-- [ ] 增加一些 e2e 测试，集成到 CI
+- [x] 增加一些 e2e 测试，集成到 CI（本分支已实现：CI 构建后容器冒烟测试，断言关键端点，通过才推送镜像）
 - [ ] 国际化
 
 ## 问题反馈
