@@ -70,8 +70,8 @@ jobs:
           load: true
           push: false
           tags: vanblog:smoke
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=v2
+          cache-to: type=gha,mode=max,scope=v2
           build-args: |
             VAN_BLOG_BUILD_SERVER=http://localhost:3000
             VAN_BLOG_VERSIONS=${{ github.sha }}
@@ -109,7 +109,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
+          cache-from: type=gha,scope=v2
           build-args: |
             VAN_BLOG_BUILD_SERVER=http://localhost:3000
             VAN_BLOG_VERSIONS=${{ github.sha }}
