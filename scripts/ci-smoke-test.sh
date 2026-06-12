@@ -12,7 +12,9 @@ wait_for() { # wait_for <名称> <url> <最大秒数>
   local name="$1" url="$2" max="$3" code=000 i=0
   echo "==> 等待 ${name} (${BASE}${url}) ..."
   while [ "$i" -lt "$max" ]; do
-    code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$BASE$url" || echo 000)
+    # curl 失败时 %{http_code} 自身就输出 000，勿再追加回退值（否则拼成 000000）
+    code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$BASE$url" || true)
+    [ -n "$code" ] || code=000
     case "$code" in
       000|502|503) i=$((i+3)); sleep 3 ;;
       *) echo "    ${name} 就绪 (HTTP $code, ${i}s)"; return 0 ;;
@@ -26,7 +28,8 @@ check() { # check <名称> <期望状态码(逗号分隔)> <url> [响应体必�
   local name="$1" expect="$2" url="$3" body_re="${4:-}"
   local tmp code ok=1
   tmp=$(mktemp)
-  code=$(curl -s -o "$tmp" -w '%{http_code}' --max-time 15 "$BASE$url" || echo 000)
+  code=$(curl -s -o "$tmp" -w '%{http_code}' --max-time 15 "$BASE$url" || true)
+  [ -n "$code" ] || code=000
   echo "$expect" | tr ',' '\n' | grep -qx "$code" || ok=0
   if [ -n "$body_re" ] && ! grep -q "$body_re" "$tmp"; then ok=0; fi
   if [ "$ok" -eq 1 ]; then
