@@ -47,7 +47,34 @@ first-party ≈ 417KB：最大 chunk `7341-*.js` 190KB（bytemd + mermaid + mark
 
 > 站长配置项（需作者确认，非 bug 不擅动）：后台配了 **2 个 GA ID + 51.la**（经 customScript 注入）。我只改「加载时机」不删统计；是否精简为 1 个 GA / 去掉 51.la 由作者定。
 
-核心判断（**已被基线修正**）：服务端不慢，但客户端瓶颈**主要是第三方分析脚本的加载时机**，其次才是 first-party 包体积（mermaid/waline）。下面按性价比排。
+### 第一批实测结果（2026-06-12，commit 996ed90，已部署上线）
+
+改动：分析脚本全部 `lazyOnload`（gaAnalysis/BaiduAnalysis/CustomLayout）+ mermaid 动态拆分（新增 `Markdown/plugins.tsx`、`Markdown/MermaidViewer.tsx`）。
+（死依赖 react-syntax-highlighter 删除**已回退**：会与 `pnpm-lock.yaml` 不同步导致 CI `--frozen-lockfile` 失败，且它本就没被 import、删了零收益。留待之后单独跑 `pnpm install` 更新 lock 再删。）
+
+| 指标 | 基线 → 第一批后 |
+|---|---|
+| Performance | 20 → 19（噪声）|
+| LCP | 16.2s → 13.8s（小幅真改善）|
+| TBT | 720ms → 770ms（**没动**）|
+| CLS | 0.611 → 0.611（没碰）|
+| JS 传输 | 1005KB → 981KB（**仅 -24KB**）|
+
+**结论：基本无效。两次打脸，教训写死在这里：**
+
+1. **mermaid 拆分 ≈ 无效**：前后对比最大 chunk `7341`(190KB) → `646`(189KB) **几乎没变**。那 190KB 不是 mermaid，是 **bytemd 核心 + highlight + katex**。mermaid 本就没进非流程图页面的包。ECC agent 估的"每页 600-900KB mermaid"是未压缩值 + 判断错加载方式 → **整条作废**。（代码无害且保留了功能，未撤回。）
+2. **分析脚本 `lazyOnload` ≈ 无效**：lazyOnload 只改"何时执行"，脚本**仍在 Lighthouse 测量窗内被下载**（所以 JS 没少）；且 GA 原本就是 `afterInteractive`、本就不太阻塞主线程 → TBT 自然不动。
+
+**真正的瓶颈（实测 chunk 读出来的）**：
+- 🔴 **bytemd `<Viewer>` 客户端二次水合**：文章 HTML 服务端已渲染好（highlight 用的是 SSR 版），但浏览器里 `@bytemd/react <Viewer>` **又把整篇 markdown 重新解析 + 重新高亮**（post/11 有 199 个代码块）→ **这才是 TBT 720ms 的真凶 + 189KB 可省 chunk**。
+- 🟠 GA gtag 160KB（配置的那个，仍下载）、unpkg waline 60KB（未碰）、🔴 CLS 0.611（未碰）。
+
+**下一步唯一真能上分的方向（= 原先被低估为"高风险"那条，现确认是正解，对应 Option A）**：
+**去掉 bytemd 客户端水合，改为静态渲染 SSR 产出的 HTML**（把复制按钮 / 图片缩放 / 标题锚点 / mermaid 等 `viewerEffect` 改成轻量原生 JS 挂到静态 DOM 上）。直接干掉 189KB chunk + 水合 TBT。之后再配合 WaLine 本地化+懒加载、CLS 治理。
+
+> **铁律强化**：本项目任何"体积/性能估算"（包括 ECC agent 的）一律**不可信**，必须 `build → 部署 → Lighthouse 实测`才算数。第 0 步基线 + 第一批实测两次推翻了估算结论。
+
+核心判断（**已二次修正**）：真正瓶颈是 **bytemd 客户端水合（吃 TBT）**，不是第三方分析脚本、也不是 mermaid。下方原始"高价值改动"表中 mermaid/highlight 相关行已部分作废，**以本节为准**。下面表格仅作历史参考。
 
 ## 高价值改动（依据 `packages/website/package.json` 依赖直接锁定）
 
