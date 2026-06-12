@@ -88,3 +88,37 @@
 - 国内服务器拉 Docker Hub 可能慢/超时 → 作者计划后续加镜像加速（届时改回对应 registry 地址）。
 - 私有转公开后，脚本里的 raw / 菜单20自更新才生效；若以后再转私有需改回自包含/scp 方式。
 - 低优先级未做：`JWT_TOKEN` 启动竞态退化为随机盐（waline.provider.ts）；WaLine 运行时硬依赖 unpkg.com。
+
+## 6. WaLine 评论系统 P0 排障记（2026-06-12，已全部闭环）
+
+> 一整条链：注册/GitHub 登录 404 → 导入失败 → 评论不显示 → /ui 列表 500 → profile 改资料 Error。
+> 每个都是独立问题，按序排掉。**关键架构事实先记住：**
+
+### ⚠️ 架构事实（勿再踩）
+1. **运行时生效的反代配置是 `caddyTemplate.json`**（`entrypoint.sh` sed 替换邮箱后 `caddy start`）。
+   仓库里的 `CaddyfileTemplate`/`CaddyfileTemplateLocal` 是**遗留文件，不被运行时使用**（仅保持同步）。
+2. **WaLine 服务端按请求路径判断客户端新旧**（`@waline/vercel` 的 `prefix-warning.js`）：
+   收到 `/comment` 旧路径 → 返回**旧裸格式** `{"page":...}`；收到 `/api/comment` → 返回**新格式**
+   `{"errno":0,"data":{...}}`。v3 客户端只认新格式，吃到旧格式就报 `data is not iterable`。
+3. WaLine 内置 `prefix:['/api']` 中间件（`config/middleware.js`）**原生支持带 /api 前缀的路径** →
+   **Caddy 转发 WaLine 的 /api/* 时绝不能 strip_path_prefix**。
+4. 版本配对：服务端 `@waline/vercel@1.39.3` ↔ 客户端 `@waline/client@3.13.x`。
+   `core.tsx` 的 unpkg URL 钉 3.13.0（commit 00d703e），勿回退 3.0.0。
+
+### 修复序列（均已提交 main 并部署）
+| # | 症状 | 根因 | 修复 |
+|---|---|---|---|
+| 1 | 注册/GitHub 登录 404（`Cannot GET /api/oauth`） | caddyTemplate.json 只路由了 `/api/comment`，其余 `/api/oauth、/api/user、/api/token...` 落入 `/api/*` catch-all → NestJS 404 | 两个 server block 的 path 扩为 `/api/{comment,oauth,user,token,article,db,verification}*` → 8360（dd99379） |
+| 2 | 导入 77 项到第 62 项 Failed to fetch | 62 项=第一个用户，走当时仍 404 的 `/api/user`；且数据有毒 | 部署 #1 + 数据清洗（见下） |
+| 3 | 前台评论不显示，`data is not iterable` | 上面架构事实 2+3：Caddy `strip_path_prefix /api` 让 WaLine 永远看到旧路径 → 永远返回旧格式 | 移除 /api/* 路由的 strip（/admin 的保留）（7301848）；这也是日志刷屏 `[Deprecated] /db` 的来源 |
+| 4 | /ui 评论列表 500 `Input data should be a String` | 导入数据含一条**全 null 空壳评论**（objectId 69ebbb3a…，仅剩 IP/时间戳） | `db.Comment.deleteMany({comment:null})`（mongo 容器内 mongosh，waline 库） |
+| 5 | /ui/profile 改资料弹空 "Error" | `user.js putAction`：邮箱被另一行用户占用时 `this.fail()` 空 errmsg；profile 表单总会带上 email 字段 → 改任何资料都炸。根因=测试期注册的账号与导入的 admin 同邮箱 | 删除重复邮箱的用户行 |
+
+### 数据清洗约定（waline.json 导入文件）
+- 原始导出 77 项 = 61 评论 + 16 用户 + 0 Counter。**14 个用户是垃圾**：12 个 `type:"verify:..."`
+  是邮箱验证码临时残留；1 个带 128KB `junk` 字段 + Drupal/ASP.NET 攻击 payload。
+- 清洗后文件 `waline-cleaned.json`：仅保留被评论 `user_id` 引用的真实用户、
+  用户裁剪到标准 8 字段（display_name/email/url/password/type/avatar/label/objectId）、
+  删除 comment 为 null 的空壳行。**再导入一律用清洗后的文件**。
+- 排查口诀：先 `curl /api/comment?path=...` 直接看 DB 真相（数据在不在），再看格式（裸 or errno 包裹），
+  最后才怀疑前端。RSS 能出评论 = 数据必在，问题在客户端/格式。
