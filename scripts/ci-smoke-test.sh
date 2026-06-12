@@ -43,9 +43,30 @@ check() { # check <名称> <期望状态码(逗号分隔)> <url> [响应体必�
   rm -f "$tmp"
 }
 
-# ---- 等待启动：Next.js 首页(主链路) + WaLine 子进程(8360) ----
+# ---- 等待启动：Next.js 首页(主链路) ----
 wait_for "网站首页(caddy→next)" "/" 180 || true
-wait_for "WaLine(/ui)" "/ui" 60 || true
+
+# ---- 初始化实例（关键前置：waline 仅在已初始化实例上启动，main.ts 有 checkHasInited 守卫；
+#      init 成功后服务端会拉起 waline 并重启前台，故 init 后需重新等待） ----
+echo "==> 初始化实例 (POST /api/admin/init)"
+init_out=$(mktemp)
+init_code=$(curl -s -o "$init_out" -w '%{http_code}' --max-time 30 -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{"user":{"username":"smoke","password":"smoke-ci-pass","nickname":"smoke"},"siteInfo":{"author":"smoke","authorDesc":"ci","authorLogo":"","siteLogo":"","favicon":"","siteName":"smoke-test","siteDesc":"ci smoke test","baseUrl":"http://127.0.0.1:8080"}}' \
+  "$BASE/api/admin/init" || true)
+[ -n "$init_code" ] || init_code=000
+if [ "$init_code" = "200" ] && grep -q '"statusCode":200' "$init_out"; then
+  echo "  ✅ 初始化成功 (HTTP $init_code)"
+  PASS=$((PASS+1))
+else
+  echo "  ❌ 初始化失败 (HTTP $init_code): $(head -c 200 "$init_out")"
+  FAIL=$((FAIL+1))
+fi
+rm -f "$init_out"
+
+# init 触发前台重启 + waline 启动，重新等待两条链路
+wait_for "前台(初始化后重启)" "/" 90 || true
+wait_for "WaLine(/ui)" "/ui" 120 || true
 
 echo "==> 开始断言"
 # 1. 主站链路: caddy → website(3001)
