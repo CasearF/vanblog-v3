@@ -22,7 +22,7 @@
 > [!NOTE]
 > **本仓库是由 [Casear](https://casear.net)（[@CasearF](https://github.com/CasearF)）维护的分支版本。**
 > 基于原作者 [Mereithhh](https://github.com/Mereithhh) 的 [vanblog](https://github.com/Mereithhh/vanblog) 持续维护与更新：
-> 修复评论系统、更新依赖、新增主题系统（nova / nova-nebula）、CI 冒烟测试与性能优化等。
+> 修复评论系统、更新依赖、新增主题系统（nova / nova-nebula）、前后端共享类型契约（`@vanblog/shared`）、CI 冒烟测试与性能优化等。
 > 自建镜像：[`casearxx/vanblog-v3`](https://hub.docker.com/r/casearxx/vanblog-v3)。
 
 ## 预览图
@@ -193,6 +193,7 @@ curl -L https://vanblog.mereith.com/vanblog.sh -o vanblog.sh && chmod +x vanblog
 - [ ] 精简配置项，尽可能移动到运行时配置
 - [ ] 增加 ORM 层，适配更多数据库
 - [x] 增加一些 e2e 测试，集成到 CI（本分支已实现：CI 构建后容器冒烟测试，断言关键端点，通过才推送镜像）
+- [x] 前后端共享类型契约包（本分支已实现：`@vanblog/shared`，将 server 返回结构与 website 类型统一为单一来源，接口漂移在编译期即报错）
 - [ ] 国际化
 
 ## 问题反馈
