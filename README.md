@@ -2,28 +2,35 @@
 	<img src="/img/logo.svg" style="width: 200px"></img>
 </p>
 <p align="center">
-	<strong>VanBlog是一款简洁、实用、优雅的个人博客系统，支持全自动按需申请HTTPS证书、黑暗模式、移动端自适应和评论功能。它内置了流量统计和图床，并集成了评论系统。此外，VanBlog还具有无限的可扩展性，提供完备的后台管理面板，支持黑暗模式、移动端、一键上传剪贴板图片到图床，并带有强大的编辑器。</strong>
+	<strong>VanBlog 是一款简洁、实用、优雅的个人博客系统，支持全自动按需申请 HTTPS 证书、黑暗模式、移动端自适应和评论功能。它内置了流量统计和图床，并集成了评论系统。此外还具有无限的可扩展性，提供完备的后台管理面板、强大的编辑器，支持一键上传剪贴板图片到图床。</strong>
 </p>
 <p align="center">
-  <img src="https://img.shields.io/github/v/release/mereithhh/van-blog?display_name=tag" />
-  <img src="https://img.shields.io/docker/pulls/mereith/van-blog" />
-  <img src="https://img.shields.io/github/stars/mereithhh/van-blog" />
-  <img src="https://img.shields.io/bitbucket/issues/mereithhh/van-blog" />
-  <img src="https://github.com/mereithhh/van-blog/workflows/release/badge.svg" />
+  <img src="https://github.com/CasearF/vanblog-v3/actions/workflows/docker-image.yml/badge.svg" />
+  <img src="https://img.shields.io/docker/pulls/casearxx/vanblog-v3" />
+  <img src="https://img.shields.io/docker/image-size/casearxx/vanblog-v3/latest" />
+  <img src="https://img.shields.io/github/stars/CasearF/vanblog-v3" />
+  <img src="https://img.shields.io/github/last-commit/CasearF/vanblog-v3" />
   <img src="https://img.shields.io/badge/license-GPL%20v3-yellow.svg" />
 </p>
 <p align="center">
-	<strong>项目主页: </strong>  <a target="_blank" href='https://vanblog.mereith.com'>vanblog.mereith.com</a>
-</p>
-<p align="center">
-	<strong>Demo(后台账号密码均为 demo): </strong>  <a target="_blank" href='https://blog-demo.mereith.com'>blog-demo.mereith.com</a>
+	<strong>仓库：</strong> <a target="_blank" href="https://github.com/CasearF/vanblog-v3">github.com/CasearF/vanblog-v3</a>
+	&nbsp;·&nbsp;
+	<strong>维护者：</strong> <a target="_blank" href="https://casear.net">Casear（casear.net）</a>
 </p>
 
 > [!NOTE]
-> **本仓库是由 [Casear](https://casear.net)（[@CasearF](https://github.com/CasearF)）维护的分支版本。**
-> 基于原作者 [Mereithhh](https://github.com/Mereithhh) 的 [vanblog](https://github.com/Mereithhh/vanblog) 持续维护与更新：
-> 修复评论系统、更新依赖、新增主题系统（nova / nova-nebula）、前后端共享类型契约（`@vanblog/shared`）、CI 冒烟测试与性能优化等。
-> 自建镜像：[`casearxx/vanblog-v3`](https://hub.docker.com/r/casearxx/vanblog-v3)。
+> **这是由 [Casear](https://casear.net)（[@CasearF](https://github.com/CasearF)）维护的 VanBlog 分支。**
+> 原项目 [Mereithhh/vanblog](https://github.com/Mereithhh/vanblog) 已停更，本分支在其基础上保守维护、修 bug、加功能，
+> 与上游保持同构。北极星沿用原作者那句 —— **「快到极致的响应速度，Lighthouse 接近满分」**。
+> 自建镜像：[`casearxx/vanblog-v3`](https://hub.docker.com/r/casearxx/vanblog-v3)（CI 构建后冒烟测试通过才推送）。
+
+## 本分支做了什么
+
+- 🐞 **评论系统（WaLine）全链路修复**：注册/登录 404、导入失败、评论不显示、列表 500、改资料报错等 P0 逐一闭环。
+- 🎨 **主题系统**：新增可切换的前端渲染器框架（`themes/`）与 `nova` / `nova-nebula` 主题，后台一键切换。
+- 🔗 **前后端共享类型契约**：新增 [`@vanblog/shared`](packages/shared/README.md)，把 server 返回结构与前端类型统一为单一来源，接口漂移在编译期即报错。
+- 🚦 **CI 构建后冒烟门禁**：镜像构建完先拉起容器断言关键端点（`scripts/ci-smoke-test.sh`），冒烟通过才推镜像。
+- ⚡ **性能优化（进行中）**：以最重文章页跑 Lighthouse 实测驱动，详见 [`docs/custom/`](docs/custom/) 下的维护笔记。
 
 ## 预览图
 
@@ -41,206 +48,91 @@
 - [x] 静态网页，CDN 友好。
 - [x] 版本号展示和更新提醒。
 - [x] 基于 React，项目工程化，二次开发友好。
-- [x] 内置强大的分析功能，可统计访客等数据。并配有精美看板。
+- [x] 内置强大的分析功能，可统计访客等数据，并配有精美看板。
 - [x] 内嵌评论系统。
-- [x] 强大的 Markdown 编辑器，支持图表和数学公式，一键插入 more 标记，一键剪切板及本地图片上传，支持自定义高亮块语法，支持 Emoji 表情选取。
+- [x] 强大的 Markdown 编辑器，支持图表和数学公式，一键插入 more 标记，一键剪贴板及本地图片上传，支持自定义高亮块语法，支持 Emoji 表情选取。
 - [x] TOC、草稿、代码复制、访客数、评论数、分类、标签、搜索、加密、友链、打赏、自定义导航栏。
 - [x] 多个布局设置，可自定义页面细节。
 - [x] 高度定制化，可添加自定义 CSS、HTML 和 JS 代码。
 - [x] 支持自定义页面。
 - [x] 可添加具有指定权限的协作者。
-- [x] 内置图床，并支持各种 OSS 图床、github 图床（外部图床基于 picgo）等
-- [x] 支持上传图片自动添加水印，无论何种图床
-- [x] 支持上传图片自动压缩，无论何种图床
+- [x] 内置图床，并支持各种 OSS 图床、github 图床（外部图床基于 picgo）等。
+- [x] 支持上传图片自动添加水印，无论何种图床。
+- [x] 支持上传图片自动压缩，无论何种图床。
 - [x] 极致轻量化，没有花里胡哨。页面秒切换、图片懒加载。
 - [x] 脚本一键部署，多种部署方式，支持 ARM 平台。
-- [x] 支持 GA、百度分析
+- [x] 支持 GA、百度分析。
 - [x] 简单易用的后台，支持数据的导出与导入。
-- [x] 支持 RSS 订阅
-- [x] 完善的 API，完全利用本项目后台和服务端，自己写前端或适配其他页面生成器
+- [x] 支持 RSS 订阅。
+- [x] 完善的 API，完全利用本项目后台和服务端，自己写前端或适配其他页面生成器。
 - [x] 有较完善的日志记录，后台可直接查看登录日志和 Caddy 日志。
 
-## 快速上手/部署教程
+## 快速上手 / 部署
 
-### 一键脚本部署
+一键脚本部署（拉取本分支的 `vanblog.sh`，使用 `casearxx/vanblog-v3` 镜像）：
 
 ```bash
-curl -L https://vanblog.mereith.com/vanblog.sh -o vanblog.sh && chmod +x vanblog.sh && ./vanblog.sh
+curl -sL https://raw.githubusercontent.com/CasearF/vanblog-v3/main/vanblog.sh -o vanblog.sh && chmod +x vanblog.sh && ./vanblog.sh
 ```
 
-将来如果需要再次运行脚本，可以运行：
+将来需要再次运行（如更新、改配置），直接：
 
 ```bash
 ./vanblog.sh
 ```
 
-### 其他部署方式
+> 部署、CI、WaLine 排障等实战记录见 [`docs/custom/deployment-and-ci-notes.md`](docs/custom/deployment-and-ci-notes.md)。
 
-具体请移步项目文档：[快速上手](https://vanblog.mereith.com/guide/get-started.html)
+## 文档与常见问题
 
-## 反代
+本分支与上游同构，软件层面的使用文档可直接参考**上游文档**（仍然适用）：
 
-请参考： [反代](https://vanblog.mereith.com/reference/reverse-proxy.html)
+- 使用指南：[vanblog.mereith.com/guide/get-started](https://vanblog.mereith.com/guide/get-started.html)
+- 反向代理：[reverse-proxy](https://vanblog.mereith.com/reference/reverse-proxy.html)
+- 备份与迁移：[backup](https://vanblog.mereith.com/guide/backup.html)
+- 常见问题汇总：[FAQ](https://vanblog.mereith.com/faq/)
 
-## 常见问题
+本分支特有的维护笔记（路线对比、性能实测、部署排障）集中在 [`docs/custom/`](docs/custom/)。
 
-> [备份与迁移](https://vanblog.mereith.com/guide/backup.html)
->
-> [作者 logo 无法加载](https://vanblog.mereith.com/faq/usage.html#图片-作者-logo-加载不出来)
->
-> [http error](https://vanblog.mereith.com/faq/deploy.html#部署后-http-error)
->
-> [docker 镜像拉取慢](https://vanblog.mereith.com/faq/deploy.html#docker-镜像拉取慢)
->
-> [如何外部访问数据库](https://vanblog.mereith.com/faq/deploy.html#如何在外部访问数据库)
->
-> [如何回滚](https://vanblog.mereith.com/faq/update.html#如何回滚)
->
-> [如何升级](https://vanblog.mereith.com/guide/update.html)
->
-> [更新后后台报错||一直加载中](https://vanblog.mereith.com/faq/update.html#升级后后台报错或持续加载)
->
-> [开启了 https 重定向后关不掉](https://vanblog.mereith.com/faq/usage.html#开启了-https-重定向后关不掉)
->
-> [更多常见问题](https://vanblog.mereith.com/faq/)
+## TODO / Roadmap
 
-## 关于更新
+- [ ] 性能优化 Option A：去掉 bytemd 客户端二次水合，改静态渲染 SSR 产出的 HTML（唯一确认能上分的方向）
+- [ ] husky + nano-staged 提交前钩子
+- [ ] 核心 provider 单测（vitest），与 CI 冒烟形成上下两层防线
+- [ ] 快捷分享按钮
+- [x] 主题（前端渲染器）系统：`themes/` 框架 + nova / nova-nebula，后台一键切换
+- [x] 前后端共享类型契约包 `@vanblog/shared`：server 返回结构与 website 类型单一来源，漂移编译期报错
+- [x] e2e / CI：构建后容器冒烟测试，断言关键端点，通过才推送镜像
+- [x] WaLine 评论系统 P0 全链路修复
 
-此项目会持续更新的，如果没有恶性 bug（有的话看到了会紧急修复），一般每周发一次新版本。
+> 更早的上游历史 TODO（已完成的大量基础能力）见上游仓库。
 
-如果遇到了问题，可以先更新试试看。
+## 问题反馈
 
-## 交流群
-
-- [VanBlog 交流群](https://jq.qq.com/?_wv=1027&k=5NRyK2Sw)
-
-## 说明与文档
-
-请移步项目主页： [https://vanblog.mereith.com](https://vanblog.mereith.com)
+请在本仓库提 [issue](https://github.com/CasearF/vanblog-v3/issues)。
 
 ## CHANGELOG
 
 [CHANGELOG](CHANGELOG.md)
 
-## 开发指南
-
-- [开发指南](https://vanblog.mereith.com/contribution.html)
-
-## 谁在使用
-
-现在可能用的人有一些了吧 - -
-
-如果您想把自己加进来，请提一个 [issue](https://github.com/Mereithhh/van-blog/issues/new/choose)，我会尽快添加的。
-
-- [Mereith's Blog](https://www.mereith.com)
-- [GT 的官方博客](https://gt-it.net)
-- [無糧不聚兵‘s Blog](https://www.wongcw.cn)
-- [oldmoon](https://www.oldmoon.top/)
-- [seek.wiki](https://seek.wiki)
-- [SnailBlog](https://blog.mldd521.com)
-- [Peter's blog](https://niuery.com)
-- [我本无罪的博客](https://blog.rnaan.com/)
-- [青菜的杂货铺](https://211222.xyz)
-- [花菜的博客](https://blog.huacai.one)
-- [智芯物联的空间](https://www.tingshuo.online)
-- [Done](https://www.dong-blog.fun/)
-- [SpaceX](https://tech.twjblog.top/)
-- [没想好的个人博客](https://blog.shizhuoran.top/)
-- [宁骑播客](https://blog.xintianyuehui.cn/)
-- [fanyang](https://fuis.me/)
-
-## TODO
-
-- [x] 精简前台 js 体积，优化性能
-- [x] 精简打包体积
-- [x] 集成 HTTPS 和自动证书申请续期
-- [x] 后台增加登录日志
-- [x] 内嵌评论系统
-- [x] 支持 ARM64
-- [x] 支持 mermaid 语法
-- [x] 替换编辑器为 bytemd（掘金同款）（老的编辑器有些臃肿，复制偶尔会有格式会错乱的问题）
-- [x] 导入 md 创建文章/草稿功能
-- [x] 标签管理
-- [x] 黑暗模式图标样式优化
-- [x] 内嵌评论的邮件通知和 webhook
-- [x] 自定义 css
-- [x] 添加自定义 script 标签
-- [x] 添加自定义 html 代码
-- [x] 可添加具有自定义权限的协作者
-- [x] 自定义页面
-- [x] RSS 订阅
-- [x] 自定义高亮块语法支持
-- [x] Emoji 表情选择器
-- [x] 自定义导航栏
-- [x] 后端性能优化一期（减少不必要的查询， ISR 防抖等）
-- [x] Token 管理
-- [x] picgo 插件安装
-- [x] 忘记密码
-- [x] 分类加密
-- [x] 自定义文字路径
-- [x] 系统日志查看
-- [ ] 快捷分享按钮
-- [x] 完善可自定义上传文件的自定义页面功能（现在的自定义页面有潜在的 css 污染问题）
-- [x] 图片上传自动添加水印
-- [x] 迁移到 pnpm，使用 workspace
-- [x] 增加在特定事件后触发执行自定义代码或 webhook 的扩展能力
-- [x] 上传图片自动压缩功能
-- [x] 批量操作文章草稿
-- [ ] 插件系统
-- [x] 自定义主题（前端渲染器）系统（本分支已实现：`themes/` 框架 + nova / nova-nebula 主题，后台一键切换）
-- [ ] 浏览器消息通知
-- [ ] 文章/草稿的历史版本管理
-- [ ] 精简配置项，尽可能移动到运行时配置
-- [ ] 增加 ORM 层，适配更多数据库
-- [x] 增加一些 e2e 测试，集成到 CI（本分支已实现：CI 构建后容器冒烟测试，断言关键端点，通过才推送镜像）
-- [x] 前后端共享类型契约包（本分支已实现：`@vanblog/shared`，将 server 返回结构与 website 类型统一为单一来源，接口漂移在编译期即报错）
-- [ ] 国际化
-
-## 问题反馈
-
-请提 [issue](https://github.com/Mereithhh/van-blog/issues/new/choose) ，如无特殊情况会在一天内解决。
-
-## 打赏
-
-如果觉得项目不错的话可以打赏哦。您的支持就是我最大的动力！
-
-打赏时您可以备注名称，我会将您添加至打赏列表中。
+## Lighthouse
 
 <p align="center">
-  <img alt="打赏-微信" src="/img/wechat.jpg" style="width: 200px;margin-right: 4px;" />
-  <img alt="打赏-支付宝" src="/img/ali-pay.jpg" style="width: 200px" />
-</p>
-
-## 捐赠信息
-
-PS：如果打赏时请备注捐赠者，如有遗漏请联系我添加（有时候消息多可能会漏掉，十分抱歉）
-
-PS2: 不好意思中间有段时间没管，有些记录找不到了，后续有时间补上。
-
-| 捐赠者    | 捐赠金额 | 捐赠日期   |
-| --------- | -------- | ---------- |
-| Sirit     | 6.66 元  | 2022-09-01 |
-| jingcheng | 100 元   | 2022-09-06 |
-| mosuzi    | 100 元   | 2022-09-08 |
-| ym679     | 20 元    | 2022-09-08 |
-| wangcw    | 100 元   | 2022-09-13 |
-| ziva      | 8.80 元  | 2022-09-15 |
-| Velen     | 50 元    | 2022-09-18 |
-| pcz       | 50 元    | 2022-10-19 |
-| fanyang   | 100 元    | 2025-06-12 |
-
-
-
-
-## Star 趋势图
-
-[![Star History Chart](https://api.star-history.com/svg?repos=mereithhh/van-blog&type=Date)](https://star-history.com/#mereithhh/van-blog&Date)
-
-## LightHouse 截图
-
-<p align="center"> 
   <img src="/img/lighthouse.png" style="width: 400px"></img>
 </p>
 
-## 多说一句
-> 很抱歉有段时间断更了，陆陆续续会慢慢继续更新的。  2024-09-01
+## 致谢原作者
+
+VanBlog 由 **[Mereithhh](https://github.com/Mereithhh)** 创作并开源，是一件设计与工程都非常用心的作品。
+本分支只是在原作者停更后接力做保守维护，所有核心设计与绝大部分代码的功劳都属于原作者。在此郑重致谢与纪念 🙏
+
+- 原项目仓库：[Mereithhh/vanblog](https://github.com/Mereithhh/vanblog)
+- 原项目主页 / 文档：[vanblog.mereith.com](https://vanblog.mereith.com)
+- 原版在线 Demo：[blog-demo.mereith.com](https://blog-demo.mereith.com)
+- 作者博客：[mereith.com](https://www.mereith.com)
+
+如果你喜欢 VanBlog，请优先去给[原项目](https://github.com/Mereithhh/vanblog)点一个 Star ⭐。
+
+## License
+
+[GPL-3.0](LICENSE)，沿用上游协议。
