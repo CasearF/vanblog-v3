@@ -11,7 +11,10 @@ export default function (props: { id: string }) {
   return (
     <>
       {props.id != "" && (
-        <Script src={`https://hm.baidu.com/hm.js?${props.id}`} async></Script>
+        <Script
+          src={`https://hm.baidu.com/hm.js?${props.id}`}
+          strategy="lazyOnload"
+        ></Script>
       )}
     </>
   );

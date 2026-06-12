@@ -37,7 +37,7 @@ export default function (props: {
         ></div>
       ) : null}
       {props.customScript ? (
-        <Script strategy="beforeInteractive">{`${decode(
+        <Script strategy="lazyOnload">{`${decode(
           props.customScript
         )}`}</Script>
       ) : null}

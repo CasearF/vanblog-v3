@@ -6,11 +6,48 @@
 
 ## 第 0 步：先测再改（强制）
 
-拿一篇**最重的文章页**（含代码 + 数学公式 + mermaid 图 + 评论）跑 Lighthouse / PageSpeed Insights，
+拿一篇**最重的文章页**（含代码 + 数学公式 + mermaid 图 + 评论）跑 Lighthouse，
 记录基线：**LCP、TBT、INP、CLS、FCP、传输的 JS 总量**。之后每项优化都对着这些数字验证。
-> 还没拿到线上 URL；下次先问作者要 URL 跑基线。
 
-核心判断：vanblog 服务端（SSR/ISR）不慢，**主要瓶颈是客户端 JS 体积 → TBT/INP**。下面按性价比排。
+### 实测基线（2026-06-12，URL = http://192.168.236.81/）
+
+测试页 = `/post/11`（122KB，代码密集 hljs×199，含评论；全站 54 篇**无一篇用 mermaid**，仅 `/post/26` 用公式）。
+Lighthouse 11 移动端，`--only-categories=performance`：
+
+| 指标 | 基线值 |
+|---|---|
+| **Performance score** | **20** |
+| FCP | 4.2 s |
+| LCP | 16.2 s |
+| TBT | 720 ms |
+| CLS | 0.611 |
+| Speed Index | 7.4 s |
+| TTI | 11.2 s |
+| 页面总大小 | 2,464 KiB |
+| **JS 传输总量** | **1,005 KB** |
+
+报告存于 `.perf-baseline/lh-post11.report.{html,json}`（已 gitignore，勿提交）。
+
+### ⚠️ 基线翻盘：头号瓶颈是「第三方分析脚本」，不是 first-party 包体积
+
+1005KB JS 里 **~588KB 是第三方**：
+- gtag/GA ×3 ≈ **480KB**（一个来自 `gaAnalysisId` 配置 + `afterInteractive`；另一个 GA ID + 51.la 来自**站长后台 customScript** 注入，当前 `beforeInteractive` **阻塞渲染**；gtag 又自动拉链接的次级 tag）
+- 51.la `sdk.51.la` 36KB（站长 customScript，源码无此字符串）
+- 百度 hm.js 12KB（`baiduAnalysisId`）
+- unpkg `@waline/client@3.0.0` 60KB（第三方 CDN）
+
+first-party ≈ 417KB：最大 chunk `7341-*.js` 190KB（bytemd + mermaid + markdown），framework 45KB 等。
+
+**修正后的执行优先级（按实测 ROI）**：
+1. 🔴 **分析脚本全部延后**（gaAnalysis/baidu 的 `afterInteractive`→`lazyOnload`；customScript `beforeInteractive`→`lazyOnload`）——保留全部统计、零功能损失、最大 TBT/LCP 收割。原 Phase 4 升为第一。
+2. 🔴 **mermaid 动态化**——全站没人用却每页白送，100% 命中（Phase 2）。
+3. 🟠 **WaLine 本地化 + 懒加载**——干掉 unpkg 60KB + 渲染阻塞（Phase 3）。
+4. 🟢 **删死依赖** react-syntax-highlighter / react-photo-view（Phase 1）。
+5. 🔴 **CLS 0.611** 需专项治理（评论框/图片预留高度、分析脚本注入抖版）。
+
+> 站长配置项（需作者确认，非 bug 不擅动）：后台配了 **2 个 GA ID + 51.la**（经 customScript 注入）。我只改「加载时机」不删统计；是否精简为 1 个 GA / 去掉 51.la 由作者定。
+
+核心判断（**已被基线修正**）：服务端不慢，但客户端瓶颈**主要是第三方分析脚本的加载时机**，其次才是 first-party 包体积（mermaid/waline）。下面按性价比排。
 
 ## 高价值改动（依据 `packages/website/package.json` 依赖直接锁定）
 

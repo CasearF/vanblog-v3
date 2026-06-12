@@ -151,3 +151,6 @@ log/**vanblog.zip
 # 排除代码中的 log 目录被忽略
 !**/provider/log/
 !**/controller/admin/log/
+
+# 性能基线 Lighthouse 报告（本地，勿提交）
+.perf-baseline/
