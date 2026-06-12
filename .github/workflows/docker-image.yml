@@ -60,32 +60,56 @@ jobs:
             type=sha,prefix=
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push
+      # 先把镜像构建并加载到本机 docker（不推送），供冒烟测试使用。
+      # PR 与 main 都走这一步；构建缓存写入 GHA，后面的推送步骤命中缓存秒级完成。
+      - name: Build image (load for smoke test)
         uses: docker/build-push-action@v5
         with:
           context: .
           platforms: linux/amd64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          load: true
+          push: false
+          tags: vanblog:smoke
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
             VAN_BLOG_BUILD_SERVER=http://localhost:3000
             VAN_BLOG_VERSIONS=${{ github.sha }}
 
-      - name: Build without push (for PR)
-        if: github.event_name == 'pull_request'
+      # 冒烟测试：起 mongo + vanblog 容器，断言关键端点（路由/格式回归防线）。
+      # 失败则整个 job 失败，不会推送坏镜像。
+      - name: Smoke test
+        run: |
+          docker network create vanblog-net
+          docker run -d --name mongo --network vanblog-net mongo:4.4.16
+          # 等 mongo 就绪再起 vanblog（server 启动时 initJwt 直连 mongo）
+          for i in $(seq 1 30); do
+            docker exec mongo mongo --quiet --eval 'db.runCommand({ping:1})' >/dev/null 2>&1 && break
+            sleep 2
+          done
+          docker run -d --name vanblog --network vanblog-net -p 8080:80 \
+            -e EMAIL=smoke@test.local -e HOSTNAME=0.0.0.0 -e PORT=3001 \
+            vanblog:smoke
+          bash scripts/ci-smoke-test.sh http://127.0.0.1:8080
+
+      - name: Dump container logs on failure
+        if: failure()
+        run: |
+          echo "===== vanblog logs ====="
+          docker logs vanblog 2>&1 | tail -200 || true
+          echo "===== mongo logs ====="
+          docker logs mongo 2>&1 | tail -50 || true
+
+      - name: Build and push
+        if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v5
         with:
           context: .
           platforms: linux/amd64
-          push: false
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.pull_request.number }}
-            ghcr.io/${{ env.IMAGE_NAME }}:pr-${{ github.event.pull_request.number }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
           build-args: |
             VAN_BLOG_BUILD_SERVER=http://localhost:3000
             VAN_BLOG_VERSIONS=${{ github.sha }}
