@@ -1,31 +1,27 @@
-import { Viewer } from "@bytemd/react";
-import { useMemo } from "react";
 import dynamic from "next/dynamic";
-import { buildPlugins, sanitize } from "./plugins";
+import StaticMarkdown from "./StaticMarkdown";
 
-// 含流程图的文章才动态加载 MermaidViewer（连带 mermaid 库）；
-// 其余文章走下面的轻量渲染路径，mermaid 不进主 chunk。
-const MermaidViewer = dynamic(() => import("./MermaidViewer"));
+// bytemd 客户端渲染兜底路径懒加载：bytemd 全家桶（核心 + highlight + katex 渲染端）
+// 被隔离到独立 chunk，只有真正需要客户端渲染时（加密文章解锁后 / 含 mermaid）才下载。
+const ClientMarkdown = dynamic(() => import("./ClientMarkdown"));
 
-// 匹配 ``` 或 ~~~ 围栏的 mermaid 代码块
-const MERMAID_RE = /(^|\n)[ \t]*(?:```+|~~~+)[ \t]*mermaid\b/i;
-
-export default function Markdown({ content }: { content: string }) {
-  const hasMermaid = useMemo(() => MERMAID_RE.test(content || ""), [content]);
-  const plugins = useMemo(() => buildPlugins(), []);
-
-  if (hasMermaid) {
-    return <MermaidViewer content={content} />;
+/**
+ * 文章正文渲染派发器。
+ *
+ * - 传入 `html`（服务端 renderStaticHtml 预渲染好的 HTML）→ 走 StaticMarkdown 静态注入，
+ *   客户端零 bytemd、零二次 processSync 水合（纯阅读页的主路径）。
+ * - 否则（无预渲染 HTML：加密文章解锁后的内容、含 mermaid 的文章）→ 懒加载 ClientMarkdown
+ *   用 bytemd <Viewer> 客户端渲染，行为与改造前完全一致。
+ */
+export default function Markdown({
+  content,
+  html,
+}: {
+  content?: string;
+  html?: string;
+}) {
+  if (html) {
+    return <StaticMarkdown html={html} />;
   }
-
-  return (
-    <div className="markdown-body">
-      <Viewer
-        value={content}
-        plugins={plugins}
-        remarkRehype={{ allowDangerousHtml: true }}
-        sanitize={sanitize}
-      />
-    </div>
-  );
+  return <ClientMarkdown content={content || ""} />;
 }

@@ -34,9 +34,10 @@
 
 ## 4. 当前未完成的工作线（下次可接续，按优先级）
 
-1. **性能优化 Option A（唯一确认能上分的方向）**：去掉 bytemd `<Viewer>` 客户端二次水合，
-   改静态渲染 SSR 产出的 HTML（viewerEffect 改轻量原生 JS）。详见
-   [performance-optimization-roadmap.md](./performance-optimization-roadmap.md) 第一批实测结果一节。
+1. ~~**性能优化 Option A（唯一确认能上分的方向）**：去掉 bytemd `<Viewer>` 客户端二次水合，
+   改静态渲染 SSR 产出的 HTML（viewerEffect 改轻量原生 JS）。~~ ✅ **代码已实现并过 tsc/lint/ecc review**
+   （2026-06-13，见 [performance-optimization-roadmap.md](./performance-optimization-roadmap.md) §第二批）。
+   ⏳ **未做真机 Lighthouse 实测**（铁律：估算不算数，须 `/post/11` 改动前后各跑一次对比，见该节「上线后必验」）。
 2. ~~**借鉴项 #1：`shared` 共享类型包**~~ ✅ **已落地 v1**（2026-06-12，见第 5 节 + `packages/shared/README.md`）。
    **后续可深化**：(a) server 各 controller 把返回逐步标注成 `ApiResponse<T>` / `Article`
    （当前 server 只共用了 `SortOrder`，是 pass-through 弱耦合，真正的强制只发生在被约束的用点）；
@@ -70,3 +71,8 @@
   - 三套 PostCard（`components/PostCard` default + `themes/nova` / `themes/nova-nebula` 的 `NovaPostCard`）全接，`type==="article" && !lock` 才渲染。**零新依赖**，沿用既有库。
   - **两个易踩点记死**：(a) tailwind `content` 只扫 `./components` 与 `./pages`——任意值 hover 颜色类名（`hover:text-[#e6162d]` 等）必须写在组件文件里才会被生成，塞进 `utils/` 或 `themes/` 都不会被扫到；(b) 暗色描边别用 `nav-dark`(#26282c)——它与文章卡片 `dark:bg-dark`(#26282c) 同色会让药丸边框在暗色模式下完全消失，改用 `gray-600`(#4b5563)。
   - **验证**：website `tsc --noEmit` 通过；`shareLinks.spec.ts` 5/5 绿。完整构建验证走 CI（build + 冒烟门禁），最终观感以部署后实测为准。
+- **性能 Option A：去 bytemd 客户端水合**（2026-06-13，代码完成、⏳ 待真机 Lighthouse 实测）：
+  文章/列表/about 正文改为服务端 `getStaticProps` 预渲染 HTML + 客户端 `StaticMarkdown` 静态注入（复制/锚点/缩放用原生事件补回），
+  bytemd 仅加密文章解锁 / mermaid 经 `next/dynamic` 懒加载兜底 → 文章页主 chunk 零静态 bytemd。
+  新增 `utils/markdownToHtml.ts`(`renderStaticHtml`) / `utils/displayContent.ts` / `components/Markdown/{StaticMarkdown,ClientMarkdown,staticBehaviors}`。
+  tsc + lint + ecc(react+ts)review 已过。**收益必须以真机 Lighthouse 为准**，详见 [performance-optimization-roadmap.md](./performance-optimization-roadmap.md) §第二批。

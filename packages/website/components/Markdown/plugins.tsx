@@ -7,7 +7,9 @@ import { customCodeBlock } from "./codeBlock";
 import { LinkTarget } from "./linkTarget";
 import { Heading } from "./heading";
 import { Img } from "./img";
-import "katex/dist/katex.min.css";
+// 注意：katex 样式已移到 pages/_app.tsx 全局引入。
+// 去客户端水合后，文章正文走 StaticMarkdown（不 import 本文件），
+// 公式样式必须由全局 CSS 保证，否则数学文章样式回归。
 import type { BytemdPlugin } from "bytemd";
 
 // 共享的 bytemd 插件集合。mermaid 不在此处静态引入：

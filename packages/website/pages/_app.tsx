@@ -10,6 +10,9 @@ import "../styles/custom-container.css";
 import "../styles/code-light.css";
 import "../styles/code-dark.css";
 import "../styles/zoom.css";
+// katex 公式样式：原先随 components/Markdown/plugins.tsx 引入（走 bytemd 客户端水合路径）。
+// 去水合后文章正文走 StaticMarkdown，不再 import 那条链路，故公式样式必须在此全局引入。
+import "katex/dist/katex.min.css";
 import "../themes/nova/styles/nova.css";
 import "../themes/nova-nebula/styles/nova.css";
 import type { AppProps } from "next/app";

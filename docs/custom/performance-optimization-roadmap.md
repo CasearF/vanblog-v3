@@ -107,5 +107,44 @@ first-party ≈ 417KB：最大 chunk `7341-*.js` 190KB（bytemd + mermaid + mark
 - 是否有其他第三方脚本（统计/分析）拖累 TBT？
 - 线上部署 URL（跑基线用）。
 
+## 第二批：Option A 去 bytemd 客户端水合（2026-06-13 实现完成，待真机 Lighthouse 实测）
+
+> 第一批两次打脸后确认的「唯一真能上分」方向。**实现 + tsc/lint/ecc(react+ts)review 已过，但本项目铁律=估算不算数：最终 Performance/TBT 收益必须以 `/post/11` 改动前后各跑一次真机 Lighthouse 为准。部署实测前本节不写任何分数。**
+
+### 改了什么（架构）
+- 文章正文 markdown→HTML 从「客户端 bytemd `<Viewer>` 二次 `processSync` 水合」改为「服务端 `getStaticProps` 预渲染 HTML + 客户端静态注入」。
+- 新增 `utils/markdownToHtml.ts`（`renderStaticHtml`，服务端；与 `<Viewer>` 同一 `getProcessor + buildPlugins + sanitize` 管线 → HTML 逐字节一致）。
+- 新增 `components/Markdown/StaticMarkdown.tsx`（`dangerouslySetInnerHTML` + `useEffect` 挂轻量原生行为）+ `staticBehaviors.ts`（复制按钮 / 标题锚点 / medium-zoom，零 bytemd 依赖）。
+- `components/Markdown/index.tsx` 改为派发器：有预渲染 `html` → StaticMarkdown（客户端零 bytemd）；无 → `next/dynamic` 懒加载 `ClientMarkdown`（原 Viewer 逻辑）兜底，仅加密文章解锁 / mermaid 才下载 bytemd chunk。
+- 数据层 `utils/getPageProps.ts` 给 article（全文）/ about / 列表摘要预渲染 `html`；摘要逻辑抽到 `utils/displayContent.ts`；about 捐赠表拼接从客户端 `useMemo` 移到服务端。
+- `katex.min.css` 从 `plugins.tsx` 移到 `_app.tsx` 全局（StaticMarkdown 不再 import plugins，公式样式须全局保住）。
+
+### 为什么这条能上分（架构层面，非实测）
+- 静态分析确认：文章页主 chunk **零静态 bytemd 引用**；bytemd（核心 + highlight.js + katex 渲染端，第一批实测 = 189KB chunk）只在 `dynamic(() => import("./ClientMarkdown"))` 的异步 chunk 里，公开非 mermaid 文章永不下载。
+- 客户端不再对 199 个代码块重新解析 + 重高亮 → 直接消掉第一批定位的 TBT 720ms 真凶。
+
+### 覆盖与不回归（逐项核对）
+- **三套主题**：实测 `NovaPostCard`/`NovaArticleCard` **运行时从不渲染**（`Layout` 只换 NavBar/LayoutBody/Footer，`themes/ThemeContext` 的 `useThemeComponents` 零消费者），文章/列表/about 永远走默认 `components/PostCard` → 改默认 PostCard 即全覆盖。
+- **加密文章**：content 客户端解锁后才到 → 无预渲染 html → 自动回退 ClientMarkdown 客户端渲染。
+- **mermaid**：服务端出不了图 → `renderStaticHtml` 检测到 mermaid 返回 undefined → 回退 ClientMarkdown（全站 0 篇用 mermaid，零影响）。
+- **渲染外观**：HTML 同管线产出、逐字节一致；代码高亮 / 公式 / 表格 / 脚注 / 容器 / 锚点 / 图片缩放 / 复制按钮全保留。
+- **SEO / 结构化数据 / 阅读量 / WaLine / 分享 / 文章反应**：均在 Markdown 组件之外，不受影响。
+- **安全**：`dangerouslySetInnerHTML` 姿态与原 `<Viewer>` 逐字相同（同 sanitize、同注入），无新增 XSS 面。
+
+### payload 取舍（已知，待实测）
+- 预渲染 html 作 prop 进 `__NEXT_DATA__`，与 SSR DOM 重复；markdown 源串仍要留给 Toc/hasToc。净传输量可能持平甚至略增，但 Lighthouse 大头是 TBT/TTI（JS 解析执行）。若实测 JSON 涨太多，再进「C 档」：Toc 服务端预算、文章页不 ship markdown 源串。
+
+### ⚠️ ecc review 误报留痕（核实后判为非问题，免得下次重复纠结）
+- ts-reviewer 报「dangerouslySetInnerHTML 新增 XSS」：**错**。已读 `@bytemd/react` 源码，旧 `<Viewer>` 本就用 `dangerouslySetInnerHTML` + 同一 `getProcessor({sanitize})`，姿态逐字相同，零新增面。
+- react-reviewer 报「overview 显示全文」：**错**。漏看 `attachOverviewHtml` —— 列表卡的 `html` 是 `overviewMarkdown()` 摘要、非全文。
+- react-reviewer 报「锚点缺 preventDefault 双滚动」：是逐字复制旧 Viewer 行为（不回归优先）；且 rehype-sanitize 默认 `clobberPrefix:"user-content-"`，原始 `#foo` 原生跳转无匹配元素=no-op，实际不双滚。
+
+### 上线后必验（live-verify，铁律）
+1. `/post/11`（最重页）改动前后各跑一次 Lighthouse 11 移动端 `--only-categories=performance`，记录 Performance / LCP / TBT / TTI / CLS / JS 传输量对比。
+2. DevTools Network 确认 bytemd chunk 从文章页消失（仅解锁加密文章 / 含 mermaid 时才加载）。
+3. 逐项验不回归：代码高亮 / 复制按钮 / 数学公式 / 表格 / 脚注 / 自定义容器 / 图片点击缩放 / 标题点击改 hash / 正文 `#` 锚点跳转。
+4. 验加密文章解锁后正文正常渲染（走 ClientMarkdown 兜底）。
+5. about 页捐赠表、列表页摘要显示正常。
+
 ## 相关已知背景
 见同目录 [deployment-and-ci-notes.md](./deployment-and-ci-notes.md)：Waline 当前实现、镜像/CI、脚本部署等。

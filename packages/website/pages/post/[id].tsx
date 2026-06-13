@@ -4,7 +4,7 @@ import { getArticlesByOption } from "../../api/getArticles";
 import Layout from "../../components/Layout";
 import PostCard from "../../components/PostCard";
 import Toc from "../../components/Toc";
-import { Article } from "../../types/article";
+import { ArticleWithHtml } from "../../types/article";
 import { getArticlePath } from "../../utils/getArticlePath";
 import { LayoutProps } from "../../utils/getLayoutProps";
 import { getPostPagesProps } from "../../utils/getPageProps";
@@ -15,7 +15,7 @@ import Custom404 from "../404";
 
 export interface PostPagesProps {
   layoutProps: LayoutProps;
-  article: Article;
+  article: ArticleWithHtml;
   pay: string[];
   payDark: string[];
   author: string;
@@ -74,6 +74,7 @@ const PostPages = (props: PostPagesProps) => {
         createdAt={new Date(props.article.createdAt)}
         catelog={props.article.category}
         content={content}
+        html={props.article.html}
         setContent={setContent}
         type={"article"}
         pay={props.pay}
