@@ -4,18 +4,18 @@
 #   System Required: CentOS 7+ / Debian 8+ / Ubuntu 16+ /
 #     Arch 未测试
 #   Description: vanblog 安装脚本
-#   Github: https://github.com/mereithhh/van-blog
+#   Github: https://github.com/CasearF/vanblog-v3
 #========================================================
 
 VANBLOG_BASE_PATH="/var/vanblog"
 VANBLOG_DATA_PATH="${VANBLOG_BASE_PATH}/data"
 VANBLOG_DATA_PATH_RAW="\/var\/vanblog\/data"
-VANBLOG_SCRIPT_VERSION="v0.3.2"
+VANBLOG_SCRIPT_VERSION="v0.3.3-casear"
 
 COMPOSE_URL="https://raw.githubusercontent.com/CasearF/vanblog-v3/main/docker-compose/docker-compose-template.yml"
 SCRIPT_URL="https://raw.githubusercontent.com/CasearF/vanblog-v3/main/vanblog.sh"
 GITHUB_URL="dn-dao-github-mirror.daocloud.io"
-Get_Docker_URL="vanblog.mereith.com/docker.sh"
+Get_Docker_URL="get.docker.com"
 Get_Docker_Argu=" -s docker --mirror Aliyun"
 
 red='\033[0;31m'
@@ -29,13 +29,21 @@ os_arch=""
 
 delete_old_images() {
   echo -e "> 删除旧镜像"
-  docker rmi -f mereith/van-blog-old
+  # 不存在也不报错（更新前若无 -old 备份镜像，原脚本会抛 "No such image"）。
+  docker rmi -f casearxx/vanblog-v3-old >/dev/null 2>&1 || true
 }
 
 retag_old_images() {
   echo -e "> 重命名旧镜像"
-  docker tag $(docker images | grep van-blog | awk '{print $3}') mereith/van-blog-old
-  # docker tag $(docker images | grep vanblog | awk '{print $3}') mereith/van-blog-old
+  # 给当前（旧）镜像临时打 -old 标签，更新失败可回滚。
+  # 注意 fork 镜像名是 casearxx/vanblog-v3，不是上游的 van-blog —— 原脚本 grep van-blog 命中空，
+  # 导致 docker tag 收到空参数报 "requires 2 arguments"。这里精确匹配并在找不到时跳过。
+  old_id=$(docker images | grep 'casearxx/vanblog-v3' | grep -v 'vanblog-v3-old' | awk '{print $3}' | head -n1)
+  if [ -n "${old_id}" ]; then
+    docker tag "${old_id}" casearxx/vanblog-v3-old
+  else
+    echo -e "  (未找到旧镜像，跳过)"
+  fi
 }
 
 pre_check() {
@@ -407,7 +415,8 @@ uninstall_vanblog() {
   cd $VANBLOG_BASE_PATH &&
     docker-compose down -v
   rm -rf $VANBLOG_BASE_PATH
-  docker rmi -f mereith/van-blog:latest >/dev/null 2>&1
+  docker rmi -f casearxx/vanblog-v3:latest >/dev/null 2>&1
+  docker rmi -f casearxx/vanblog-v3-old >/dev/null 2>&1
   clean_all
 
   if [[ $# == 0 ]]; then
@@ -468,7 +477,7 @@ show_usage() {
 show_menu() {
   echo -e "
     ${green}VanBlog 管理脚本${plain} ${red}${VANBLOG_SCRIPT_VERSION}${plain}
-    --- https://github.com/mereithhh/van-blog ---
+    --- https://github.com/CasearF/vanblog-v3 ---
     ${green}1.${plain}  安装 VanBlog
     ${green}2.${plain}  修改配置
     ${green}3.${plain}  启动服务
