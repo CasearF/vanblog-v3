@@ -135,3 +135,31 @@
   删除 comment 为 null 的空壳行。**再导入一律用清洗后的文件**。
 - 排查口诀：先 `curl /api/comment?path=...` 直接看 DB 真相（数据在不在），再看格式（裸 or errno 包裹），
   最后才怀疑前端。RSS 能出评论 = 数据必在，问题在客户端/格式。
+
+## 7. WaLine 文章反应（reaction）启用记（2026-06-13）
+
+> 给文章加一排「表情反应」（赞同/喜欢/开心/惊讶/思考/反对）。结论：低成本低风险，客户端 1 处 init 改动即可。
+
+### 关键事实（实测）
+- **客户端已支持**：`@waline/client@3.13.0`（core.tsx 钉的 unpkg 版本）声明 `WalineInitOptions.reaction?: string[] | boolean`，locale 自带 reactionTitle + reaction0..8。
+- **服务端零改动**：反应计数走 WaLine 的 `/api/article` 端点，`@waline/vercel@1.39.3` 原生支持；Caddy 早在评论修复时就把 `/api/article*` 路由到 8360（见 §6 修复 #1）。`mapConfig2Env` 不涉及反应，**无需任何 server env**。
+- **零数据迁移**：计数存 waline 的 Counter 集合，按需创建。
+- **不碰现有阅读量**：博客阅读数是自己的 `getArticleViewer`（`PostViewer` 组件），与 WaLine 无关。
+- **locale 可传部分对象**：client 内部 `locale:{...默认lang, ...你传的}` 合并（dist 实证 `{...ui(fi(n)),...r}`），传 7 个 key 不会清空其它 UI 文案。
+
+### 实现
+- `components/WaLine/core.tsx` 的 `init()` 加 `reaction: reactionImages` + `locale: reactionLocale`。
+- 表情**自托管**：`utils/walineReactions.ts` 用内联 **data-URI SVG**（6 张手绘黄脸，`encodeURIComponent` 兜底编码），零第三方 CDN、零额外请求（合北极星）。数组顺序与 `reactionLocale` 的 reaction0..5 一一对应。
+- `#waline` 容器加 `minHeight:240`（反应条~80 + 评论框~160）减少异步注入 CLS。
+- 配 vitest 单测 `__tests__/walineReactions.spec.ts`（6 图 + 标签对齐 + data URI 合法性）。
+
+### 上线后必验（live-verify，本项目铁律：估算不算数）
+1. `curl -s 'http://192.168.236.81/api/article?path=/post/11&type=reaction0'` 看计数端点通不通（POST 同路径，按铁律**别 strip /api 前缀**）。
+2. 浏览器看反应条在文章底部 WaLine 组件顶部渲染、6 张脸正常显示。data: URI 需 CSP `img-src data:`——当前 `next.config.js` 与 Caddy **均无 CSP**，故现状 OK；**日后若加 CSP 务必带上 `data:`**。
+3. 点一下反应 → 刷新看计数是否持久（落 Counter）。
+4. 顺带瞄一眼反应 `<img>` 的 alt（由 WaLine 按 locale 注入）无障碍是否正常。
+
+### 已知边界 / 后续
+- 反应条位置固定在 WaLine 组件顶部（评论框上方 = 文章最底部），不可自由挪到正文末尾。
+- 反应当前与「评论开关」绑定：评论关了整个 WaLine 不渲染、反应也一起没。要解耦得加后台开关（server `WalineSetting` + admin + website 数据流），非必需。
+- review 复发项：website 包**无 `.eslintrc`**，`react-hooks`/`jsx-a11y` 规则实际未生效（两轮 review 都点名，pre-existing）——已单列任务，与本功能无关。

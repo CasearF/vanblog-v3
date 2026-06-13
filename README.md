@@ -31,6 +31,7 @@
 - 🔗 **前后端共享类型契约**：新增 [`@vanblog/shared`](packages/shared/README.md)，把 server 返回结构与前端类型统一为单一来源，接口漂移在编译期即报错。
 - 🚦 **CI 构建后冒烟门禁**：镜像构建完先拉起容器断言关键端点（`scripts/ci-smoke-test.sh`），冒烟通过才推镜像。
 - 📤 **文章快捷分享**：文章页底部一行分享按钮（复制链接 / 微博 / QQ空间 / X / Telegram，移动端额外走系统分享面板），三套主题全接、零新依赖。
+- 👍 **文章反应（WaLine reaction）**：文章底部一排表情反应（赞同 / 喜欢 / 开心 / 惊讶 / 思考 / 反对），表情用内联 data-URI SVG 自托管（零第三方 CDN、零额外请求），复用 WaLine 既有 `/api/article` 计数，server 零改动。
 - ⚡ **性能优化（进行中）**：以最重文章页跑 Lighthouse 实测驱动，详见 [`docs/custom/`](docs/custom/) 下的维护笔记。
 
 ## 预览图

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { reactionImages, reactionLocale } from "../../utils/walineReactions";
 
 // Waline 的 CSS/JS 资源在整个页面生命周期内只注入一次，
 // 避免组件每次挂载/重渲染都向 <head> 追加重复节点。
@@ -59,6 +60,10 @@ export default function WalineComponent(props: {
           el: "#waline",
           serverURL: window.location.protocol + "//" + window.location.host,
           dark: ".dark",
+          // 文章反应：自托管表情（见 utils/walineReactions），不依赖第三方 CDN。
+          // 反应计数走 WaLine 的 /api/article 端点，Caddy 已路由、无需 server 配置。
+          reaction: reactionImages,
+          locale: reactionLocale,
         });
         applyStyle();
         timers.push(setTimeout(applyStyle, 200));
@@ -93,6 +98,8 @@ export default function WalineComponent(props: {
       aria-live="polite"
       style={{
         display: props.visible ? "block" : "none",
+        // 预留高度（反应条 ~80 + 评论输入框 ~160 ≈ 240），评论组件异步注入时减少 CLS 抖版。
+        minHeight: props.visible ? 240 : undefined,
       }}
     ></div>
   );
