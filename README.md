@@ -100,6 +100,7 @@ curl -sL https://raw.githubusercontent.com/CasearF/vanblog-v3/main/vanblog.sh -o
 
 ## TODO / Roadmap
 
+- [ ] 依赖与运行时升级：Node 18（已 EOL）→ 20 LTS、pnpm / TypeScript / 框架版本跟进（分档落地，详见维护笔记）
 - [ ] husky + nano-staged 提交前钩子（接 `pnpm lint`，commit 前挡新增 lint 问题）
 - [ ] 核心 provider 单测（vitest），与 CI 冒烟形成上下两层防线（已起步：server 端 cert 校验 jest 单测）
 - [x] 文章页去客户端二次水合：正文改服务端预渲染 HTML + 客户端静态注入，bytemd（约 190KB）移出文章页首屏 JS、仅按需懒加载；渲染与交互无回归，最重文章页 Lighthouse 性能分提升、TBT/LCP 下降
