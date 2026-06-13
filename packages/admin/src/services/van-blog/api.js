@@ -96,6 +96,22 @@ export async function setHttpsConfig(data) {
     data: data,
   });
 }
+export async function getHttpsCerts() {
+  return request('/api/admin/caddy/cert', {
+    method: 'GET',
+  });
+}
+export async function uploadHttpsCert(data) {
+  return request('/api/admin/caddy/cert', {
+    method: 'POST',
+    data: data,
+  });
+}
+export async function deleteHttpsCert(id) {
+  return request('/api/admin/caddy/cert?id=' + encodeURIComponent(id), {
+    method: 'DELETE',
+  });
+}
 
 export async function fetchInit(body) {
   return request('/api/admin/init', {

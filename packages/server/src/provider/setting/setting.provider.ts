@@ -233,7 +233,7 @@ export class SettingProvider {
     const res = await this.settingModel.updateOne({ type: 'theme' }, { value: newValue });
     return res;
   }
-  async updateHttpsSetting(dto: HttpsSetting) {
+  async updateHttpsSetting(dto: Partial<HttpsSetting>) {
     const oldValue = await this.getHttpsSetting();
     const newValue = { ...oldValue, ...dto };
     if (!oldValue) {

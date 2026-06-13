@@ -205,3 +205,36 @@
 | `themes/nova-nebula/NovaPostCard.tsx:59` | **多** `lock`、`props.content` | 同上 cosmetic |
 
 > 复跑：`pnpm --filter @vanblog/theme-default exec next lint`。`react-hooks/rules-of-hooks`（真正会爆运行时 bug 的那条）**零命中**，jsx-a11y **零命中**——说明现有 hooks 调用顺序与无障碍标记是干净的，剩下的都是上面这些低风险项。
+
+## 9. 手动上传 HTTPS 证书（2026-06-13）
+
+> 给后台加「上传 HTTPS 证书」：覆盖内网 / 纯 IP / 自签 CA / 通配符等 ACME 走不通、自动按需 HTTPS 申不到证书的场景。
+> 站长上传 PEM 证书 + 私钥 → 校验 → 安全存储 → Caddy 改用上传证书给对应域名做 TLS；与自动 HTTPS 共存、可切换、可删除回退。
+
+### 关键架构事实（与 §6 一脉相承）
+1. **运行时反代仍是 `caddyTemplate.json`**（§6 铁律）。entrypoint.sh 每次启动都 `caddy start --config /app/caddy.json`，**会抹掉运行时经 admin API 注入的一切**（含证书）。故手动证书与「https 自动重定向」一样，必须**在 `CaddyProvider.init()` 启动时从 DB 重放**——证书*文件*在数据卷持久，但「让 Caddy 加载它们」这个动作每次启动都要重做。
+2. **热加载走 Caddy admin API（`127.0.0.1:2019`）的 `apps/tls/certificates/load_files`**。`caddy.provider.ts` 早就用这个 admin API 改 `srv1/listener_wrappers`（重定向）和 `tls/certificates/automate`，本功能只是多操作一个 `certificates` 键。**优先 PATCH `…/certificates/load_files`（原子就地替换数组，无"先清空再写"空窗，不会误删其它域名正用的证书），仅首次 certificates 不存在时回退 PUT 创建。** 全程无需 `caddy stop`，零中断。
+3. **手动证书与 on-demand 自动 HTTPS 按域名共存**：某 SNI 命中已 `load_files` 的证书 → Caddy 直接用它、不走 ACME；其它域名仍走模板里的 `automation.policies`（ACME + ZeroSSL + `on_demand.ask`）。删除手动证书 = 从 load_files 移除 → 该域名下次握手回退自动申请。
+4. **纯 HTTP 部署零回归**：本功能只动 `apps/tls/certificates`，从不碰 `srv1`(:80)。线上内网站（192.168.236.81，纯 HTTP）完全不受影响；功能默认关闭（无上传即无 certificates 键），行为与改动前逐字节一致。
+
+### ⚠️ 证书落盘位置（踩坑预警）
+- **绝不能放 `/app/static` 下**：`main.ts` 用 `app.useStaticAssets('/app/static', {prefix:'/static/'})` + Caddy 路由 `/static/*` → 把整个数据目录公开了。私钥放那 = `http://host/static/...` 直接下载，灾难。
+- **落点选 Caddy 数据卷 `/root/.local/share/caddy/vanblog-manual/`**（宿主 `/var/vanblog/caddy/data/vanblog-manual/`，compose 与安装脚本模板都已挂这个卷）：① 持久（重启/升级不丢）；② 不被任何 HTTP 路由 serve；③ 与 Caddy 自动证书同卷，语义自洽；④ **零 compose 改动，存量部署直接生效**。私钥文件 `0600` + 显式 `chmodSync` 兜底（绕开 umask）。
+
+### 数据流与文件
+- **server**：`utils/cert.ts`（纯函数校验：`X509Certificate` 解析 + `checkPrivateKey` 匹配 + 有效期 + SAN/CN 取域名，**绝不回显/记录私钥**）；`types/setting.dto.ts` 给 `HttpsSetting` 加 `manualCerts?: ManualCertRecord[]`（存元信息 + 磁盘路径，**不存私钥**）；`caddy.provider.ts` 加 `saveManualCertFiles / deleteManualCertFiles / applyManualCerts` + `init()` 重放；`caddy.controller.ts` 加 `GET/POST/DELETE /api/admin/caddy/cert`（AdminGuard + demo 守卫，返回 `ManualCertPublic` 脱敏视图、剥掉磁盘路径）。
+- **admin**：`SystemConfig/tabs/Caddy.jsx` 在原「HTTPS 相关配置」卡片下加「手动上传 HTTPS 证书」卡片（证书列表 Table + 上传 Modal，过期/将过期红橙绿 Tag）；`services/van-blog/api.js` 加 3 个请求封装。
+- **单测**：`utils/cert.spec.ts`（jest，11 例：SAN/CN 解析、过期判定、cert↔key 匹配/不匹配/解析失败）。fixtures 是 openssl 现造的一次性自签证书，无任何真实价值。
+
+### 已知边界 / 后续
+- **不支持带口令（加密）私钥**：`createPrivateKey` 解析即失败 → 提示「私钥解析失败」（Caddy 本身也要明文私钥）。需要的话得加 passphrase 字段 + 解密。
+- 校验只解析**叶子证书**（cert↔key 匹配、有效期）；中间链原样落盘交给 Caddy 提供，不单独校验链完整性。
+- 纯 IP + HTTPS 无 SNI 的握手由 Caddy 默认连接策略处理，本功能提供机制不保证所有 IP 直连场景；内网站当前是 HTTP，无影响。
+- 未做（T3 backlog）：证书到期 cron 告警（日志/邮件）、CA-bundle/中间链单独上传、内网 CA 的 ACME issuer 配置、导入导出。
+
+### 上线后必验（live-verify，本项目铁律：估算不算数）
+1. 后台「HTTPS 相关配置」→「手动上传 HTTPS 证书」上传一对真实证书/私钥，看是否提示成功、列表出现（域名/有效期正确）。
+2. 容器内 `ls -l /var/vanblog/caddy/data/vanblog-manual/`（宿主）确认 `.key` 权限 `0600`、文件落在数据卷。
+3. `curl -sk https://<上传证书的域名>/` 看是否用了上传的证书（`openssl s_client -connect host:443 -servername <域名>` 看指纹与上传一致）。
+4. **重启容器**后再验一次（证 `init()` 重放生效，证书没丢）。
+5. 删除证书 → 确认该域名回退自动申请、Caddy 配置里 `apps/tls/certificates` 已无该项。

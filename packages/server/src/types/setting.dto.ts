@@ -82,8 +82,27 @@ export interface WalineSetting {
   otherConfig?: string;
 }
 
+export interface ManualCertRecord {
+  id: string;
+  domains: string[];
+  subject: string;
+  issuer: string;
+  notBefore: string; // ISO
+  notAfter: string; // ISO
+  fingerprint256: string;
+  isSelfSigned: boolean;
+  remark: string;
+  certPath: string; // 容器内绝对路径，落在 Caddy 数据卷，不对外返回
+  keyPath: string; // 同上；私钥文件 0600
+  createdAt: string; // ISO
+}
+
+// 返回给前端 / API 的脱敏视图：不含磁盘路径（也从不含私钥本身）
+export type ManualCertPublic = Omit<ManualCertRecord, 'certPath' | 'keyPath'>;
+
 export interface HttpsSetting {
   redirect: boolean;
+  manualCerts?: ManualCertRecord[];
 }
 
 export interface ThemeSetting {
