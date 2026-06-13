@@ -181,7 +181,7 @@
 |---|---|---|
 | `components/CustomLayout/index.tsx:40` | `@next/next/inline-script-id` | 内联 `<Script>` 加 `id="van-blog-custom-script"`（Next 要求内联脚本带 id 以便水合去重） |
 | `components/Layout/index.tsx:131` | `react/no-children-prop` | `<LayoutBodyComponent children={...}/>` → 嵌套子节点写法（React 语义等价） |
-| `components/ImageProvider/index.tsx:79` | `react/no-children-prop` | 同上，`<PhotoProvider>{children}</PhotoProvider>`。⚠️ 该组件**全仓库零引用**（dead code，grep 实证），改动仅为让 lint 干净，是否删文件另议 |
+| `components/ImageProvider/index.tsx:79` | `react/no-children-prop` | ~~同上，`<PhotoProvider>{children}</PhotoProvider>`~~。✅ **2026-06-13 已删除整个 `components/ImageProvider/` 目录**：全仓库零引用（含大小写不敏感 grep 与动态 import 排查均零命中），`react-photo-view` 依赖保留（`ImageBox` 注释中仍引用）。删后 `tsc --noEmit` 过、`next lint` 无新增项 |
 
 ### 分级：暂不动（列出别乱改）
 接线后 `next lint`：**41 error + 66 warning，全部 pre-existing**，按性质分三类，均不在本次范围：
