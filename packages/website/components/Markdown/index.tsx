@@ -18,7 +18,8 @@ export default function Markdown({
   html,
 }: {
   content?: string;
-  html?: string;
+  // string | null：来源是 getStaticProps props（Next 禁止 undefined）。null/空 走兜底渲染。
+  html?: string | null;
 }) {
   if (html) {
     return <StaticMarkdown html={html} />;

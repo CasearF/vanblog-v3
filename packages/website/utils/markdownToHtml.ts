@@ -13,14 +13,18 @@ const MERMAID_RE = /(^|\n)[ \t]*(?:```+|~~~+)[ \t]*mermaid\b/i;
  * （getProcessor + buildPlugins() + sanitize + remarkRehype.allowDangerousHtml），
  * 因此产出的 HTML 与原客户端渲染逐字节一致 —— 客户端不再二次 processSync 水合。
  *
- * 返回 undefined 的情况（调用方应回退到客户端渲染）：
+ * 返回 null 的情况（调用方应回退到客户端渲染）：
  *  - 内容为空；
  *  - 含 mermaid 代码块（需客户端出图）；
  *  - 处理抛错（保底，绝不让单篇渲染失败拖垮整页构建）。
+ *
+ * ⚠️ 必须返回 null 而非 undefined：本函数结果直接进 getStaticProps 的 props，
+ * Next.js 禁止 props 里出现 undefined（`undefined cannot be serialized as JSON`），
+ * 只接受 null 或省略该字段。
  */
-export function renderStaticHtml(content: string | undefined | null): string | undefined {
-  if (!content) return undefined;
-  if (MERMAID_RE.test(content)) return undefined;
+export function renderStaticHtml(content: string | undefined | null): string | null {
+  if (!content) return null;
+  if (MERMAID_RE.test(content)) return null;
   try {
     const file = getProcessor({
       sanitize,
@@ -30,6 +34,6 @@ export function renderStaticHtml(content: string | undefined | null): string | u
     return file.toString();
   } catch (err) {
     console.error("[renderStaticHtml] 渲染失败，回退客户端渲染：", err);
-    return undefined;
+    return null;
   }
 }

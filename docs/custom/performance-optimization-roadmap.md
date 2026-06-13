@@ -139,6 +139,12 @@ first-party ≈ 417KB：最大 chunk `7341-*.js` 190KB（bytemd + mermaid + mark
 - react-reviewer 报「overview 显示全文」：**错**。漏看 `attachOverviewHtml` —— 列表卡的 `html` 是 `overviewMarkdown()` 摘要、非全文。
 - react-reviewer 报「锚点缺 preventDefault 双滚动」：是逐字复制旧 Viewer 行为（不回归优先）；且 rehype-sanitize 默认 `clobberPrefix:"user-content-"`，原始 `#foo` 原生跳转无匹配元素=no-op，实际不双滚。
 
+### 踩坑：getStaticProps props 不能含 `undefined`（CI 首推被 build 卡住）
+- 首版 `renderStaticHtml` 在「内容空 / mermaid / 异常」时返回 `undefined`，被直接塞进 props（`about.html` / `article.html` / 列表 `html`）。
+- `next build` 预渲染 `/about` 时报 **`Error serializing .about.html ... undefined cannot be serialized as JSON. Please use null or omit`**。Next.js 硬性禁止 getStaticProps 返回的 props 里出现 `undefined`（CI 无后端 → about 内容空 → 命中）。
+- 修复：`renderStaticHtml` 改返回 **`string | null`**；相关类型放宽到 `string \| null`；`getPostPagesProps` 用**条件展开**（文章不存在时不写 `article` 键，绝不写 `article: undefined`，否则同样炸且会把 404 退化成 500）。
+- 本地 `next build` 还会在最后 `output:"standalone"` 的 `copyTracedFiles` 报 `EPERM symlink` —— 那是 **Windows 建符号链接的权限限制**（需开发者模式/管理员），**与代码无关、CI(Linux) 不会遇到**，prerender 阶段已全过即说明业务代码 OK。
+
 ### 上线后必验（live-verify，铁律）
 1. `/post/11`（最重页）改动前后各跑一次 Lighthouse 11 移动端 `--only-categories=performance`，记录 Performance / LCP / TBT / TTI / CLS / JS 传输量对比。
 2. DevTools Network 确认 bytemd chunk 从文章页消失（仅解锁加密文章 / 含 mermaid 时才加载）。

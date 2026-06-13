@@ -26,7 +26,9 @@ import dayjs from "dayjs";
 // 含 mermaid / 内容为空时 renderStaticHtml 返回 undefined，卡片会回退到客户端渲染。
 function attachOverviewHtml<T extends { content?: string; private?: boolean }>(
   articles: T[]
-): (T & { html?: string })[] {
+): (T & { html?: string | null })[] {
+  // html 为 string | null（renderStaticHtml 在空/mermaid 时返回 null）——
+  // 不能是 undefined，否则进 getStaticProps props 会触发 Next 序列化报错。
   return (articles || []).map((article) => ({
     ...article,
     html: renderStaticHtml(overviewMarkdown(article)),
@@ -218,12 +220,12 @@ export async function getPostPagesProps(
   return {
     layoutProps,
     ...currArticleProps,
-    // 服务端预渲染全文 HTML（去 bytemd 客户端水合）。article: ... 必须放在
-    // ...currArticleProps 之后覆盖其中的 article。加密文章 content 为空 → html 为
-    // undefined → 解锁后回退客户端渲染；含 mermaid 同样回退。
-    article: article
-      ? { ...article, html: renderStaticHtml(stripMore(article.content)) }
-      : article,
+    // 服务端预渲染全文 HTML（去 bytemd 客户端水合）。条件展开：仅当 article 存在才覆盖它，
+    // 否则保持「不存在 article 键」的原行为（页面据此渲染 404）——绝不写出 article: undefined，
+    // 那会触发 Next 的 getStaticProps 序列化报错。html 为 string | null（加密/ mermaid/空时 null，回退客户端渲染）。
+    ...(article
+      ? { article: { ...article, html: renderStaticHtml(stripMore(article.content)) } }
+      : {}),
     ...payProps,
     author,
     showSubMenu: layoutProps.showSubMenu,

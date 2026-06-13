@@ -8,8 +8,9 @@ import { revalidate } from "../utils/loadConfig";
 export interface About {
   updatedAt: string;
   // content 已在服务端（getAboutPageProps）拼好捐赠表，html 为其预渲染结果（去 bytemd 客户端水合）。
+  // html 用 string | null（不用 undefined）：进 getStaticProps props，Next 禁止 undefined。
   content: string;
-  html?: string;
+  html?: string | null;
 }
 export interface AboutPageProps {
   layoutProps: LayoutProps;
