@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   vanblog:
     # 阿里云镜像源

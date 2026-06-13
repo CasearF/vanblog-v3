@@ -214,8 +214,6 @@ selinux() {
 
 write_compose_template() {
   cat > ${VANBLOG_BASE_PATH}/docker-compose-template.yaml <<'COMPOSE_EOF'
-version: '3'
-
 services:
   vanblog:
     image: vanblog_image
