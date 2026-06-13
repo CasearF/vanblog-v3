@@ -17,6 +17,41 @@ import {
   getArticlesByTimeLine,
 } from "../api/getArticles";
 import { LinkPageProps } from "../pages/link";
+import { renderStaticHtml } from "./markdownToHtml";
+import { overviewMarkdown, stripMore } from "./displayContent";
+import { DonateItem } from "../api/getAllData";
+import dayjs from "dayjs";
+
+// 给一组文章（列表/概览卡）附加服务端预渲染的摘要 HTML（去 bytemd 客户端水合）。
+// 含 mermaid / 内容为空时 renderStaticHtml 返回 undefined，卡片会回退到客户端渲染。
+function attachOverviewHtml<T extends { content?: string; private?: boolean }>(
+  articles: T[]
+): (T & { html?: string | null })[] {
+  // html 为 string | null（renderStaticHtml 在空/mermaid 时返回 null）——
+  // 不能是 undefined，否则进 getStaticProps props 会触发 Next 序列化报错。
+  return (articles || []).map((article) => ({
+    ...article,
+    html: renderStaticHtml(overviewMarkdown(article)),
+  }));
+}
+
+// about 页捐赠信息表（原内联在 pages/about.tsx，移到服务端以便整页预渲染）。
+function getDonateTableMarkdown(donates: DonateItem[]) {
+  let content = `
+## 捐赠信息
+
+| 捐赠人 | 捐赠金额|捐赠时间|
+|---|---|---|
+  `;
+  for (const each of donates) {
+    content =
+      content +
+      `|${each.name}|${each.value} 元|${dayjs(each.updatedAt).format(
+        "YYYY-MM-DD HH:mm:ss"
+      )}|\n`;
+  }
+  return content;
+}
 
 export async function getIndexPageProps(): Promise<IndexPageProps> {
   const data = await getPublicMeta();
@@ -28,7 +63,7 @@ export async function getIndexPageProps(): Promise<IndexPageProps> {
   });
   return {
     layoutProps,
-    articles,
+    articles: attachOverviewHtml(articles),
     currPage: 1,
     authorCardProps,
   };
@@ -108,12 +143,24 @@ export async function getAboutPageProps(): Promise<AboutPageProps> {
       data.meta.siteInfo?.payWechatDark || "",
     ],
   };
+  // 把捐赠表拼接 + 正文预渲染都放到服务端，整页走 StaticMarkdown（去 bytemd 客户端水合）。
+  // 拼接条件与原 pages/about.tsx 的 useMemo 一致：有捐赠记录且未关闭捐赠信息时追加。
+  const donates = data.meta?.rewards || [];
+  const aboutContent =
+    donates.length > 0 && showDonateInfo !== "false"
+      ? `${about.content}${getDonateTableMarkdown(donates)}`
+      : about.content;
+  const aboutWithHtml = {
+    ...about,
+    content: aboutContent,
+    html: renderStaticHtml(stripMore(aboutContent)),
+  };
   return {
     showDonateInfo,
     layoutProps,
     authorCardProps,
-    about,
-    donates: data.meta?.rewards || [],
+    about: aboutWithHtml,
+    donates,
     showDonateInAbout,
     ...payProps,
   };
@@ -173,6 +220,12 @@ export async function getPostPagesProps(
   return {
     layoutProps,
     ...currArticleProps,
+    // 服务端预渲染全文 HTML（去 bytemd 客户端水合）。条件展开：仅当 article 存在才覆盖它，
+    // 否则保持「不存在 article 键」的原行为（页面据此渲染 404）——绝不写出 article: undefined，
+    // 那会触发 Next 的 getStaticProps 序列化报错。html 为 string | null（加密/ mermaid/空时 null，回退客户端渲染）。
+    ...(article
+      ? { article: { ...article, html: renderStaticHtml(stripMore(article.content)) } }
+      : {}),
     ...payProps,
     author,
     showSubMenu: layoutProps.showSubMenu,
@@ -191,7 +244,7 @@ export async function getPagePagesProps(
   });
   return {
     layoutProps,
-    articles,
+    articles: attachOverviewHtml(articles),
     currPage,
     authorCardProps,
   };

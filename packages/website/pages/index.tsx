@@ -2,7 +2,7 @@ import AuthorCard, { AuthorCardProps } from "../components/AuthorCard";
 import Layout from "../components/Layout";
 import PageNav from "../components/PageNav";
 import PostCard from "../components/PostCard";
-import { Article } from "../types/article";
+import { ArticleWithHtml } from "../types/article";
 import { LayoutProps } from "../utils/getLayoutProps";
 import { getIndexPageProps } from "../utils/getPageProps";
 import { revalidate } from "../utils/loadConfig";
@@ -14,7 +14,7 @@ export interface IndexPageProps {
   layoutProps: LayoutProps;
   authorCardProps: AuthorCardProps;
   currPage: number;
-  articles: Article[];
+  articles: ArticleWithHtml[];
 }
 const Home = (props: IndexPageProps) => {
   return (
@@ -50,6 +50,7 @@ const Home = (props: IndexPageProps) => {
             createdAt={new Date(article.createdAt)}
             catelog={article.category}
             content={article.content || ""}
+            html={article.html}
             type={"overview"}
             enableComment={props.layoutProps.enableComment}
             copyrightAggreement={props.layoutProps.copyrightAggreement}

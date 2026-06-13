@@ -5,7 +5,7 @@ import Layout from "../../components/Layout";
 import PageNav from "../../components/PageNav";
 import PostCard from "../../components/PostCard";
 import Waline from "../../components/WaLine";
-import { Article } from "../../types/article";
+import { ArticleWithHtml } from "../../types/article";
 import { getArticlePath } from "../../utils/getArticlePath";
 import { LayoutProps } from "../../utils/getLayoutProps";
 import { getPagePagesProps } from "../../utils/getPageProps";
@@ -16,7 +16,7 @@ export interface PagePagesProps {
   layoutProps: LayoutProps;
   authorCardProps: AuthorCardProps;
   currPage: number;
-  articles: Article[];
+  articles: ArticleWithHtml[];
 }
 const PagePages = (props: PagePagesProps) => {
   if (props.articles.length == 0) {
@@ -56,6 +56,7 @@ const PagePages = (props: PagePagesProps) => {
             createdAt={new Date(article.createdAt)}
             catelog={article.category}
             content={article.content || ""}
+            html={article.html}
             type={"overview"}
             enableComment={props.layoutProps.enableComment}
             private={article.private}

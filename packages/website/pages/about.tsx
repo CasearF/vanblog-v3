@@ -1,5 +1,3 @@
-import dayjs from "dayjs";
-import { useMemo } from "react";
 import { DonateItem } from "../api/getAllData";
 import AuthorCard, { AuthorCardProps } from "../components/AuthorCard";
 import Layout from "../components/Layout";
@@ -9,7 +7,10 @@ import { getAboutPageProps } from "../utils/getPageProps";
 import { revalidate } from "../utils/loadConfig";
 export interface About {
   updatedAt: string;
+  // content 已在服务端（getAboutPageProps）拼好捐赠表，html 为其预渲染结果（去 bytemd 客户端水合）。
+  // html 用 string | null（不用 undefined）：进 getStaticProps props，Next 禁止 undefined。
   content: string;
+  html?: string | null;
 }
 export interface AboutPageProps {
   layoutProps: LayoutProps;
@@ -21,30 +22,9 @@ export interface AboutPageProps {
   showDonateInfo: "true" | "false";
   showDonateInAbout: "true" | "false";
 }
-const getDonateTableMarkdown = (donates: DonateItem[]) => {
-  let content = `
-## 捐赠信息
-
-| 捐赠人 | 捐赠金额|捐赠时间|
-|---|---|---|
-  `;
-  for (const each of donates) {
-    content =
-      content +
-      `|${each.name}|${each.value} 元|${dayjs(each.updatedAt).format(
-        "YYYY-MM-DD HH:mm:ss"
-      )}|\n`;
-  }
-  return content;
-};
 const AboutPage = (props: AboutPageProps) => {
-  const content = useMemo(() => {
-    if (props.donates.length == 0 || props.showDonateInfo == "false") {
-      return props.about.content;
-    } else {
-      return `${props.about.content}${getDonateTableMarkdown(props.donates)}`;
-    }
-  }, [props]);
+  // 捐赠表拼接已移到服务端 getAboutPageProps，props.about.content 即最终展示内容。
+  const content = props.about.content;
 
   return (
     <Layout
@@ -68,6 +48,7 @@ const AboutPage = (props: AboutPageProps) => {
         payDark={props.payDark}
         catelog={"about"}
         content={content}
+        html={props.about.html}
         type={"about"}
         enableComment={props.layoutProps.enableComment}
         top={0}

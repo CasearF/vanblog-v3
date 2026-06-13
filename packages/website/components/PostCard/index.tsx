@@ -21,6 +21,10 @@ export default function (props: {
   createdAt: Date;
   catelog: string;
   content: string;
+  // 服务端预渲染好的正文 HTML（去 bytemd 客户端水合）。
+  // 公开文章/about/列表摘要会带上它走 StaticMarkdown；加密文章解锁后无此值（null），回退客户端渲染。
+  // 用 string | null（不用 undefined）：来源是 getStaticProps props，Next 禁止 undefined。
+  html?: string | null;
   setContent: (content: string) => void;
   type: "overview" | "article" | "about";
   pay?: string[];
@@ -126,7 +130,11 @@ export default function (props: {
           ) : (
             <>
               {showToc && <TocMobile content={calContent} />}
-              <Markdown content={calContent}></Markdown>
+              {/* props.html 是数据层针对本卡「展示内容」预渲染好的 HTML：
+                  article/about=全文(去 more)、overview=摘要（见 utils/getPageProps 的
+                  attachOverviewHtml + utils/displayContent）。有它走 StaticMarkdown 静态注入，
+                  无它（加密文章解锁后）则 calContent 走客户端兜底渲染。 */}
+              <Markdown content={calContent} html={props.html}></Markdown>
             </>
           )}
         </div>
