@@ -162,4 +162,46 @@
 ### 已知边界 / 后续
 - 反应条位置固定在 WaLine 组件顶部（评论框上方 = 文章最底部），不可自由挪到正文末尾。
 - 反应当前与「评论开关」绑定：评论关了整个 WaLine 不渲染、反应也一起没。要解耦得加后台开关（server `WalineSetting` + admin + website 数据流），非必需。
-- review 复发项：website 包**无 `.eslintrc`**，`react-hooks`/`jsx-a11y` 规则实际未生效（两轮 review 都点名，pre-existing）——已单列任务，与本功能无关。
+- ~~review 复发项：website 包**无 `.eslintrc`**，`react-hooks`/`jsx-a11y` 规则实际未生效~~ ✅ **已接线**（2026-06-13，见 §8）。
+
+## 8. 前端 ESLint 接线与 findings 分级（2026-06-13）
+
+> website 包一直有 `eslint-config-next` 依赖却**没有任何 `.eslintrc`**，所以 `react-hooks/*`、`jsx-a11y/*` 规则从来没跑（ECC react-reviewer 两轮点名）。本次补齐配置、把现存 findings 评估分级、顺手修真实报错。
+
+### 接线（3 处改动）
+- `packages/website/.eslintrc.json`：`extends: ["next/core-web-vitals"]`（激活 react-hooks + jsx-a11y + @next/next 规则）。**刻意保持纯净、没下调任何规则**——仓库有 `config-protection` 钩子会拦截"弱化 lint 配置"的改动，且 40+ 文件的匿名默认导出约定不该为过 lint 而批量重写。
+- `packages/website/package.json` scripts 加 `"lint": "next lint"`（Next `^13.5.6` 自带，`eslint`/`eslint-config-next` 均可从包内解析，`eslint` 由 workspace 根 hoist）。
+- `packages/website/next.config.js` 加 `eslint: { ignoreDuringBuilds: true, dirs: [...] }`：
+  - **`ignoreDuringBuilds: true` 是关键且必须**。接 `.eslintrc` 之前 `next build` 没有配置文件 → 构建期**不跑 lint**；一旦有了配置，`next build` 默认会 lint 并**在 error 级别 fail**。把 lint 与构建**解耦**，保持 CI Docker 构建行为不变，避免新激活的规则突然把部署搞挂。lint 当独立门禁（`pnpm --filter @vanblog/theme-default lint`）。
+  - `dirs` 扩到 `pages/components/themes/utils/api/types`——`next lint` 默认只扫 `pages/components/lib/src/app`，会漏掉 `themes/`（nova 主题里也有 hooks/img）。
+  - 将来 `next lint` 清零后，可把 `ignoreDuringBuilds` 翻 `false` 让 lint 硬门禁构建（配合 README TODO 里的 husky 钩子）。
+
+### 顺手修的真实报错（3 个，行为不变、已过 tsc + vitest）
+| 文件 | 规则 | 修法 |
+|---|---|---|
+| `components/CustomLayout/index.tsx:40` | `@next/next/inline-script-id` | 内联 `<Script>` 加 `id="van-blog-custom-script"`（Next 要求内联脚本带 id 以便水合去重） |
+| `components/Layout/index.tsx:131` | `react/no-children-prop` | `<LayoutBodyComponent children={...}/>` → 嵌套子节点写法（React 语义等价） |
+| `components/ImageProvider/index.tsx:79` | `react/no-children-prop` | 同上，`<PhotoProvider>{children}</PhotoProvider>`。⚠️ 该组件**全仓库零引用**（dead code，grep 实证），改动仅为让 lint 干净，是否删文件另议 |
+
+### 分级：暂不动（列出别乱改）
+接线后 `next lint`：**41 error + 66 warning，全部 pre-existing**，按性质分三类，均不在本次范围：
+
+1. **匿名默认导出约定（41 error `react/display-name` + 42 warning `import/no-anonymous-default-export`）**：全仓 `export default function (props) {...}` / `export default (props) => {}` 风格触发。display name 仅开发期工具用、生产构建会被剥离；修 = 给 40+ 组件改命名导出 = 正是"别乱改"警告的那种 churn。**因 `config-protection` 不能在 eslintrc 里关这两条规则，故保留在 lint 输出里，但已用 `ignoreDuringBuilds` 与构建解耦，不影响 CI。**
+2. **`@next/next/no-img-element`（13 warning）**：`ImageBox`、`NavBar`、`Reward` 及 nova/nova-nebula 主题里用原生 `<img>`。换 `next/image` 需配 loader/domains，且与现有图床/sharp 链路、SSG 策略相关——是**单独的性能决策**，不在 lint 接线范围。
+3. **`react-hooks/exhaustive-deps`（11 warning，react-reviewer 关注的核心）**：逐个看过，**全是有意为之的 run-once / mount-only 模式或 cosmetic**，naive 加 dep 反而会引入重订阅/重置 throttle 等 bug：
+
+| 文件:行 | 缺/多的 dep | 判断 |
+|---|---|---|
+| `pages/_app.tsx:59` | 缺 `handleRouteChange`、`router.events` | `hasInit` guard 只跑一次；潜在隐患是 `routeChangeComplete` 监听**未清理** + 闭包陈旧，正确修法要 useCallback + cleanup 重构，**风险高，单列** |
+| `components/Layout/index.tsx:62` | 缺 `current` | `current` 来自 `useRef` 恒稳定，近似误报，加了是 no-op |
+| `components/MarkdownTocBar/core.tsx:53` | 缺 `updateTocScrollbar` | 函数每渲染重建，需 useCallback 才能正确加 |
+| `components/MarkdownTocBar/core.tsx:82` | 缺 `handleScroll` | throttle 函数 + mount-only `[]`；加 dep 会每渲染重订阅 scroll 并重置节流 |
+| `components/SearchCard/index.tsx:24` | 缺 `onKeyDown` | 同上，mount-only `[]` 监听，加 dep 会重订阅 |
+| `components/ThemeButton/core.tsx:59` | 缺 `clearTimer` | guarded `useLayoutEffect`，函数每渲染重建 |
+| `components/Toc/index.tsx:28` | 缺 `props.showSubMenu` | guarded 一次性 Headroom 初始化 |
+| `components/NavBarMobile/index.tsx:54` | 缺 `renderItem` | `renderItem` 是 `[]`-useCallback 稳定，低风险但 cosmetic |
+| `components/PostCard/index.tsx:79` | **多** `lock` | 移除安全（只减重算），cosmetic；刚改过分享按钮，暂不再 churn |
+| `themes/nova/NovaPostCard.tsx:59` | **多** `lock`、`props.content` | 同上 cosmetic |
+| `themes/nova-nebula/NovaPostCard.tsx:59` | **多** `lock`、`props.content` | 同上 cosmetic |
+
+> 复跑：`pnpm --filter @vanblog/theme-default exec next lint`。`react-hooks/rules-of-hooks`（真正会爆运行时 bug 的那条）**零命中**，jsx-a11y **零命中**——说明现有 hooks 调用顺序与无障碍标记是干净的，剩下的都是上面这些低风险项。

@@ -37,7 +37,7 @@ export default function (props: {
         ></div>
       ) : null}
       {props.customScript ? (
-        <Script strategy="lazyOnload">{`${decode(
+        <Script id="van-blog-custom-script" strategy="lazyOnload">{`${decode(
           props.customScript
         )}`}</Script>
       ) : null}

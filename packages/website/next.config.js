@@ -59,6 +59,16 @@ const getCdnUrl = () => {
 module.exports = withBundleAnalyzer({
   reactStrictMode: true,
   output: "standalone",
+  // Lint is run as a separate, explicit gate (`pnpm lint` -> `next lint`),
+  // not coupled to the production build. Before this repo had an .eslintrc,
+  // `next build` skipped linting entirely; keeping it decoupled preserves that
+  // CI behavior so newly-activated rules can't surprise-break the Docker build.
+  // Flip `ignoreDuringBuilds` to false once `next lint` is clean if we ever
+  // want lint to hard-gate the build.
+  eslint: {
+    ignoreDuringBuilds: true,
+    dirs: ["pages", "components", "themes", "utils", "api", "types"],
+  },
   experimental: {
     largePageDataBytes: 1024 * 1024 * 10,
   },

@@ -76,7 +76,8 @@ export default function (props: { children: any }) {
           </>
         );
       }}
-      children={props.children}
-    />
+    >
+      {props.children}
+    </PhotoProvider>
   );
 }

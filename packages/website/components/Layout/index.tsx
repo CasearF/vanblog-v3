@@ -128,7 +128,7 @@ export default function (props: {
           <div className={themeName !== 'default' 
             ? 'nova-container nova-pt-8' 
             : 'mx-auto lg:px-6 md:py-4 py-2 px-2 md:px-4 text-gray-700'}>
-            <LayoutBodyComponent children={props.children} sideBar={props.sideBar} />
+            <LayoutBodyComponent sideBar={props.sideBar}>{props.children}</LayoutBodyComponent>
             <FooterComponent
               ipcHref={props.option.ipcHref}
               ipcNumber={props.option.ipcNumber}

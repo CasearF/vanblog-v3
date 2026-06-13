@@ -32,6 +32,7 @@
 - 🚦 **CI 构建后冒烟门禁**：镜像构建完先拉起容器断言关键端点（`scripts/ci-smoke-test.sh`），冒烟通过才推镜像。
 - 📤 **文章快捷分享**：文章页底部一行分享按钮（复制链接 / 微博 / QQ空间 / X / Telegram，移动端额外走系统分享面板），三套主题全接、零新依赖。
 - 👍 **文章反应（WaLine reaction）**：文章底部一排表情反应（赞同 / 喜欢 / 开心 / 惊讶 / 思考 / 反对），表情用内联 data-URI SVG 自托管（零第三方 CDN、零额外请求），复用 WaLine 既有 `/api/article` 计数，server 零改动。
+- 🧹 **前端 ESLint 接线**：website 包补上 `.eslintrc.json`（`next/core-web-vitals`，激活 `react-hooks` / `jsx-a11y`），`pnpm lint` 作为独立门禁、与生产构建解耦；顺手修了 3 个真实报错（自定义脚本缺 `id`、`children` 当 prop 传），其余历史约定项与 hooks 告警已分级，详见维护笔记。
 - ⚡ **性能优化（进行中）**：以最重文章页跑 Lighthouse 实测驱动，详见 [`docs/custom/`](docs/custom/) 下的维护笔记。
 
 ## 预览图
@@ -99,8 +100,9 @@ curl -sL https://raw.githubusercontent.com/CasearF/vanblog-v3/main/vanblog.sh -o
 ## TODO / Roadmap
 
 - [ ] 性能优化 Option A：去掉 bytemd 客户端二次水合，改静态渲染 SSR 产出的 HTML（唯一确认能上分的方向）
-- [ ] husky + nano-staged 提交前钩子
+- [ ] husky + nano-staged 提交前钩子（接 `pnpm lint`，commit 前挡新增 lint 问题）
 - [ ] 核心 provider 单测（vitest），与 CI 冒烟形成上下两层防线
+- [x] 前端 ESLint 接线：website 补 `.eslintrc.json`（`next/core-web-vitals`）+ `pnpm lint`，`react-hooks` / `jsx-a11y` 规则生效；与构建解耦，findings 已分级（详见维护笔记）
 - [x] 快捷分享按钮：文章页内置复制链接 / 微博 / QQ空间 / X / Telegram + 移动端系统分享，三主题全接、零新依赖
 - [x] 主题（前端渲染器）系统：`themes/` 框架 + nova / nova-nebula，后台一键切换
 - [x] 前后端共享类型契约包 `@vanblog/shared`：server 返回结构与 website 类型单一来源，漂移编译期报错
