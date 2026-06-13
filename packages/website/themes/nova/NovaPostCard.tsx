@@ -6,6 +6,7 @@ import { SubTitle, Title } from "../../components/PostCard/title";
 import { getTarget } from "../../components/Link/tools";
 import Markdown from "../../components/Markdown";
 import WaLine from "../../components/WaLine";
+import ShareBar from "../../components/ShareBar";
 
 export default function NovaPostCard(props: {
   id: number | string;
@@ -94,6 +95,10 @@ export default function NovaPostCard(props: {
             </>
           )}
         </div>
+
+        {props.type === "article" && !lock && (
+          <ShareBar title={props.title} />
+        )}
 
         {props.type == "overview" && (
           <div className="nova-post-read-more">

@@ -30,6 +30,7 @@
 - 🎨 **主题系统**：新增可切换的前端渲染器框架（`themes/`）与 `nova` / `nova-nebula` 主题，后台一键切换。
 - 🔗 **前后端共享类型契约**：新增 [`@vanblog/shared`](packages/shared/README.md)，把 server 返回结构与前端类型统一为单一来源，接口漂移在编译期即报错。
 - 🚦 **CI 构建后冒烟门禁**：镜像构建完先拉起容器断言关键端点（`scripts/ci-smoke-test.sh`），冒烟通过才推镜像。
+- 📤 **文章快捷分享**：文章页底部一行分享按钮（复制链接 / 微博 / QQ空间 / X / Telegram，移动端额外走系统分享面板），三套主题全接、零新依赖。
 - ⚡ **性能优化（进行中）**：以最重文章页跑 Lighthouse 实测驱动，详见 [`docs/custom/`](docs/custom/) 下的维护笔记。
 
 ## 预览图
@@ -99,7 +100,7 @@ curl -sL https://raw.githubusercontent.com/CasearF/vanblog-v3/main/vanblog.sh -o
 - [ ] 性能优化 Option A：去掉 bytemd 客户端二次水合，改静态渲染 SSR 产出的 HTML（唯一确认能上分的方向）
 - [ ] husky + nano-staged 提交前钩子
 - [ ] 核心 provider 单测（vitest），与 CI 冒烟形成上下两层防线
-- [ ] 快捷分享按钮
+- [x] 快捷分享按钮：文章页内置复制链接 / 微博 / QQ空间 / X / Telegram + 移动端系统分享，三主题全接、零新依赖
 - [x] 主题（前端渲染器）系统：`themes/` 框架 + nova / nova-nebula，后台一键切换
 - [x] 前后端共享类型契约包 `@vanblog/shared`：server 返回结构与 website 类型单一来源，漂移编译期报错
 - [x] e2e / CI：构建后容器冒烟测试，断言关键端点，通过才推送镜像

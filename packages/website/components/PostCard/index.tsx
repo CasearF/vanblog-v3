@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import AlertCard from "../AlertCard";
 import CopyRight from "../CopyRight";
 import Reward from "../Reward";
+import ShareBar from "../ShareBar";
 import TopPinIcon from "../TopPinIcon";
 import UnLockCard from "../UnLockCard";
 import WaLine from "../WaLine";
@@ -129,6 +130,10 @@ export default function (props: {
             </>
           )}
         </div>
+
+        {props.type === "article" && !lock && (
+          <ShareBar title={props.title} />
+        )}
 
         {props.type == "overview" && (
           <div className="w-full flex justify-center mt-4 ">

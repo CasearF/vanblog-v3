@@ -43,9 +43,9 @@
    (b) admin 接入（它的 API 类型多由 `umi openapi` 生成，需另行评估）；(c) 把
    `pnpm --filter @vanblog/shared run check` 接进 CI（因消费方 `skipLibCheck` 不校验 .d.ts 自身）。
 3. **借鉴项 #2/#3**：husky 提交钩子、核心 provider 单测。
-4. 原作者 TODO 里小甜点：快捷分享按钮（纯前端，轻量实现，1-2h）。
+4. ~~原作者 TODO 里小甜点：快捷分享按钮~~ ✅ **已落地**（2026-06-13，见第 5 节）。
 
-## 5. 本周已完成（截至 2026-06-12）
+## 5. 本周已完成（截至 2026-06-13）
 
 - WaLine 评论系统 P0 全链路修复（见 [deployment-and-ci-notes.md](./deployment-and-ci-notes.md) 第 6 节）。
 - CI 构建后冒烟测试落地（`scripts/ci-smoke-test.sh` + workflow，通过才推镜像）。
@@ -64,3 +64,9 @@
   - **lockfile 副作用（已知、无害）**：重生成 `pnpm-lock.yaml` 时顺带修正了既有漂移
     `@waline/vercel ^1.31.7→^1.39.3`（waline/package.json 早已是 1.39.3，只是 lock 没跟上）+ `think-helper 1.1.4→1.1.5`。
     waline 在 RUNNER 阶段独立 `pnpm i`、website frozen 阶段不依赖它，故对 Docker/运行时无影响。
+- **文章快捷分享按钮**（2026-06-13，借鉴清单第 3/4 节小甜点收尾）：
+  - 新增 `components/ShareBar/index.tsx`（纯展示）+ `utils/shareLinks.ts`（`buildShareLink` 纯函数，配 5 条 vitest 单测 `__tests__/shareLinks.spec.ts`）。
+  - 文章正文末尾一行：复制链接（`copy-to-clipboard` + `react-hot-toast` toast）/ 微博 / QQ空间 / X / Telegram（`window.open` 各家分享 intent）+ 移动端系统分享（`navigator.share`，特性探测、挂载后才显示，避免 SSR 水合不一致）。
+  - 三套 PostCard（`components/PostCard` default + `themes/nova` / `themes/nova-nebula` 的 `NovaPostCard`）全接，`type==="article" && !lock` 才渲染。**零新依赖**，沿用既有库。
+  - **两个易踩点记死**：(a) tailwind `content` 只扫 `./components` 与 `./pages`——任意值 hover 颜色类名（`hover:text-[#e6162d]` 等）必须写在组件文件里才会被生成，塞进 `utils/` 或 `themes/` 都不会被扫到；(b) 暗色描边别用 `nav-dark`(#26282c)——它与文章卡片 `dark:bg-dark`(#26282c) 同色会让药丸边框在暗色模式下完全消失，改用 `gray-600`(#4b5563)。
+  - **验证**：website `tsc --noEmit` 通过；`shareLinks.spec.ts` 5/5 绿。完整构建验证走 CI（build + 冒烟门禁），最终观感以部署后实测为准。
