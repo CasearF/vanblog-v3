@@ -85,8 +85,14 @@ export default function ShareBar(props: { title: string }) {
   };
 
   const handleNativeShare = () => {
-    navigator.share({ title: props.title, url: currentUrl() }).catch(() => {
-      // 用户取消或浏览器不支持，静默忽略。
+    // 调用时再核一遍（挂载后环境可能变化），避免 navigator.share 不存在时抛 TypeError。
+    if (typeof navigator === "undefined" || typeof navigator.share !== "function") {
+      return;
+    }
+    navigator.share({ title: props.title, url: currentUrl() }).catch((err: unknown) => {
+      // 用户主动取消（AbortError）属正常，忽略；其余失败给个提示，别静默吞。
+      if (err instanceof Error && err.name === "AbortError") return;
+      toast.error("分享失败，可改用「复制链接」");
     });
   };
 
@@ -118,7 +124,7 @@ export default function ShareBar(props: { title: string }) {
           type="button"
           onClick={() => openPlatform(t.key)}
           aria-label={`分享到 ${t.label}`}
-          className={`${pill} ${brandHover[t.key]}`}
+          className={`${pill} ${brandHover[t.key] ?? ""}`}
         >
           {t.label}
         </button>

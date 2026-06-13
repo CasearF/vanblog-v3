@@ -13,10 +13,13 @@ describe("buildShareLink", () => {
     );
   });
 
-  it("uses the qzone onekey endpoint", () => {
-    expect(buildShareLink("qzone", url, title)).toContain(
+  it("uses the qzone onekey endpoint and encodes both params", () => {
+    const link = buildShareLink("qzone", url, title);
+    expect(link).toContain(
       "sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey"
     );
+    expect(link).toContain(`url=${encodeURIComponent(url)}`);
+    expect(link).toContain(`title=${encodeURIComponent(title)}`);
   });
 
   it("uses text= (not title=) for x and telegram", () => {
@@ -37,6 +40,13 @@ describe("buildShareLink", () => {
     // 原始 & / 空格必须被编码，避免污染分享平台的 query
     expect(link).not.toContain("q=1&r=2");
     expect(link).toContain("a%20b%26c");
+  });
+
+  it("double-encodes pre-encoded input (callers must pass the raw url, not pre-encoded)", () => {
+    // 契约：传入原始 url。若误传已编码的 %20，会被再编码成 %2520——固化此行为以警示调用方。
+    expect(
+      buildShareLink("weibo", "https://a.b/?q=hello%20world", "t")
+    ).toContain("hello%2520world");
   });
 
   it("has a label for every share target", () => {
