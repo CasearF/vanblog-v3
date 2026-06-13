@@ -34,8 +34,7 @@
 - 👍 **文章反应（WaLine reaction）**：文章底部一排表情反应（赞同 / 喜欢 / 开心 / 惊讶 / 思考 / 反对），表情用内联 data-URI SVG 自托管（零第三方 CDN、零额外请求），复用 WaLine 既有 `/api/article` 计数，server 零改动。
 - 🔐 **手动上传 HTTPS 证书**：后台「HTTPS 相关配置」新增上传 PEM 证书 + 私钥，覆盖内网 / 纯 IP / 自签 CA / 通配符等 ACME 走不通的场景。证书经校验（cert↔key 匹配 + 有效期）后存入 Caddy 数据卷（私钥 `0600`、不对外 serve / 不回显 / 不入日志），通过 Caddy admin API `load_files` 热加载、零中断；对应域名改用上传证书，其它域名仍走自动按需 HTTPS，可删除回退。配 cert 校验单测。
 - 🧹 **前端 ESLint 接线**：website 包补上 `.eslintrc.json`（`next/core-web-vitals`，激活 `react-hooks` / `jsx-a11y`），`pnpm lint` 作为独立门禁、与生产构建解耦；顺手修了 3 个真实报错（自定义脚本缺 `id`、`children` 当 prop 传），其余历史约定项与 hooks 告警已分级，详见维护笔记。
-- ⚡ **性能优化（进行中）**：以最重文章页跑 Lighthouse 实测驱动。最新一批「去 bytemd 文章页客户端二次水合」——
-  正文改服务端预渲染 HTML + 客户端静态注入、bytemd 仅加密/ mermaid 懒加载兜底——**代码已落地、待真机实测**，详见 [`docs/custom/`](docs/custom/) 下的维护笔记。
+- ⚡ **文章页去客户端二次水合**：文章正文此前由 bytemd 在浏览器中二次解析、重新渲染一遍——这对纯阅读页是无谓开销。改为在 SSG/SSR 阶段预产出 HTML、客户端直接静态注入，bytemd 全家桶（编辑器内核 + 代码高亮 + 公式，约 190KB）从文章页首屏 JS 中移除，仅在加密文章解锁、含 mermaid 图等少数场景按需懒加载。代码高亮、数学公式、表格、图片缩放、代码复制、目录锚点等渲染与交互保持一致；实测最重文章页 Lighthouse 性能分提升、TBT 与 LCP 同步下降。
 
 ## 预览图
 
@@ -101,10 +100,9 @@ curl -sL https://raw.githubusercontent.com/CasearF/vanblog-v3/main/vanblog.sh -o
 
 ## TODO / Roadmap
 
-- [ ] 性能优化 Option A：去掉 bytemd 客户端二次水合，改静态渲染 SSR 产出的 HTML（唯一确认能上分的方向）——
-  🟡 **代码已实现、过 tsc/lint/ecc review**（2026-06-13）；⏳ **待真机 Lighthouse 实测**确认收益后再勾选（铁律：估算不算数）
 - [ ] husky + nano-staged 提交前钩子（接 `pnpm lint`，commit 前挡新增 lint 问题）
 - [ ] 核心 provider 单测（vitest），与 CI 冒烟形成上下两层防线（已起步：server 端 cert 校验 jest 单测）
+- [x] 文章页去客户端二次水合：正文改服务端预渲染 HTML + 客户端静态注入，bytemd（约 190KB）移出文章页首屏 JS、仅按需懒加载；渲染与交互无回归，最重文章页 Lighthouse 性能分提升、TBT/LCP 下降
 - [x] 手动上传 HTTPS 证书：后台上传 PEM 证书 + 私钥，校验后落 Caddy 数据卷、admin API 热加载，与自动 HTTPS 共存可切换（详见维护笔记）
 - [x] 前端 ESLint 接线：website 补 `.eslintrc.json`（`next/core-web-vitals`）+ `pnpm lint`，`react-hooks` / `jsx-a11y` 规则生效；与构建解耦，findings 已分级（详见维护笔记）
 - [x] 快捷分享按钮：文章页内置复制链接 / 微博 / QQ空间 / X / Telegram + 移动端系统分享，三主题全接、零新依赖
