@@ -34,7 +34,7 @@ COPY 路径，风险高且本地无 Docker 难以验证。
 改用 **path alias + 纯类型**后：
 
 - Docker 每个构建阶段只需多 `COPY` 一份 `packages/shared`（server 落到 `/shared`，
-  website 落到 `/app/packages/shared`，alias `../shared/src/index.ts` 在本地与两种 Docker
+  website 落到 `/app/packages/shared`，alias `../shared/src/index.d.ts` 在本地与两种 Docker
   布局下都成立）；
 - **不动 `pnpm-lock.yaml` 的消费方依赖**（消费方 package.json 不新增 dependency），
   规避了 `--frozen-lockfile` 踩坑；
