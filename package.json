@@ -27,6 +27,10 @@
     "webhook": "node scripts/webhook.js"
   },
   "packageManager": "pnpm@8.11.0",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=8.0.0"
+  },
   "devDependencies": {
     "cross-env": "^7.0.3",
     "nan": "^2.18.0",

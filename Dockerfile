@@ -1,6 +1,6 @@
-# 具体每个服务的去看 packages 里面的 Dockerfile
-# 这个是 all in one 的。
-FROM  node:18-alpine as ADMIN_BUILDER
+# all-in-one 多阶段构建：admin / server / website 各为一个 BUILDER 阶段，最终汇入 RUNNER。
+# （历史上 packages/* 下有独立单包 Dockerfile，均为上游遗留死代码，已删除——统一走本文件。）
+FROM  node:22-alpine as ADMIN_BUILDER
 ENV NODE_OPTIONS='--max_old_space_size=4096 --openssl-legacy-provider'
 ENV EEE=production
 WORKDIR /app
@@ -20,7 +20,7 @@ RUN cd node_modules/.pnpm/esbuild*/node_modules/esbuild && node install.js 2>/de
 # RUN sed -i 's/\/assets/\/admin\/assets/g' dist/admin/index.html
 RUN pnpm build
 
-FROM node:18 as SERVER_BUILDER
+FROM node:22 as SERVER_BUILDER
 ENV NODE_OPTIONS=--max_old_space_size=4096
 WORKDIR /app
 COPY ./packages/server/ .
@@ -38,7 +38,7 @@ RUN pnpm config set fetch-timeout 600000 -g
 RUN pnpm i
 RUN pnpm build
 
-FROM node:18-alpine AS WEBSITE_BUILDER
+FROM node:22-alpine AS WEBSITE_BUILDER
 WORKDIR /app
 RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
 COPY ./package.json ./
@@ -67,9 +67,19 @@ RUN pnpm build:website
 
 
 #运行容器
-FROM node:18-alpine AS RUNNER
+FROM node:22-alpine AS RUNNER
 WORKDIR /app
-RUN  apk add --no-cache --update tzdata caddy nss-tools libwebp-tools \
+# Caddy 钉定 2.6.4(pre-2.7):node:*-alpine 基底升级会把 apk 的 caddy 拉到 2.8+,
+# 而 caddyTemplate.json 用旧 on_demand.ask(2.8 改 on_demand.permission 模块)
+# + 旧 trusted_proxies 数组(2.7 改模块)→ 新 caddy 拒绝加载整份配置 → caddy 退出 → :80 全 000。
+# 直接下载 pin 死的静态二进制,与 Alpine 漂移解耦、配置与 server CaddyProvider 均不用改。
+# Caddy 2.8+ 配置迁移属另案。
+RUN  apk add --no-cache --update tzdata nss-tools libwebp-tools ca-certificates curl \
+  && curl -fsSL https://github.com/caddyserver/caddy/releases/download/v2.6.4/caddy_2.6.4_linux_amd64.tar.gz -o /tmp/caddy.tar.gz \
+  && tar -xzf /tmp/caddy.tar.gz -C /usr/bin caddy \
+  && chmod +x /usr/bin/caddy \
+  && rm /tmp/caddy.tar.gz \
+  && apk del curl \
   && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
   && echo "Asia/Shanghai" > /etc/timezone \
   && apk del tzdata
