@@ -1,5 +1,5 @@
-# 具体每个服务的去看 packages 里面的 Dockerfile
-# 这个是 all in one 的。
+# all-in-one 多阶段构建：admin / server / website 各为一个 BUILDER 阶段，最终汇入 RUNNER。
+# （历史上 packages/* 下有独立单包 Dockerfile，均为上游遗留死代码，已删除——统一走本文件。）
 FROM  node:24-alpine as ADMIN_BUILDER
 ENV NODE_OPTIONS='--max_old_space_size=4096 --openssl-legacy-provider'
 ENV EEE=production
