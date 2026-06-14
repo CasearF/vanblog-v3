@@ -9,7 +9,7 @@ RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
 COPY ./packages/admin/ ./
 RUN npm install -g corepack@latest \
   && corepack enable \
-  && corepack prepare pnpm@9.15.9 --activate
+  && corepack prepare pnpm@8.11.0 --activate
 RUN pnpm config set network-timeout 600000 -g
 RUN pnpm config set registry https://registry.npmjs.org -g
 RUN pnpm config set fetch-retries 20 -g
@@ -30,7 +30,7 @@ COPY ./packages/server/ .
 COPY ./packages/shared /shared
 RUN npm install -g corepack@latest \
   && corepack enable \
-  && corepack prepare pnpm@9.15.9 --activate
+  && corepack prepare pnpm@8.11.0 --activate
 RUN pnpm config set network-timeout 600000 -g
 RUN pnpm config set registry https://registry.npmmirror.com -g
 RUN pnpm config set fetch-retries 20 -g
@@ -57,7 +57,7 @@ ARG VAN_BLOG_VERSIONS
 ENV VAN_BLOG_VERSION ${VAN_BLOG_VERSIONS}
 RUN npm install -g corepack@latest \
   && corepack enable \
-  && corepack prepare pnpm@9.15.9 --activate
+  && corepack prepare pnpm@8.11.0 --activate
 RUN pnpm config set network-timeout 600000 -g
 RUN pnpm config set registry https://registry.npmmirror.com -g
 RUN pnpm config set fetch-retries 20 -g
@@ -75,7 +75,7 @@ RUN  apk add --no-cache --update tzdata caddy nss-tools libwebp-tools \
   && apk del tzdata
 RUN npm install -g corepack@latest \
   && corepack enable \
-  && corepack prepare pnpm@9.15.9 --activate
+  && corepack prepare pnpm@8.11.0 --activate
 RUN pnpm config set network-timeout 600000 -g
 RUN pnpm config set registry https://registry.npmmirror.com -g
 RUN pnpm config set fetch-retries 20 -g
