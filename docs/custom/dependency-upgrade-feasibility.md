@@ -54,6 +54,13 @@ root 无 `engines` 字段 → Node 版本目前只靠 Dockerfile 隐式定。
 
 ## Tier 1 落地记录（2026-06-14，分支 `chore/tier1-node24-pnpm9`）
 
+> **决策更正（同日)：最终回落 Node 22,放弃 24。** 下文「Node → 24」的论证已作废。
+> 经过:先选 24(runway 到 2028)→ CI 接连撞 Node 24 移除的 `util.isObject`:① `@nestjs/cli@9`
+> 的 `nest build`(临时升 cli@11 绕过)；② 镜像能构建但运行时冒烟全 `HTTP 000`(容器起不来),
+> admin 的 umi3.5/webpack4 等老栈对 Node 24 根本不友好。对照 CornWorld(把依赖全怼最新的激进 fork)
+> 也钉 `.node-version=22`,印证 24 跑在生态前面。**回落 22 后:Node 仍 off-EOL(到 2027-04)、
+> 整套老栈恢复可用、cli@11 一并回退成 @9(Tier 1 只剩运行时+包管理)。** Node→24 的彻底解法属 Tier 2/3。
+
 **两项开工前待定的决策已定：**
 - **Node → 24 LTS**（不是评估时写的 20）。原因：今天复核 EOL，**Node 20 已于 2026-04-30 EOL**，选 20 等于重蹈 EOL 覆辙；Node 22 是 Maintenance LTS（EOL 2027-04），Node 24 是 Active LTS（EOL 2028-04，runway 翻倍）。作者拍板取 24。
 - **pnpm → 9.15.9**（不是 10）。关键事实：**pnpm 9 与 10 写的都是 lockfile 9.0**，所以无论选谁都只过一次 `6.0→9.0` 格式迁移；差别在 pnpm 10 默认**拦截依赖 build/postinstall 脚本**（需 `onlyBuiltDependencies` 白名单），会悄悄打断本仓 esbuild（Dockerfile 已有手工 `node install.js` 兜底）/ sharp / nan 原生构建。选 9 拿到锁文件现代化、不吃这颗雷；pnpm 10 留作日后带白名单的专门改动。
