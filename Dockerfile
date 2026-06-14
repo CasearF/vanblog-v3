@@ -1,6 +1,6 @@
 # all-in-one 多阶段构建：admin / server / website 各为一个 BUILDER 阶段，最终汇入 RUNNER。
 # （历史上 packages/* 下有独立单包 Dockerfile，均为上游遗留死代码，已删除——统一走本文件。）
-FROM  node:24-alpine as ADMIN_BUILDER
+FROM  node:22-alpine as ADMIN_BUILDER
 ENV NODE_OPTIONS='--max_old_space_size=4096 --openssl-legacy-provider'
 ENV EEE=production
 WORKDIR /app
@@ -20,7 +20,7 @@ RUN cd node_modules/.pnpm/esbuild*/node_modules/esbuild && node install.js 2>/de
 # RUN sed -i 's/\/assets/\/admin\/assets/g' dist/admin/index.html
 RUN pnpm build
 
-FROM node:24 as SERVER_BUILDER
+FROM node:22 as SERVER_BUILDER
 ENV NODE_OPTIONS=--max_old_space_size=4096
 WORKDIR /app
 COPY ./packages/server/ .
@@ -38,7 +38,7 @@ RUN pnpm config set fetch-timeout 600000 -g
 RUN pnpm i
 RUN pnpm build
 
-FROM node:24-alpine AS WEBSITE_BUILDER
+FROM node:22-alpine AS WEBSITE_BUILDER
 WORKDIR /app
 RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
 COPY ./package.json ./
@@ -67,7 +67,7 @@ RUN pnpm build:website
 
 
 #运行容器
-FROM node:24-alpine AS RUNNER
+FROM node:22-alpine AS RUNNER
 WORKDIR /app
 RUN  apk add --no-cache --update tzdata caddy nss-tools libwebp-tools \
   && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
