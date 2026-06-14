@@ -103,7 +103,7 @@ curl -sL https://raw.githubusercontent.com/CasearF/vanblog-v3/main/vanblog.sh -o
 - [ ] 框架依赖升级（Tier 2）：TypeScript 5 / NestJS 10 / Next 14 逐包跟进（分档落地，详见维护笔记）
 - [ ] husky + nano-staged 提交前钩子（接 `pnpm lint`，commit 前挡新增 lint 问题）
 - [ ] 核心 provider 单测（vitest），与 CI 冒烟形成上下两层防线（已起步：server 端 cert 校验 jest 单测）
-- [x] 运行时 / 包管理升级（Tier 1）：Node 18（已 EOL）→ 22 LTS、pnpm 8.11 → 9.15.9、补 `engines` / `.nvmrc` 钉版、`pnpm-lock` 迁移至 v9（纯格式、零依赖漂移）；并清理无人构建的遗留 Dockerfile（详见维护笔记）
+- [x] 运行时 / 包管理升级（Tier 1）：Node 18（已 EOL）→ 22 LTS、pnpm 8.11 → 9.15.9、补 `engines` / `.nvmrc` 钉版、`pnpm-lock` 迁移至 v9；Caddy 钉定 2.6.4（规避 Alpine 基底漂移把 Caddy 拉到 2.8+ 致代理拒配置启动）；并清理无人构建的遗留 Dockerfile（详见维护笔记）
 - [x] 文章页去客户端二次水合：正文改服务端预渲染 HTML + 客户端静态注入，bytemd（约 190KB）移出文章页首屏 JS、仅按需懒加载；渲染与交互无回归，最重文章页 Lighthouse 性能分提升、TBT/LCP 下降
 - [x] 手动上传 HTTPS 证书：后台上传 PEM 证书 + 私钥，校验后落 Caddy 数据卷、admin API 热加载，与自动 HTTPS 共存可切换（详见维护笔记）
 - [x] 前端 ESLint 接线：website 补 `.eslintrc.json`（`next/core-web-vitals`）+ `pnpm lint`，`react-hooks` / `jsx-a11y` 规则生效；与构建解耦，findings 已分级（详见维护笔记）
