@@ -1,6 +1,6 @@
 # 具体每个服务的去看 packages 里面的 Dockerfile
 # 这个是 all in one 的。
-FROM  node:18-alpine as ADMIN_BUILDER
+FROM  node:24-alpine as ADMIN_BUILDER
 ENV NODE_OPTIONS='--max_old_space_size=4096 --openssl-legacy-provider'
 ENV EEE=production
 WORKDIR /app
@@ -9,7 +9,7 @@ RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
 COPY ./packages/admin/ ./
 RUN npm install -g corepack@latest \
   && corepack enable \
-  && corepack prepare pnpm@8.11.0 --activate
+  && corepack prepare pnpm@9.15.9 --activate
 RUN pnpm config set network-timeout 600000 -g
 RUN pnpm config set registry https://registry.npmjs.org -g
 RUN pnpm config set fetch-retries 20 -g
@@ -20,7 +20,7 @@ RUN cd node_modules/.pnpm/esbuild*/node_modules/esbuild && node install.js 2>/de
 # RUN sed -i 's/\/assets/\/admin\/assets/g' dist/admin/index.html
 RUN pnpm build
 
-FROM node:18 as SERVER_BUILDER
+FROM node:24 as SERVER_BUILDER
 ENV NODE_OPTIONS=--max_old_space_size=4096
 WORKDIR /app
 COPY ./packages/server/ .
@@ -30,7 +30,7 @@ COPY ./packages/server/ .
 COPY ./packages/shared /shared
 RUN npm install -g corepack@latest \
   && corepack enable \
-  && corepack prepare pnpm@8.11.0 --activate
+  && corepack prepare pnpm@9.15.9 --activate
 RUN pnpm config set network-timeout 600000 -g
 RUN pnpm config set registry https://registry.npmmirror.com -g
 RUN pnpm config set fetch-retries 20 -g
@@ -38,7 +38,7 @@ RUN pnpm config set fetch-timeout 600000 -g
 RUN pnpm i
 RUN pnpm build
 
-FROM node:18-alpine AS WEBSITE_BUILDER
+FROM node:24-alpine AS WEBSITE_BUILDER
 WORKDIR /app
 RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
 COPY ./package.json ./
@@ -57,7 +57,7 @@ ARG VAN_BLOG_VERSIONS
 ENV VAN_BLOG_VERSION ${VAN_BLOG_VERSIONS}
 RUN npm install -g corepack@latest \
   && corepack enable \
-  && corepack prepare pnpm@8.11.0 --activate
+  && corepack prepare pnpm@9.15.9 --activate
 RUN pnpm config set network-timeout 600000 -g
 RUN pnpm config set registry https://registry.npmmirror.com -g
 RUN pnpm config set fetch-retries 20 -g
@@ -67,7 +67,7 @@ RUN pnpm build:website
 
 
 #运行容器
-FROM node:18-alpine AS RUNNER
+FROM node:24-alpine AS RUNNER
 WORKDIR /app
 RUN  apk add --no-cache --update tzdata caddy nss-tools libwebp-tools \
   && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
@@ -75,7 +75,7 @@ RUN  apk add --no-cache --update tzdata caddy nss-tools libwebp-tools \
   && apk del tzdata
 RUN npm install -g corepack@latest \
   && corepack enable \
-  && corepack prepare pnpm@8.11.0 --activate
+  && corepack prepare pnpm@9.15.9 --activate
 RUN pnpm config set network-timeout 600000 -g
 RUN pnpm config set registry https://registry.npmmirror.com -g
 RUN pnpm config set fetch-retries 20 -g
