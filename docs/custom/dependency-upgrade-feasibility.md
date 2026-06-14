@@ -54,12 +54,12 @@ root 无 `engines` 字段 → Node 版本目前只靠 Dockerfile 隐式定。
 
 ## Tier 1 落地记录（2026-06-14，分支 `chore/tier1-node24-pnpm9`）
 
-> **决策更正（同日)：最终回落 Node 22,放弃 24。** 下文「Node → 24」的论证已作废。
-> 经过:先选 24(runway 到 2028)→ CI 接连撞 Node 24 移除的 `util.isObject`:① `@nestjs/cli@9`
-> 的 `nest build`(临时升 cli@11 绕过)；② 镜像能构建但运行时冒烟全 `HTTP 000`(容器起不来),
-> admin 的 umi3.5/webpack4 等老栈对 Node 24 根本不友好。对照 CornWorld(把依赖全怼最新的激进 fork)
-> 也钉 `.node-version=22`,印证 24 跑在生态前面。**回落 22 后:Node 仍 off-EOL(到 2027-04)、
-> 整套老栈恢复可用、cli@11 一并回退成 @9(Tier 1 只剩运行时+包管理)。** Node→24 的彻底解法属 Tier 2/3。
+> **最终结论(2026-06-14,CI 已绿):Tier 1 = Node 18→22 LTS + pnpm 8.11→9.15.9 + Caddy 钉 2.6.4。下文「Node→24」论证已作废,保留作历史记录。**
+> 踩坑全程有**两个互相独立**的问题,别混:
+> - **Node 24 的真问题 = `nest build` 崩**:`@nestjs/cli@9` 的 plugins-loader 用了 Node 24 移除的 `util.isObject`(cli@10/11 已改 `typeof`)。本可升 cli@11 绕过,但选回 22 更省心(CornWorld 这种把依赖全怼最新的激进 fork 也钉 `.node-version=22`,印证 24 跑在生态前面)。
+> - **运行时冒烟全 `HTTP 000` = Caddy,不是 Node / 不是 pnpm / 不是 umi**(我中途误判过好几次,记痛)。证据链:Node 22 与 24 症状完全相同 → 排除 Node;把 pnpm 退回 8.11 仍 000 → 排除 pnpm。真因:`node:*-alpine` 基底升级把 `apk add caddy` 拉到 **Caddy 2.8+**,而 `caddyTemplate.json` 用旧 `on_demand.ask`(2.8 改成 `on_demand.permission` 模块)+ 旧 `trusted_proxies` 数组(2.7 改模块)→ 新 caddy 拒绝加载整份配置 → 进程退出 → :80 无人监听 → 全端点 000。容器日志坐实(server/mongo/website/Node22 全部正常启动,唯 caddy 挂)。**修复:RUNNER 阶段不再 `apk add caddy`,改下载 pin 死的 Caddy 2.6.4 静态二进制**(pre-2.7、两种旧格式都兼容),与 Alpine 漂移解耦、镜像可复现。**注:这也意味着 main 现在重新构建一样会挂**(线上无事只因跑的是旧 caddy 时构建的旧镜像)。
+> - **pnpm 9 无辜**:caddy 修好绿了之后重新启用 pnpm 9.15.9 + v9 lockfile(纯格式迁移、零依赖漂移)。
+> 另案 backlog:① Caddy 2.8+ 配置现代化(`on_demand.permission` + `trusted_proxies` 改模块,`caddyTemplate.json` + server `CaddyProvider` 双改,才能解除 2.6.4 钉版);② Node 24(需 cli@11 等框架升级,属 Tier 2/3)。下面自「两项开工前待定」起的内容是当时按 Node 24 写的历史记录,已被本结论取代。
 
 **两项开工前待定的决策已定：**
 - **Node → 24 LTS**（不是评估时写的 20）。原因：今天复核 EOL，**Node 20 已于 2026-04-30 EOL**，选 20 等于重蹈 EOL 覆辙；Node 22 是 Maintenance LTS（EOL 2027-04），Node 24 是 Active LTS（EOL 2028-04，runway 翻倍）。作者拍板取 24。
