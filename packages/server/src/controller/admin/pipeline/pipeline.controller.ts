@@ -1,7 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AdminGuard } from 'src/provider/auth/auth.guard';
-import { Request } from 'express';
 import { PipelineProvider } from 'src/provider/pipeline/pipeline.provider';
 import { CreatePipelineDto } from 'src/types/pipeline.dto';
 import { VanblogSystemEvents } from 'src/types/event';
@@ -14,7 +13,7 @@ import { ApiToken } from 'src/provider/swagger/token';
 export class PipelineController {
   constructor(private readonly pipelineProvider: PipelineProvider) {}
   @Get()
-  async getAllPipelines(@Req() req: Request) {
+  async getAllPipelines() {
     const pipelines = await this.pipelineProvider.getAll();
     return {
       statusCode: 200,
@@ -22,7 +21,7 @@ export class PipelineController {
     };
   }
   @Get('config')
-  async getPipelineConfig(@Req() req: Request) {
+  async getPipelineConfig() {
     return {
       statusCode: 200,
       data: VanblogSystemEvents,

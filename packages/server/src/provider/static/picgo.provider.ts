@@ -52,6 +52,7 @@ export class PicgoProvider {
       });
     }
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async saveFile(fileName: string, buffer: Buffer, type: StaticType) {
     const result = imageSize(buffer);
     const byteLength = buffer.byteLength;

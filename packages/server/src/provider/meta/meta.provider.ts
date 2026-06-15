@@ -152,8 +152,8 @@ export class MetaProvider {
   }
 
   async updateSiteInfo(updateSiteInfoDto: UpdateSiteInfoDto) {
-    // @ts-ignore eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    const { name, password, ...updateDto } = updateSiteInfoDto;
+    // @ts-expect-error name/password 不在 UpdateSiteInfoDto 联合类型的公共属性上，解构仅用于从 updateDto 中剔除
+    const { name, password, ...updateDto } = updateSiteInfoDto; // eslint-disable-line @typescript-eslint/no-unused-vars
     const oldSiteInfo = await this.getSiteInfo();
     return this.metaModel.updateOne({}, { siteInfo: { ...oldSiteInfo, ...updateDto } });
   }

@@ -14,7 +14,7 @@ export const addWaterMarkToIMG = async (srcImage: Buffer, waterMarkText: string)
   const X = image.bitmap.width - logo.bitmap.width - xMargin;
   const Y = image.bitmap.height - logo.bitmap.height - yMargin;
 
-  //@ts-ignore
+  //@ts-expect-error jimp 类型定义不完整
   const newImage = image.composite(logo, X, Y, [
     {
       mode: Jimp.BLEND_SOURCE_OVER,
@@ -30,7 +30,7 @@ export const generateWaterMark: any = async (waterMark: string) => {
   const font = await Jimp.loadFont(Jimp.FONT_SANS_128_WHITE);
   const logo = await Jimp.read(500, 150, 0x00000000);
   logo.print(font, 0, 0, waterMark, 500);
-  //@ts-ignore
+  //@ts-expect-error jimp 类型定义不完整
   logo.color([{ apply: 'mix', params: ['#a7a7a7', 100] }]);
   return logo;
 };

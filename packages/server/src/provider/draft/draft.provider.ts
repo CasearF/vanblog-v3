@@ -81,6 +81,7 @@ export class DraftProvider {
     //   drafts[i].id = newId;
     // }
     for (const draft of drafts) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, ...createDto } = draft;
       const title = draft.title;
       const oldDraft = await this.findOneByTitle(title);

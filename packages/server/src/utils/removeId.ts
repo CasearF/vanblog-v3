@@ -3,6 +3,7 @@ export function removeID(objArr: any[]) {
     return null;
   }
   return objArr.map((each) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { _id, __v, ...rest } = each;
     return rest;
   });
