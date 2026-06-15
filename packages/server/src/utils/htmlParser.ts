@@ -4,7 +4,7 @@ export const parseHtmlToHeadTagArr = (html) => {
   const tags = h('div').first().children();
   const result = [];
   for (const t of tags) {
-    //@ts-ignore
+    //@ts-expect-error cheerio 节点 next/data 字段缺少静态类型
     let content = t?.next?.data || undefined;
     if (content) {
       content = content.trim();

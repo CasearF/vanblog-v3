@@ -18,9 +18,7 @@ export async function getNetIp(req: any) {
       const tmp = ipNumArray[0] + '.' + ipNumArray[1];
       if (
         tmp === '192.168' ||
-        (ipNumArray[0] === '172' &&
-          ipNumArray[1] >= 16 &&
-          ipNumArray[1] <= 32) ||
+        (ipNumArray[0] === '172' && ipNumArray[1] >= 16 && ipNumArray[1] <= 32) ||
         tmp === '10.7' ||
         tmp === '127.0'
       ) {
@@ -57,11 +55,6 @@ export async function getNetIp(req: any) {
 export function getPlatform(userAgent: string): 'mobile' | 'desktop' {
   const ua = userAgent.toLowerCase();
   const testUa = (regexp: RegExp) => regexp.test(ua);
-  const testVs = (regexp: RegExp) =>
-    (ua.match(regexp) || [])
-      .toString()
-      .replace(/[^0-9|_.]/g, '')
-      .replace(/_/g, '.');
 
   // 系统
   let system = 'unknow';

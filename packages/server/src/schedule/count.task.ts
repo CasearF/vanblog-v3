@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
-import * as dayjs from 'dayjs';
 import { MetaProvider } from 'src/provider/meta/meta.provider';
 @Injectable()
 export class CountTask {

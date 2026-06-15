@@ -623,17 +623,17 @@ export class ArticleProvider {
     if (isPublic) {
       const tmpArticles: any[] = [];
       for (const a of articles) {
-        //@ts-ignore
+        //@ts-expect-error mongoose _doc 动态字段，缺少静态类型
         const isPrivateInArticle = a?._doc?.private || a?.private;
         const category = await this.categoryModal.findOne({
-          //@ts-ignore
+          //@ts-expect-error mongoose _doc 动态字段，缺少静态类型
           name: a?._doc?.category || a?.category,
         });
         const isPrivateInCategory = category?.private || false;
         const isPrivate = isPrivateInArticle || isPrivateInCategory;
         if (isPrivate) {
           tmpArticles.push({
-            //@ts-ignore
+            //@ts-expect-error mongoose _doc 动态字段，缺少静态类型
             ...(a?._doc || a),
             content: undefined,
             password: undefined,
@@ -641,7 +641,7 @@ export class ArticleProvider {
           });
         } else {
           tmpArticles.push({
-            //@ts-ignore
+            //@ts-expect-error mongoose _doc 动态字段，缺少静态类型
             ...(a?._doc || a),
           });
         }

@@ -1,8 +1,6 @@
 export function wordCount(Words: string) {
   let iTotal = 0;
-  let inum = 0;
   let eTotal = 0;
-  let sTotal = 0;
   for (let i = 0; i < Words.length; i++) {
     const c = Words.charAt(i);
     //基本汉字
@@ -13,16 +11,10 @@ export function wordCount(Words: string) {
     if (c.match(/[\u9FA6-\u9fcb]/)) {
       iTotal++;
     }
-    //  中文标点加中文字
-    if (c.match(/[^\x00-\xff]/)) {
-      sTotal++;
-    } else {
+    //  中文标点加中文字、英文
+    if (!c.match(/[^\x00-\xff]/)) {
       // 英文
       eTotal++;
-    }
-    // 数字
-    if (c.match(/[0-9]/)) {
-      inum++;
     }
   }
   return iTotal + eTotal;

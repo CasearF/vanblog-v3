@@ -10,7 +10,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiHeader, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { config } from 'src/config';
 import { CreateArticleDto, UpdateArticleDto } from 'src/types/article.dto';
 import { SortOrder } from 'src/types/sort';

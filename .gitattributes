@@ -1,0 +1,23 @@
+# 行尾归一：git 内统一存 LF，各平台检出也用 LF。
+# 修掉 Windows 工作树 CRLF 导致 prettier/prettier「Delete ␍」幻报
+#（本仓 index 早已全是 LF，本文件只影响检出/工作树行尾，无内容 churn）。
+* text=auto eol=lf
+
+# Shell 脚本必须 LF —— 它们在 Alpine/Linux 容器里执行（entrypoint.sh / vanblog.sh 等）。
+*.sh text eol=lf
+
+# 二进制资源：永不按文本归一或做行尾转换。
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf  binary
+*.eot  binary
+*.pdf  binary
+*.gz   binary
+*.tgz  binary
+*.zip  binary

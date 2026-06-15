@@ -33,7 +33,7 @@
 - 📤 **文章快捷分享**：文章页底部一行分享按钮（复制链接 / 微博 / QQ空间 / X / Telegram，移动端额外走系统分享面板），三套主题全接、零新依赖。
 - 👍 **文章反应（WaLine reaction）**：文章底部一排表情反应（赞同 / 喜欢 / 开心 / 惊讶 / 思考 / 反对），表情用内联 data-URI SVG 自托管（零第三方 CDN、零额外请求），复用 WaLine 既有 `/api/article` 计数，server 零改动。
 - 🔐 **手动上传 HTTPS 证书**：后台「HTTPS 相关配置」新增上传 PEM 证书 + 私钥，覆盖内网 / 纯 IP / 自签 CA / 通配符等 ACME 走不通的场景。证书经校验（cert↔key 匹配 + 有效期）后存入 Caddy 数据卷（私钥 `0600`、不对外 serve / 不回显 / 不入日志），通过 Caddy admin API `load_files` 热加载、零中断；对应域名改用上传证书，其它域名仍走自动按需 HTTPS，可删除回退。配 cert 校验单测。
-- 🧹 **前端 ESLint 接线**：website 包补上 `.eslintrc.json`（`next/core-web-vitals`，激活 `react-hooks` / `jsx-a11y`），`pnpm lint` 作为独立门禁、与生产构建解耦；顺手修了 3 个真实报错（自定义脚本缺 `id`、`children` 当 prop 传），其余历史约定项与 hooks 告警已分级，详见维护笔记。
+- 🧹 **前端 ESLint 接线**：website 包补上 `.eslintrc.json`（`next/core-web-vitals`，激活 `react-hooks` / `jsx-a11y`），`pnpm lint` 作为独立门禁、与生产构建解耦；顺手修了 3 个真实报错（自定义脚本缺 `id`、`children` 当 prop 传），其余历史约定项与 hooks 告警已分级。在此基础上接入 husky + nano-staged 提交前钩子（改动到的 server 代码走 ESLint 门禁、其余文件 Prettier 自动格式化）与 `.gitattributes` 行尾归一，详见维护笔记。
 - ⚡ **文章页去客户端二次水合**：文章正文此前由 bytemd 在浏览器中二次解析、重新渲染一遍——这对纯阅读页是无谓开销。改为在 SSG/SSR 阶段预产出 HTML、客户端直接静态注入，bytemd 全家桶（编辑器内核 + 代码高亮 + 公式，约 190KB）从文章页首屏 JS 中移除，仅在加密文章解锁、含 mermaid 图等少数场景按需懒加载。代码高亮、数学公式、表格、图片缩放、代码复制、目录锚点等渲染与交互保持一致；实测最重文章页 Lighthouse 性能分提升、TBT 与 LCP 同步下降。
 
 ## 预览图
@@ -101,7 +101,7 @@ curl -sL https://raw.githubusercontent.com/CasearF/vanblog-v3/main/vanblog.sh -o
 ## TODO / Roadmap
 
 - [ ] 框架依赖升级（Tier 2）：TypeScript 5 / NestJS 10 / Next 14 逐包跟进（分档落地，详见维护笔记）
-- [ ] husky + nano-staged 提交前钩子（接 `pnpm lint`，commit 前挡新增 lint 问题）
+- [x] husky + nano-staged 提交前钩子：commit 前对改动到的 server 代码跑 ESLint 门禁、其余文件 Prettier 自动格式化；并新增 `.gitattributes` 统一行尾为 LF、消除跨平台 CRLF 噪声（详见维护笔记）
 - [ ] 核心 provider 单测（vitest），与 CI 冒烟形成上下两层防线（已起步：server 端 cert 校验 jest 单测）
 - [x] 运行时 / 包管理升级（Tier 1）：Node 18（已 EOL）→ 22 LTS、pnpm 8.11 → 9.15.9、补 `engines` / `.nvmrc` 钉版、`pnpm-lock` 迁移至 v9；Caddy 钉定 2.6.4（规避 Alpine 基底漂移把 Caddy 拉到 2.8+ 致代理拒配置启动）；并清理无人构建的遗留 Dockerfile（详见维护笔记）
 - [x] 文章页去客户端二次水合：正文改服务端预渲染 HTML + 客户端静态注入，bytemd（约 190KB）移出文章页首屏 JS、仅按需懒加载；渲染与交互无回归，最重文章页 Lighthouse 性能分提升、TBT/LCP 下降

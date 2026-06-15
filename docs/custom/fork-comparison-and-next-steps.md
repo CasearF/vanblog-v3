@@ -43,7 +43,7 @@
    （当前 server 只共用了 `SortOrder`，是 pass-through 弱耦合，真正的强制只发生在被约束的用点）；
    (b) admin 接入（它的 API 类型多由 `umi openapi` 生成，需另行评估）；(c) 把
    `pnpm --filter @vanblog/shared run check` 接进 CI（因消费方 `skipLibCheck` 不校验 .d.ts 自身）。
-3. **借鉴项 #2/#3**：husky 提交钩子、核心 provider 单测。
+3. ~~**借鉴项 #2**：husky 提交钩子~~ ✅ **已落地**（2026-06-15，husky@9 + nano-staged + `.gitattributes` EOL 归一，详见 [deployment-and-ci-notes.md](./deployment-and-ci-notes.md) §10）。**借鉴项 #3**：核心 provider 单测（vitest/jest）仍待办。
 4. ~~原作者 TODO 里小甜点：快捷分享按钮~~ ✅ **已落地**（2026-06-13，见第 5 节）。
 
 ## 5. 本周已完成（截至 2026-06-13）
