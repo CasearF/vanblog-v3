@@ -238,3 +238,30 @@
 3. `curl -sk https://<上传证书的域名>/` 看是否用了上传的证书（`openssl s_client -connect host:443 -servername <域名>` 看指纹与上传一致）。
 4. **重启容器**后再验一次（证 `init()` 重放生效，证书没丢）。
 5. 删除证书 → 确认该域名回退自动申请、Caddy 配置里 `apps/tls/certificates` 已无该项。
+
+## 10. husky + nano-staged 提交前钩子 + 行尾(EOL)归一（2026-06-15）
+
+> 借鉴清单（[fork-comparison-and-next-steps.md](./fork-comparison-and-next-steps.md) §3 项 2 / §4 项 3）的提交前钩子落地。
+> 原以为「半小时零风险抄 CornWorld」，实际撞上本仓三处现实，钩子设计据此收敛。记痛。
+
+### 三处现实（决定了钩子怎么设计）
+1. **三套互不相同的 ESLint**：server = eslint8 + `plugin:@typescript-eslint/recommended` + `plugin:prettier/recommended`（类型感知、`.eslintrc.js`）；admin = umi/`@umijs/fabric` + eslint7（`lint` 跑 `umi g tmp`，重量级）；website = `next/core-web-vitals` + eslint8（`next lint`，且 §8 记的 41 个 `react/display-name` error 历史债，`config-protection` 钩子禁止在 eslintrc 关规则）。**单一 root eslint 扫混合 staged 文件不可行**。
+2. **CRLF 幻报**：`git config core.autocrlf=true` → git 内存 LF、Windows 检出 CRLF；而 root `.prettierrc.js` 摊 `@umijs/fabric` 的 `endOfLine:'lf'` → server eslint（带 prettier 规则）把每行 CRLF 报成 `prettier/prettier「Delete ␍」`，单 server 就 **8862 个幻报**。`git ls-files --eol` 实锤 `i/lf w/crlf`：检出层问题，非文件内容问题。
+3. **prettier 作用域**：root `.prettierignore` 明确排除 `packages/website/`、`packages/waline/`、`pnpm-lock.yaml`、`caddyTemplate.json`（website 那条标注「TODO: Introduce prettier v3」）。
+
+### 落地设计
+- **`.gitattributes`（新增）**：`* text=auto eol=lf` + `*.sh text eol=lf` + 图片 `binary`。统一各平台检出为 LF、根治上面的幻报。**index 早已全 LF（`git ls-files --eol` 全 `i/lf`），故零内容 churn**，只影响工作树/检出行尾；提交时 git 对残留 CRLF 文件提示「CRLF will be replaced by LF」属预期归一。
+- **husky@9 + nano-staged@0.8**（root devDeps）：
+  - `package.json` 的 `"nano-staged"` 配置：`packages/server/**/*.ts` → `eslint --fix`；其余 `*.{js,jsx,ts,tsx,mjs,cjs,json,css,scss,less,html,yml,yaml}` → `prettier --write --ignore-unknown`（**刻意不含 `md`**：docs/README 是手写中文 markdown，含对齐表格，纳入 prettier 会整文件重排、churn 巨大）。
+  - **server 为何能当阻断门禁**：`eslint --fix` 先把 CRLF 自愈成 LF（消幻报）、再自动修可修项；剩下不可修的真错（unused-var 等）→ 非零退出 → 挡住提交。**前提是 server 有干净基线**（见下）。
+  - **website 为何不进 eslint 门禁**：41 个 display-name 历史债 + `config-protection` 不让关规则 + 不愿为 lint 批量 churn 40 个组件。website 文件落到 prettier glob 时被 `.prettierignore` 跳过 → 提交不被误挡，也不强制（`next lint` 仍是 §8 的独立门禁）。
+  - **`prepare: "husky || true"`**：Dockerfile `WEBSITE_BUILDER` 阶段 **COPY 了 root `package.json` 并 `pnpm install --frozen-lockfile`** → 根 `prepare` 会在镜像构建里执行，而该阶段无 `.git`。husky@9 无 git 本就退 0，`|| true` 再兜一层，确保镜像构建永不被 prepare 搞挂。
+  - `.husky/pre-commit` 内容仅 `pnpm exec nano-staged`；husky 内部 `.husky/_/`（各 hook wrapper）由 prepare 重生成且整目录 gitignore，仓库只提交 `.husky/pre-commit`。
+- **server 绿基线（清 28 个历史真错）**：删 unused imports/vars/params；`@ts-ignore`→`@ts-expect-error`（mongoose `_doc` / cheerio / jimp 类型缺失处，逐一 `tsc` 验证仍真报错）；`removeID`/`draft`/`meta` 三处「解构剔除」用 `// eslint-disable-next-line`（行为零改动、不碰 eslintrc 以绕开 config-protection）；`wordCount` 删死计数器 `inum`/`sTotal`（返回值不变）；`log/utils` 删死函数 `testVs`。`tsc --noEmit`、`jest`(12/12) 全过。
+
+### 验证（本机能做的都做了）
+- 真机提交 1 次（commit 36e1f05）：钩子跑 `eslint --fix`(15 server 文件) + prettier(17 文件)、过、提交成功；diffstat 每文件 1–12 行、无格式 churn；`git ls-files --eol` 全 `i/lf`。
+- 阻断测试：临时 server 文件塞 unused-var → nano-staged `× eslint --fix` → **Restoring to original state**、退 1（提交会被挡）。
+- 误挡测试：临时 website 文件乱格式 → nano-staged 退 0（prettier 跳过、无 eslint 门禁、不误挡）。
+- frozen-lockfile 校验过（CI `WEBSITE_BUILDER` 不会因 lock staleness 挂）。
+- **本机替代不了**：Docker 内 `prepare` 行为最终由 PR 的 CI 冒烟门禁把关（铁律：PR 开在 main 才触发构建 + `ci-smoke-test.sh`）。

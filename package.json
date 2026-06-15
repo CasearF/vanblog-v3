@@ -30,7 +30,7 @@
   },
   "nano-staged": {
     "packages/server/**/*.ts": "eslint --fix",
-    "*.{js,jsx,ts,tsx,mjs,cjs,json,md,css,scss,less,html,yml,yaml}": "prettier --write --ignore-unknown"
+    "*.{js,jsx,ts,tsx,mjs,cjs,json,css,scss,less,html,yml,yaml}": "prettier --write --ignore-unknown"
   },
   "packageManager": "pnpm@9.15.9",
   "engines": {
