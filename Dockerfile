@@ -69,13 +69,13 @@ RUN pnpm build:website
 #运行容器
 FROM node:22-alpine AS RUNNER
 WORKDIR /app
-# Caddy 钉定 2.6.4(pre-2.7):node:*-alpine 基底升级会把 apk 的 caddy 拉到 2.8+,
-# 而 caddyTemplate.json 用旧 on_demand.ask(2.8 改 on_demand.permission 模块)
-# + 旧 trusted_proxies 数组(2.7 改模块)→ 新 caddy 拒绝加载整份配置 → caddy 退出 → :80 全 000。
-# 直接下载 pin 死的静态二进制,与 Alpine 漂移解耦、配置与 server CaddyProvider 均不用改。
-# Caddy 2.8+ 配置迁移属另案。
+# Caddy 钉定 2.8.4 静态二进制(不走 apk,与 Alpine 漂移解耦、镜像可复现——Tier 1 的教训)。
+# 从 2.6.4 升来:仅 caddyTemplate.json 的 on_demand.ask → on_demand.permission(http 模块)一处改动。
+# trusted_proxies 数组在 2.8 仍是合法格式(源码核实 reverse_proxy.TrustedProxies []string,无需改);
+# server CaddyProvider 不碰 on_demand/trusted_proxies、其 admin API 路径 2.6→2.8 未变,故均不用改。
+# (旧 2.6.4 钉版注释曾把历史 000 归因于 trusted_proxies/ask 拒载——经 2.8.4 源码核实有误,详见 deployment-and-ci-notes.md §11。)
 RUN  apk add --no-cache --update tzdata nss-tools libwebp-tools ca-certificates curl \
-  && curl -fsSL https://github.com/caddyserver/caddy/releases/download/v2.6.4/caddy_2.6.4_linux_amd64.tar.gz -o /tmp/caddy.tar.gz \
+  && curl -fsSL https://github.com/caddyserver/caddy/releases/download/v2.8.4/caddy_2.8.4_linux_amd64.tar.gz -o /tmp/caddy.tar.gz \
   && tar -xzf /tmp/caddy.tar.gz -C /usr/bin caddy \
   && chmod +x /usr/bin/caddy \
   && rm /tmp/caddy.tar.gz \
