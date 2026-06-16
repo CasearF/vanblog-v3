@@ -1519,7 +1519,10 @@
                     }
                 ],
                 "on_demand": {
-                    "ask": "http://127.0.0.1:3000/api/admin/caddy/ask"
+                    "permission": {
+                        "module": "http",
+                        "endpoint": "http://127.0.0.1:3000/api/admin/caddy/ask"
+                    }
                 }
             }
         }

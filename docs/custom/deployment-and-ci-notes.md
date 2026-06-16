@@ -265,3 +265,31 @@
 - 误挡测试：临时 website 文件乱格式 → nano-staged 退 0（prettier 跳过、无 eslint 门禁、不误挡）。
 - frozen-lockfile 校验过（CI `WEBSITE_BUILDER` 不会因 lock staleness 挂）。
 - **本机替代不了**：Docker 内 `prepare` 行为最终由 PR 的 CI 冒烟门禁把关（铁律：PR 开在 main 才触发构建 + `ci-smoke-test.sh`）。
+
+## 11. Caddy 现代化：2.6.4 → 2.8.4 + on_demand.ask → permission（2026-06-16）
+
+> Tier 1 临时把 Caddy 钉在 2.6.4（静态二进制）以规避 Alpine 漂移；本次升到 2.8.4 并迁移配置。
+> 关键：开工前用 Caddy **2.8.4 源码**逐一核实「什么*真的*会让 2.8 拒配置」，推翻了 2.6.4 钉版注释里的归因。
+
+### 源码核实（v2.8.4，非臆测）——三条里只有一条要改
+| 构造 | 旧注释说法 | 2.8.4 源码真相 | 处置 |
+|---|---|---|---|
+| `reverse_proxy.trusted_proxies`（裸 CIDR 数组，×16） | 2.7 改模块、会拒载 | `reverseproxy.go` 仍是 `TrustedProxies []string json:"trusted_proxies,omitempty"`，数组**仍是合法格式** | **不改** |
+| `on_demand.ask`（URL 字符串） | 2.8 改 permission 模块、会拒载 | v2.8.0 release notes：`ask` 仅 **deprecated**（警告，非拒载）；但应迁移 | **迁移**（见下） |
+| `{"module":"zerossl"}` issuer | —（旧注释未提） | `zerosslissuer.go`：`api_key` 是 omitempty、`Provision()` 无缺键校验，只在**签发时**报错；且 ACME 是 issuers 列表首位、zerossl 仅兜底 | **不改** |
+
+**结论：2.6.4 钉版注释把历史「全 000」归因于 trusted_proxies/ask 拒载是错的**——这三条在 2.8.4 都不会让 caddy 拒绝整份配置。真因从未被确认（当时按铁律本该第一时间看 caddy 启动日志，却走了「钉版本 → 重跑 CI」的黑盒二分）。最可能是 apk 拉到了比 2.8.4 更新、`ask` 已被移除的版本，或 apk 的 caddy 包本身（musl/路径）问题——与我们的 JSON 无关。**本次改回钉死的静态二进制（2.8.4）即绕开所有这些 apk 漂移假设。**
+
+### 改了什么
+- `caddyTemplate.json`：唯一一处——`apps.tls.automation.on_demand.ask`（URL 串）→ `on_demand.permission`：`{"module":"http","endpoint":"http://127.0.0.1:3000/api/admin/caddy/ask"}`（`tls.permission.http` 模块，源码核实字段名为 `endpoint`，收到 `?domain=` 查询、返 2xx 放行）。
+- `Dockerfile`：RUNNER 阶段 Caddy 静态二进制下载 `v2.6.4` → `v2.8.4`（仍不走 `apk add caddy`，与 Alpine 漂移解耦），并改正旧注释的归因。
+- **server `CaddyProvider` / `caddy.controller.ts`：零改动**。逐一追了 provider 的全部 admin API 调用（`automation/policies/0/subjects`、`certificates/automate`、`certificates/load_files`、`servers/srv1/listener_wrappers`）——这些路径 2.6→2.8 未变，且 provider 从不读写 `on_demand`/`ask`/`trusted_proxies`；`/ask` 控制器读 `@Query('domain')` 返 2xx/4xx，正是 permission.http 的调用约定。**「provider 要同步改否则 reload 崩」的担忧对本次迁移不成立。**
+
+### 验证
+- 本机用官方 **Caddy 2.8.4 二进制** 跑 `caddy validate`（邮箱占位符填 dummy、`/var/log/*` 与 `/app/admin` 重指到临时路径以避开 Windows 路径假报）→ **`Valid configuration`、EXIT 0**。直接证明迁移后的配置在 2.8.4 能加载/provision、不会重演「配置拒载 → :80 全 000」。这正是上次缺的那步实测。
+- caddyTemplate.json 在 `.prettierignore` 内，nano-staged 不会重排；`node -e JSON.parse` 通过。
+
+### 仍需 PR / 线上把关（本机替代不了）
+1. PR 触发 CI 冒烟：2.8.4 多阶段镜像构建 + `ci-smoke-test.sh` 起容器断言端点（铁律：PR 开在 main 才触发）。
+2. 线上 live-verify：`casear.net`（公网 HTTPS）按需证书签发仍正常（permission.http 端点放行域名、驳回纯 IP）；**这次务必抓一份 `/var/log/caddy.log` 或 `caddy` stderr 存档**，给历史 000 真因补上证据。
+3. 内网站（192.168.236.81，纯 HTTP）不碰 TLS 自动化，预期零影响。
